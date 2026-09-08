@@ -308,7 +308,7 @@
   }
   .error-banner svg{width:18px;height:18px;color:var(--danger);flex-shrink:0;margin-top:1px;}
   .error-banner .eb-title{font-weight:700;margin-bottom:3px;}
-  .error-banner .eb-desc{color:var(--text-dim);font-size:0.82rem;line-height:1.6;}
+  .error-banner .eb-desc{color:var(--text-dim);font-size:0.82rem;line-height:1.6;white-space:pre-wrap;word-break:break-word;}
   .error-banner .eb-retry{
     margin-left:auto;flex-shrink:0;background:var(--surface2);border:1px solid var(--line);color:var(--text);
     border-radius:7px;padding:7px 13px;font-size:0.8rem;font-weight:600;cursor:pointer;
@@ -941,6 +941,21 @@
   let file = null;
   let ffmpeg = null;
   let ffmpegInputReady = false; // ffmpeg仮想FSに input.mp4 を書き込み済みか
+  // ffmpeg.wasm本体が吐く実際のstderr/stdoutを直近分だけ保持しておくバッファ。
+  // 「Program terminated with exit(1)」のような、ffmpeg.run()が投げる例外の
+  // message自体には具体的な失敗理由(未対応オプション・フィルタ構文エラー・
+  // ストリームが見つからない等)が含まれないことが多い。実際の理由は
+  // setLoggerで拾えるffmpeg内部ログの方に出るため、ここに溜めておき、
+  // エラーバナー表示時に末尾を一緒に見せることで、開発者ツールを開かなくても
+  // 依頼者からのスクリーンショット報告だけで原因を特定できるようにする。
+  let ffmpegLogBuffer = [];
+  function pushFfmpegLog(message){
+    ffmpegLogBuffer.push(String(message));
+    if (ffmpegLogBuffer.length > 40) ffmpegLogBuffer.shift();
+  }
+  function ffmpegLogTail(n){
+    return ffmpegLogBuffer.slice(-n).join('\n');
+  }
   let activePreset = null;
   let clips = [];           // {startSec,endSec,lenSec,score,croppedFile,croppedUrl,chunks}
 
@@ -1273,6 +1288,7 @@
       if (preset.coreType === 'single') opts.mainName = 'main';
       ffmpeg = createFFmpeg(opts);
       ffmpeg.__coreType = preset.coreType;
+      if (ffmpeg.setLogger) ffmpeg.setLogger(({ message }) => pushFfmpegLog(message));
       await ffmpeg.load();
       if (ffmpeg.setProgress) ffmpeg.setProgress(({ ratio }) => { ffmpegRatio = (typeof ratio === 'number' && isFinite(ratio)) ? ratio : 0; });
       ffmpegInputReady = false;
@@ -1301,20 +1317,49 @@
   // 呼び出しが重なりうる。呼び出し元がいくつあっても実行が確実に
   // 1つずつ順番になるよう、共有のキュー(Promiseチェーン)に通してから
   // 実行するようにした。
+  //
+  // 追加修正2: 同じ不安定バグが、例外を投げずに「run()自体は正常終了したのに
+  // 出力ファイルが生成されない」という形で出ることも確認された(呼び出し元が
+  // 直後に`ffmpeg.FS('readFile', 出力ファイル名)`をすると
+  // 「Check if the path exists」エラーになる)。outputNameを渡された場合は
+  // run()成功後に出力ファイルの存在も確認し、無ければ同じ「読み込み直して
+  // 1回だけ再試行」の対象として扱う。
   let ffmpegQueue = Promise.resolve();
-  async function runFfmpegSafe(preset, args){
+  async function runFfmpegSafe(preset, args, outputName){
+    const attempt = async () => {
+      await ffmpeg.run(...args);
+      if (outputName){
+        try { ffmpeg.FS('readFile', outputName); }
+        catch (readErr) {
+          throw new Error(`ffmpeg実行は例外を投げずに終わったが、出力ファイル(${outputName})が生成されなかった`);
+        }
+      }
+    };
     const runOnce = async () => {
       try {
-        await ffmpeg.run(...args);
+        await attempt();
       } catch (runErr) {
         const runMsg = String(runErr?.message || runErr);
-        if (/exit\(0\)|ExitStatus|can only run one command at a time/i.test(runMsg)){
+        if (/exit\(0\)|ExitStatus|can only run one command at a time|出力ファイル.*生成されなかった/i.test(runMsg)){
           log(`ffmpeg.wasmが不安定な状態になったため、読み込み直して再試行します(${runMsg})`);
           ffmpeg = null;
           ffmpegInputReady = false;
           await ensureFfmpegLoaded(preset);
-          await ffmpeg.run(...args);
+          try {
+            await attempt();
+          } catch (retryErr) {
+            const tail = ffmpegLogTail(8);
+            if (tail) retryErr.message = `${retryErr.message || retryErr}\n[ffmpegログ末尾]\n${tail}`;
+            throw retryErr;
+          }
         } else {
+          // exit(0)系の既知の不安定挙動ではない=ffmpegコマンド自体が本当に
+          // 失敗している可能性が高いケース。runErr.messageだけでは
+          // 「Program terminated with exit(1)」のような中身のない文言にしか
+          // ならないことが多いので、ffmpeg内部ログの直近数行を理由欄として
+          // 付け足してから投げ直す(画面のエラーバナーにそのまま表示される)。
+          const tail = ffmpegLogTail(8);
+          if (tail) runErr.message = `${runErr.message || runErr}\n[ffmpegログ末尾]\n${tail}`;
           throw runErr;
         }
       }
@@ -1335,7 +1380,7 @@
     const outName = 'snippet.wav';
     try { ffmpeg.FS('unlink', outName); } catch (e) { /* まだ無ければ無視 */ }
     const args = ['-ss', coarse.toFixed(2), '-i', 'input.mp4', '-ss', remainder.toFixed(2), '-t', Math.max(0.1, lenSec).toFixed(2), '-vn', '-ac', '1', '-ar', '16000', outName];
-    await runFfmpegSafe(preset || activePreset || getSelectedPreset(), args);
+    await runFfmpegSafe(preset || activePreset || getSelectedPreset(), args, outName);
     const data = ffmpeg.FS('readFile', outName);
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const decoded = await audioCtx.decodeAudioData(data.buffer.slice(0));
@@ -1776,7 +1821,7 @@
         const args = ['-ss', w.startSec.toFixed(2), '-i', 'input.mp4', '-t', lenSec.toFixed(2), '-vf', vf, '-c:v', 'libx264', '-preset', preset.preset, '-crf', String(preset.crf)];
         if (preset.coreType === 'multi') args.push('-threads', String(preset.threads));
         args.push('-c:a', 'aac', outName);
-        await runFfmpegSafe(preset, args);
+        await runFfmpegSafe(preset, args, outName);
       } finally { stopProgress(waveProgressFill); }
       log(`クリップ${i+1}切り出し完了: ${((performance.now()-t0)/1000).toFixed(1)}秒`, true);
 
@@ -2057,7 +2102,7 @@
         args.push('-c:v', 'libx264', '-preset', preset.preset, '-crf', String(preset.crf));
         if (preset.coreType === 'multi') args.push('-threads', String(preset.threads));
         args.push('-c:a', 'copy', outName);
-        await runFfmpegSafe(preset, args);
+        await runFfmpegSafe(preset, args, outName);
       } finally { stopProgress(burnProgressFill); }
       log(`クリップ${i+1}焼き込み完了: ${((performance.now()-t0)/1000).toFixed(1)}秒`, true);
 

@@ -1324,9 +1324,22 @@
   // 「Check if the path exists」エラーになる)。outputNameを渡された場合は
   // run()成功後に出力ファイルの存在も確認し、無ければ同じ「読み込み直して
   // 1回だけ再試行」の対象として扱う。
+  // 追加修正3: 上記の「読み込み直し」はffmpegインスタンスの仮想ファイル
+  // システムを丸ごと作り直すため、input.mp4以外にFS上に置いていた中間
+  // ファイル(例: 書き出し時に`-i`で読む切り抜き済みクリップcropped_N.mp4)は
+  // 消えてしまう。inputFilesに{name, data}の配列を渡すと、run()を試みる
+  // 直前(初回・読み込み直し後の再試行の両方)に必ずFSへ書き直してから
+  // 実行するようにし、読み込み直しで中間ファイルが消えたことによる
+  // 「入力ファイルが見つからない」という別の失敗を防ぐ。
   let ffmpegQueue = Promise.resolve();
-  async function runFfmpegSafe(preset, args, outputName){
+  async function runFfmpegSafe(preset, args, outputName, inputFiles){
+    const restoreInputFiles = () => {
+      (inputFiles || []).forEach(({ name, data }) => {
+        try { ffmpeg.FS('writeFile', name, data); } catch (e) { /* 書き直せなければ後段のrun()側で失敗が顕在化する */ }
+      });
+    };
     const attempt = async () => {
+      restoreInputFiles();
       await ffmpeg.run(...args);
       if (outputName){
         try { ffmpeg.FS('readFile', outputName); }
@@ -1828,7 +1841,12 @@
       const data = ffmpeg.FS('readFile', outName);
       const blob = new Blob([data.buffer], { type: 'video/mp4' });
       const url = URL.createObjectURL(blob);
-      const clip = { startSec: w.startSec, endSec: w.endSec, lenSec, score, croppedFile: outName, croppedUrl: url, chunks: [] };
+      // ffmpegインスタンスが後で(不安定挙動検知による)読み込み直しの対象に
+      // なると、仮想ファイルシステムごと初期化されてこのcropped_N.mp4は
+      // 消えてしまう。書き出し(STEP4)は後からこのファイルを`-i`で読むため、
+      // 消えても復元できるようバイト列自体をJS側(clip.croppedData)にも
+      // 保持しておく。data.slice()でWASM側のメモリから独立したコピーを取る。
+      const clip = { startSec: w.startSec, endSec: w.endSec, lenSec, score, croppedFile: outName, croppedData: data.slice(), croppedUrl: url, chunks: [] };
       clips.push(clip);
 
       const card = document.createElement('div');
@@ -2102,7 +2120,7 @@
         args.push('-c:v', 'libx264', '-preset', preset.preset, '-crf', String(preset.crf));
         if (preset.coreType === 'multi') args.push('-threads', String(preset.threads));
         args.push('-c:a', 'copy', outName);
-        await runFfmpegSafe(preset, args, outName);
+        await runFfmpegSafe(preset, args, outName, [{ name: clip.croppedFile, data: clip.croppedData }]);
       } finally { stopProgress(burnProgressFill); }
       log(`クリップ${i+1}焼き込み完了: ${((performance.now()-t0)/1000).toFixed(1)}秒`, true);
 

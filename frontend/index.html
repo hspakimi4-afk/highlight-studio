@@ -10,12 +10,12 @@
 <meta property="og:title" content="Highlight Studio — 配信の切り抜きを、ブラウザだけで。">
 <meta property="og:description" content="盛り上がりを自動検出して縦動画・横動画・字幕まで自動で仕上げる、ブラウザ完結の切り抜きツール。動画は一度も外部に送信されません。">
 <meta property="og:image" content="https://highlight-studio.example.com/ogp.png">
-<meta property="og:url" content="https://highlight-studio.example.com/highlight-studio-01-landing.html">
+<meta property="og:url" content="https://highlight-studio.example.com/index.html">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Highlight Studio — 配信の切り抜きを、ブラウザだけで。">
 <meta name="twitter:description" content="盛り上がりを自動検出して縦動画・横動画・字幕まで自動で仕上げる、ブラウザ完結の切り抜きツール。">
 <meta name="twitter:image" content="https://highlight-studio.example.com/ogp.png">
-<link rel="canonical" href="https://highlight-studio.example.com/highlight-studio-01-landing.html">
+<link rel="canonical" href="https://highlight-studio.example.com/index.html">
 <meta name="theme-color" content="#07080C">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'%3E%3Crect x='2' y='11' width='3' height='6' rx='1' fill='%235A6373'/%3E%3Crect x='7' y='6' width='3' height='16' rx='1' fill='%238891A0'/%3E%3Crect x='12' y='9' width='3' height='10' rx='1' fill='%23E8B84B'/%3E%3Crect x='17' y='4' width='3' height='20' rx='1' fill='%238891A0'/%3E%3Crect x='22' y='12' width='2' height='4' rx='1' fill='%235A6373'/%3E%3C/svg%3E">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
@@ -420,7 +420,7 @@
 </div>
 
 <header>
-  <a class="brand" href="./highlight-studio-01-landing.html" style="text-decoration:none;color:inherit;">
+  <a class="brand" href="./index.html" style="text-decoration:none;color:inherit;">
     <svg class="brand-mark" viewBox="0 0 26 26" fill="none">
       <rect x="2" y="11" width="3" height="6" rx="1" fill="#5A6373"/>
       <rect x="7" y="6" width="3" height="16" rx="1" fill="#8891A0"/>
@@ -736,7 +736,7 @@
 
   // ロゴ(左上のタイトル)クリック時の遷移先: 未ログインならトップ、ログイン済みならアプリ本体
   const brandLink = document.querySelector('.brand');
-  if (brandLink) brandLink.href = isLoggedIn ? './highlight-studio-03-app.html' : './highlight-studio-01-landing.html';
+  if (brandLink) brandLink.href = isLoggedIn ? './highlight-studio-03-app.html' : './index.html';
 
   if(isLoggedIn){
     document.getElementById('loginBtn').style.display = 'none';

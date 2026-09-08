@@ -947,7 +947,7 @@ window.HS_I18N_DICT = {
     localStorage.removeItem('hs_exportMonth');
     localStorage.removeItem('hs_exportCount');
     sessionStorage.setItem('hs_accountDeleted', '1');
-    window.location.href = './highlight-studio-01-landing.html';
+    window.location.href = './index.html';
   });
 
   // Escapeキーで開いているモーダルを閉じる
@@ -977,7 +977,7 @@ window.HS_I18N_DICT = {
   // ロゴ(左上のタイトル)クリック時の遷移先: 未ログインならトップ、ログイン済みならアプリ本体
   (function(){
     var brandLink = document.querySelector("header .brand");
-    if (brandLink) brandLink.href = (localStorage.getItem("hs_loggedIn") === "1") ? "./highlight-studio-03-app.html" : "./highlight-studio-01-landing.html";
+    if (brandLink) brandLink.href = (localStorage.getItem("hs_loggedIn") === "1") ? "./highlight-studio-03-app.html" : "./index.html";
   })();
 </script>
 </body>

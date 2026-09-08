@@ -216,7 +216,7 @@
 <body>
 
 <header>
-  <a class="brand" href="./highlight-studio-01-landing.html" style="text-decoration:none;color:inherit;">
+  <a class="brand" href="./index.html" style="text-decoration:none;color:inherit;">
     <svg class="brand-mark" viewBox="0 0 26 26" fill="none">
       <rect x="2" y="11" width="3" height="6" rx="1" fill="#5A6373"/>
       <rect x="7" y="6" width="3" height="16" rx="1" fill="#8891A0"/>
@@ -226,7 +226,7 @@
     </svg>
     <div class="brand-name">Highlight <b>Studio</b></div>
   </a>
-  <a class="back-link" href="./highlight-studio-01-landing.html">
+  <a class="back-link" href="./index.html">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
     <span data-i18n="auth.backToTop">トップに戻る</span>
   </a>
@@ -533,7 +533,7 @@
   // ロゴ(左上のタイトル)クリック時の遷移先: 未ログインならトップ、ログイン済みならアプリ本体
   (function(){
     const brandLink = document.querySelector('header .brand');
-    if (brandLink) brandLink.href = (localStorage.getItem('hs_loggedIn') === '1') ? './highlight-studio-03-app.html' : './highlight-studio-01-landing.html';
+    if (brandLink) brandLink.href = (localStorage.getItem('hs_loggedIn') === '1') ? './highlight-studio-03-app.html' : './index.html';
   })();
 </script>
 <script src="./i18n-common.js"></script>

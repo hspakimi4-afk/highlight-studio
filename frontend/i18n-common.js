@@ -27,5 +27,6 @@ window.HS_I18N_COMMON = {
   "common.footerPrivacy": { ja: "プライバシー", en: "Privacy" },
   "common.footerPrivacyFull": { ja: "プライバシーポリシー", en: "Privacy Policy" },
   "common.footerContact": { ja: "お問い合わせ", en: "Contact" },
-  "common.footerCopyright": { ja: "© 2026 HighlightStudio", en: "© 2026 HighlightStudio" }
+  "common.footerCopyright": { ja: "© 2026 HighlightStudio", en: "© 2026 HighlightStudio" },
+  "common.prereleaseBadge": { ja: "プレリリース", en: "Pre-release" }
 };

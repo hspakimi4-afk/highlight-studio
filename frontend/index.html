@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Highlight Studio — 配信の切り抜きを、ブラウザだけで。</title>
+<title>【プレリリース】Highlight Studio — 配信の切り抜きを、ブラウザだけで。</title>
 <meta name="description" content="配信アーカイブから盛り上がりを自動検出し、縦動画・横動画・字幕まで一気に仕上げるブラウザ完結の切り抜きツール。動画は一度もサーバーに送信されません。">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Highlight Studio">
-<meta property="og:title" content="Highlight Studio — 配信の切り抜きを、ブラウザだけで。">
+<meta property="og:title" content="【プレリリース】Highlight Studio — 配信の切り抜きを、ブラウザだけで。">
 <meta property="og:description" content="盛り上がりを自動検出して縦動画・横動画・字幕まで自動で仕上げる、ブラウザ完結の切り抜きツール。動画は一度も外部に送信されません。">
 <meta property="og:image" content="https://highlight-studio.vercel.app/ogp.png">
 <meta property="og:url" content="https://highlight-studio.vercel.app/index.html">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Highlight Studio — 配信の切り抜きを、ブラウザだけで。">
+<meta name="twitter:title" content="【プレリリース】Highlight Studio — 配信の切り抜きを、ブラウザだけで。">
 <meta name="twitter:description" content="盛り上がりを自動検出して縦動画・横動画・字幕まで自動で仕上げる、ブラウザ完結の切り抜きツール。">
 <meta name="twitter:image" content="https://highlight-studio.vercel.app/ogp.png">
 <link rel="canonical" href="https://highlight-studio.vercel.app/index.html">
@@ -94,6 +94,8 @@
   .brand-mark{width:26px;height:26px;flex-shrink:0;filter:drop-shadow(0 2px 6px rgba(232,184,75,.25));}
   .brand-name{font-size:1.02rem;font-weight:700;letter-spacing:0.01em;}
   .brand-name b{color:var(--accent);font-weight:700;}
+  /* プレリリース版であることを示すバッジ。通常版へ切り替える際はこの要素ごと削除する */
+  .prerelease-badge{display:inline-block;margin-left:8px;padding:2px 8px;font-size:0.66rem;font-weight:700;letter-spacing:0.03em;color:#E8B84B;background:rgba(232,184,75,0.14);border:1px solid rgba(232,184,75,0.4);border-radius:999px;vertical-align:middle;white-space:nowrap;}
   .nav-right{display:flex;align-items:center;gap:22px;}
   .lang-toggle{background:none;border:1px solid var(--line);color:var(--text-dim);font-family:var(--sans);font-size:0.78rem;border-radius:6px;padding:6px 12px;cursor:pointer;}
   .lang-toggle:hover{color:var(--text);border-color:var(--line-strong);}
@@ -442,7 +444,7 @@
 <body>
 
 <div class="retro-counter retro-counter-top" id="retroCounterTop" hidden>
-  <span class="retro-counter-label" data-i18n="landing.retroCounterLabel">このブラウザでの累計アクセス</span>
+  <span class="retro-counter-label" data-i18n="landing.retroCounterLabel">累計アクセス</span>
   <span class="retro-counter-digits" aria-live="polite"></span>
   <span class="retro-counter-unit" data-i18n="landing.retroCounterUnit">回</span>
 </div>
@@ -462,6 +464,7 @@
       <rect x="22" y="12" width="2" height="4" rx="1" fill="#5A6373"/>
     </svg>
     <div class="brand-name">Highlight <b>Studio</b></div>
+    <span class="prerelease-badge" data-i18n="common.prereleaseBadge">プレリリース</span>
   </a>
   <div class="nav-right">
     <nav class="nav-links">
@@ -713,7 +716,7 @@
       </div>
     </div>
     <div class="retro-counter" id="retroCounter" hidden>
-      <span class="retro-counter-label" data-i18n="landing.retroCounterLabel">このブラウザでの累計アクセス</span>
+      <span class="retro-counter-label" data-i18n="landing.retroCounterLabel">累計アクセス</span>
       <span class="retro-counter-digits" aria-live="polite"></span>
       <span class="retro-counter-unit" data-i18n="landing.retroCounterUnit">回</span>
     </div>
@@ -764,7 +767,7 @@
 <script>
 window.HS_I18N_DICT = {
   "pricing.finalHeading": { ja: "次の切り抜きを、今すぐ自動で。", en: "Automate your next clip, right now." },
-  "landing.retroCounterLabel": { ja: "このブラウザでの累計アクセス", en: "Total visits from this browser" },
+  "landing.retroCounterLabel": { ja: "累計アクセス", en: "Total visits" },
   "landing.retroCounterUnit": { ja: "回", en: "visits" },
   "landing.eyebrow": { ja: "インストール不要・ブラウザだけで完結", en: "No install — runs entirely in your browser" },
   "landing.heroTitle": { ja: "配信のアーカイブから、<br>伸びる<span class=\"accentline\">切り抜き</span>を自動で。", en: "Turn your stream archive into<br><span class=\"accentline\">clips that grow your channel</span> — automatically." },
@@ -830,17 +833,34 @@ window.HS_I18N_DICT = {
 <script src="./i18n.js"></script>
 <script>
   // 昔ながらの「累計アクセスカウンター」。
-  // 以前は外部カウンターAPI(countapi.xyz、登録不要)にヒットを記録・取得していたが、
-  // countapi.xyzは既にサービス終了しており(2026-09時点で名前解決すら失敗する)、
-  // 取得が常に失敗して要素が永久に非表示になっていたため、外部サービスへの依存をやめ、
-  // このブラウザ内(localStorage)だけで完結するカウンターに変更した。
-  // バックエンドを持たない静的サイトである以上「サイト全体の累計」を正確に数えることは
-  // できないため、ラベルも「このブラウザでの累計アクセス」に変更している(landing.retroCounterLabel参照)。
+  // 以前は外部カウンターAPI(countapi.xyz、登録不要)を使っていたがサービス終了で
+  // 常に取得失敗→非表示のままになっていたため、一度は「このブラウザ内(localStorage)
+  // だけで完結するカウンター」に置き換えた。しかしそれだと(1)ブラウザが変わると
+  // 数字が0に戻る、(2)index.htmlを差し替えるたびに数字がリセットされるという
+  // 問題は解決しないままだった。
+  //
+  // 今回は、ファイルの中身に数字を保存するのではなく、外部の無料カウンターAPI
+  // (countapi.mileshilliard.com。登録・APIキー不要、countapi.xyzの後継として
+  // 稼働している)に「サイト固有のキー」で数値を持たせる方式に変更した。
+  // 数字はこのAPI側に保存されるため、index.html(このファイル自体)を後で
+  // 書き換えたり、プレリリース版を通常版に差し替えたりしても、
+  // 下記 COUNTER_KEY を変えない限り数字は引き継がれ、増え続ける。
+  //
+  // 【重要】COUNTER_KEY は今後絶対に変更しないこと。変更すると別のカウンターとして
+  // 扱われ、数字が1からになる(プレリリース→通常版の差し替え時も同じ値のまま使うこと)。
+  //
+  // なお、このAPIも将来的にサービス終了する可能性はゼロではない(countapi.xyzの
+  // 前例があるため)。その場合に備えて、取得に失敗したときは以前と同じ
+  // 「このブラウザ内だけの参考カウンター(localStorage)」に自動でフォールバックし、
+  // 表示自体が消えてしまうことは避けるようにしている。
+  //
   // ページ上部(ヘッダー手前)とフッターの2箇所に同じカウンターを表示するため、
   // .retro-counter を持つ要素すべてに同じ値を反映する。
   (function(){
     const counters = document.querySelectorAll('.retro-counter');
-    const CACHE_KEY = 'hs_retro_counter_local_visits';
+    const COUNTER_KEY = 'highlight_studio_site_total_visits'; // 変更禁止(上記コメント参照)
+    const COUNTER_API_HIT_URL = 'https://countapi.mileshilliard.com/api/v1/hit/' + COUNTER_KEY;
+    const LOCAL_FALLBACK_KEY = 'hs_retro_counter_local_visits';
 
     function renderDigits(value){
       const str = String(Math.max(0, Math.floor(value))).padStart(6, '0');
@@ -856,11 +876,29 @@ window.HS_I18N_DICT = {
       });
     }
 
-    let count = Number(localStorage.getItem(CACHE_KEY) || 0);
-    if (!Number.isFinite(count) || count < 0) count = 0;
-    count += 1;
-    localStorage.setItem(CACHE_KEY, String(count));
-    renderDigits(count);
+    function renderFromLocalFallback(){
+      let count = Number(localStorage.getItem(LOCAL_FALLBACK_KEY) || 0);
+      if (!Number.isFinite(count) || count < 0) count = 0;
+      count += 1;
+      localStorage.setItem(LOCAL_FALLBACK_KEY, String(count));
+      renderDigits(count);
+    }
+
+    fetch(COUNTER_API_HIT_URL)
+      .then((res) => {
+        if (!res.ok) throw new Error('counter api response not ok');
+        return res.json();
+      })
+      .then((data) => {
+        const value = Number(data && data.value);
+        if (!Number.isFinite(value)) throw new Error('counter api returned invalid value');
+        renderDigits(value);
+      })
+      .catch(() => {
+        // サイト全体カウンターAPIに届かない場合、無表示のままにせず
+        // このブラウザだけの参考カウンターにフォールバックする
+        renderFromLocalFallback();
+      });
   })();
 </script>
 </body>

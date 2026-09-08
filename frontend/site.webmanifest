@@ -1,0 +1,13 @@
+{
+  "name": "Highlight Studio",
+  "short_name": "Highlight Studio",
+  "description": "配信アーカイブから盛り上がりを自動検出し、縦動画・横動画・字幕まで一気に仕上げるブラウザ完結の切り抜きツール。",
+  "start_url": "./highlight-studio-01-landing.html",
+  "display": "standalone",
+  "background_color": "#07080C",
+  "theme_color": "#07080C",
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

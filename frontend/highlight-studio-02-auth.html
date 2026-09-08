@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Highlight Studio — ログイン / アカウント作成</title>
+<meta name="description" content="Highlight Studioにログイン、またはアカウントを作成して配信の切り抜きを自動化しましょう。">
+<meta name="theme-color" content="#07080C">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'%3E%3Crect x='2' y='11' width='3' height='6' rx='1' fill='%235A6373'/%3E%3Crect x='7' y='6' width='3' height='16' rx='1' fill='%238891A0'/%3E%3Crect x='12' y='9' width='3' height='10' rx='1' fill='%23E8B84B'/%3E%3Crect x='17' y='4' width='3' height='20' rx='1' fill='%238891A0'/%3E%3Crect x='22' y='12' width='2' height='4' rx='1' fill='%235A6373'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+<link rel="manifest" href="./site.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Highlight Studio">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:locale:alternate" content="en_US">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#07080C;
+    --surface:#0E1119;
+    --surface2:#161A24;
+    --surface3:#1D2230;
+    --line:rgba(255,255,255,.08);
+    --line-soft:rgba(255,255,255,.05);
+    --line-strong:rgba(255,255,255,.14);
+    --text:#EDEFF2;
+    --text-dim:#8891A0;
+    --text-faint:#7E88A0;
+    --accent:#E8B84B;
+    --accent-hi:#F3CA6C;
+    --accent-soft:#3A331F;
+    --accent-line:#5C4E28;
+    --live:#4FD1C5;
+    --live-soft:#152B2A;
+    --danger:#E2685A;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+    --shadow-md:0 1px 1px rgba(0,0,0,.5), 0 16px 32px -16px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.03);
+    --shadow-lg:0 2px 4px rgba(0,0,0,.5), 0 28px 56px -20px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);
+    --shadow-card:0 1px 0 rgba(255,255,255,.02) inset, 0 20px 40px -24px rgba(0,0,0,.85);
+    --card-border:linear-gradient(160deg, rgba(255,255,255,.10), rgba(255,255,255,.02) 40%, rgba(255,255,255,.02) 60%, rgba(255,255,255,.06));
+    --ease:cubic-bezier(.25,.8,.4,1);
+    --sans:'Noto Sans JP',-apple-system,'Hiragino Sans',sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;}
+  @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    color-scheme:dark;background:var(--bg);color:var(--text);font-family:var(--sans);
+    line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+    min-height:100vh;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -10%, rgba(232,184,75,0.06), transparent 60%),
+      radial-gradient(ellipse 700px 400px at 100% 90%, rgba(79,209,197,0.04), transparent 60%);
+    pointer-events:none;
+  }
+  body::after{
+    content:'';position:fixed;inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+    opacity:.025;mix-blend-mode:overlay;pointer-events:none;
+  }
+  a{color:var(--accent);text-decoration:none;}
+  button, input{font:inherit;}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px;}
+
+  header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 28px;border-bottom:1px solid var(--line-soft);
+    position:relative;z-index:5;
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{width:26px;height:26px;flex-shrink:0;filter:drop-shadow(0 2px 6px rgba(232,184,75,.25));}
+  .brand-name{font-size:1.02rem;font-weight:700;letter-spacing:0.01em;}
+  .brand-name b{color:var(--accent);font-weight:700;}
+  .back-link{display:flex;align-items:center;gap:6px;color:var(--text-dim);font-size:0.85rem;transition:color .15s ease;}
+  .back-link:hover{color:var(--text);}
+  .back-link svg{width:15px;height:15px;}
+  .lang-toggle{background:none;border:1px solid var(--line);color:var(--text-dim);font-family:var(--sans);font-size:0.78rem;border-radius:6px;padding:6px 12px;cursor:pointer;margin-left:14px;}
+  .lang-toggle:hover{color:var(--text);border-color:var(--line-strong);}
+
+  .auth-wrap{
+    position:relative;z-index:1;
+    min-height:calc(100vh - 66px);
+    display:flex;align-items:center;justify-content:center;
+    padding:40px 20px;
+  }
+  .auth-shell{
+    width:100%;max-width:900px;display:grid;grid-template-columns:1fr 1fr;
+    border-radius:18px;overflow:hidden;box-shadow:var(--shadow-card);
+    border:1px solid var(--line);position:relative;
+  }
+  .auth-shell::before{
+    content:'';position:absolute;inset:0;border-radius:18px;padding:1px;pointer-events:none;
+    background:var(--card-border);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;
+  }
+  .auth-visual{
+    background:linear-gradient(165deg,var(--surface2),var(--surface) 65%);
+    padding:44px 40px;display:flex;flex-direction:column;justify-content:space-between;
+    position:relative;overflow:hidden;
+  }
+  .auth-visual::before{
+    content:'';position:absolute;inset:-40px;z-index:0;
+    background:radial-gradient(ellipse 260px 220px at 30% 20%, rgba(232,184,75,.10), transparent 60%),
+      radial-gradient(ellipse 220px 220px at 90% 90%, rgba(79,209,197,.08), transparent 60%);
+  }
+  .auth-visual > *{position:relative;z-index:1;}
+  .auth-visual .brand{margin-bottom:40px;}
+  .auth-visual h2{font-size:1.4rem;font-weight:700;line-height:1.5;margin:0 0 28px;letter-spacing:-.005em;}
+  .auth-visual h2 b{color:var(--accent);}
+  .auth-perk{display:flex;align-items:flex-start;gap:12px;margin-bottom:18px;font-size:0.86rem;color:var(--text-dim);line-height:1.6;}
+  .auth-perk svg{width:18px;height:18px;color:var(--live);flex-shrink:0;margin-top:1px;}
+  .auth-visual-quote{
+    background:rgba(0,0,0,.2);border:1px solid var(--line-soft);border-radius:12px;padding:18px 20px;
+    font-size:0.82rem;color:var(--text-faint);line-height:1.7;margin-top:auto;
+  }
+  @media(max-width:820px){
+    .auth-shell{grid-template-columns:1fr;max-width:420px;}
+    .auth-visual{display:none;}
+  }
+
+  .auth-card-col{
+    background:linear-gradient(180deg,var(--surface),var(--surface) 60%,var(--surface2));
+    padding:40px 38px 34px;
+  }
+  .auth-tabs{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--surface2);margin-bottom:26px;}
+  .auth-tab{
+    flex:1;background:transparent;color:var(--text-dim);border:none;
+    font-family:var(--sans);font-size:0.87rem;font-weight:600;padding:11px 8px;cursor:pointer;
+    border-right:1px solid var(--line);transition:background .15s ease,color .15s ease;
+  }
+  .auth-tab:last-child{border-right:none;}
+  .auth-tab:hover:not(.selected){background:var(--surface3);color:var(--text);}
+  .auth-tab.selected{background:var(--surface);color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent-line);}
+
+  .auth-title{font-size:1.28rem;font-weight:700;margin:0 0 6px;letter-spacing:-.005em;}
+  .auth-sub{color:var(--text-dim);font-size:0.85rem;margin:0 0 26px;}
+
+  .field{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+  .field label{font-size:0.82rem;color:var(--text-dim);font-weight:500;}
+  .field input[type=text],.field input[type=email],.field input[type=password]{
+    background:var(--surface2);border:1px solid var(--line);color:var(--text);
+    border-radius:8px;padding:11px 13px;font-family:var(--sans);font-size:0.9rem;
+    transition:border-color .15s ease,background .15s ease;
+  }
+  .field input:focus{border-color:var(--accent-line);background:var(--surface3);outline:none;}
+  .field-note{font-size:0.75rem;color:var(--text-faint);margin-top:2px;line-height:1.5;}
+  .field-error{font-size:0.75rem;color:var(--danger);margin-top:2px;display:none;}
+  .field.error input{border-color:var(--danger);}
+  .field.error .field-error{display:block;}
+
+  .pw-row{position:relative;}
+  .pw-toggle{
+    position:absolute;right:9px;top:50%;transform:translateY(-50%);
+    background:transparent;border:none;color:var(--text-faint);cursor:pointer;
+    padding:5px;display:flex;border-radius:5px;transition:color .15s ease;
+  }
+  .pw-toggle:hover{color:var(--text-dim);}
+  .pw-toggle svg{width:17px;height:17px;}
+
+  .row-between{display:flex;align-items:center;justify-content:space-between;margin:2px 0 22px;font-size:0.82rem;}
+  .checkbox-line{display:flex;align-items:center;gap:8px;color:var(--text-dim);}
+  .checkbox-line input{accent-color:var(--accent);width:15px;height:15px;}
+  .link-muted{color:var(--text-dim);transition:color .15s ease;}
+  .link-muted:hover{color:var(--accent);}
+
+  .btn{
+    width:100%;font-family:var(--sans);font-size:0.92rem;font-weight:600;border:none;
+    border-radius:9px;padding:12px 20px;cursor:pointer;
+    transition:transform .12s var(--ease),box-shadow .12s ease,background .15s ease,opacity .15s ease;
+  }
+  .btn-primary{
+    background:linear-gradient(180deg,var(--accent-hi),var(--accent));color:#1A1400;
+    box-shadow:0 1px 1px rgba(0,0,0,.3), 0 8px 20px -8px rgba(232,184,75,.35), inset 0 1px 0 rgba(255,255,255,.35), inset 0 -1px 1px rgba(0,0,0,.12);
+  }
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 2px 2px rgba(0,0,0,.3), 0 10px 24px -6px rgba(232,184,75,.5), inset 0 1px 0 rgba(255,255,255,.4), inset 0 -1px 1px rgba(0,0,0,.12);}
+  .btn-primary:active{transform:translateY(0);}
+
+  .divider{display:flex;align-items:center;gap:12px;margin:22px 0;color:var(--text-faint);font-size:0.78rem;}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--line);}
+
+  .btn-oauth{
+    width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
+    background:var(--surface2);color:var(--text);border:1px solid var(--line);
+    border-radius:9px;padding:11px 16px;font-size:0.88rem;font-weight:500;cursor:pointer;
+    transition:background .15s ease,border-color .15s ease;margin-bottom:10px;
+  }
+  .btn-oauth:hover{background:var(--surface3);border-color:var(--text-faint);}
+  .btn-oauth svg{width:17px;height:17px;flex-shrink:0;}
+
+  .auth-footer-note{text-align:center;font-size:0.82rem;color:var(--text-dim);margin-top:22px;}
+  .terms-note{text-align:center;font-size:0.74rem;color:var(--text-faint);margin-top:18px;line-height:1.6;}
+
+  .form-view{display:none;}
+  .form-view.active{display:block;animation:fadein .25s var(--ease);}
+  .note-box{
+    display:flex;gap:10px;align-items:flex-start;background:var(--surface2);border:1px solid var(--line);
+    border-radius:10px;padding:14px 16px;font-size:0.82rem;color:var(--text-dim);line-height:1.6;
+  }
+  .note-box svg{color:var(--accent);margin-top:2px;}
+  @keyframes fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+  @media(max-width:480px){
+    header{padding:14px 18px;}
+    .auth-card-col{padding:28px 22px 24px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <svg class="brand-mark" viewBox="0 0 26 26" fill="none">
+      <rect x="2" y="11" width="3" height="6" rx="1" fill="#5A6373"/>
+      <rect x="7" y="6" width="3" height="16" rx="1" fill="#8891A0"/>
+      <rect x="12" y="9" width="3" height="10" rx="1" fill="var(--accent)"/>
+      <rect x="17" y="4" width="3" height="20" rx="1" fill="#8891A0"/>
+      <rect x="22" y="12" width="2" height="4" rx="1" fill="#5A6373"/>
+    </svg>
+    <div class="brand-name">Highlight <b>Studio</b></div>
+  </div>
+  <a class="back-link" href="./highlight-studio-01-landing.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    <span data-i18n="auth.backToTop">トップに戻る</span>
+  </a>
+  <button type="button" class="lang-toggle" data-i18n-lang-toggle>English</button>
+</header>
+
+<div class="auth-wrap">
+  <div class="auth-shell">
+    <div class="auth-visual">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 26 26" fill="none">
+          <rect x="2" y="11" width="3" height="6" rx="1" fill="#5A6373"/>
+          <rect x="7" y="6" width="3" height="16" rx="1" fill="#8891A0"/>
+          <rect x="12" y="9" width="3" height="10" rx="1" fill="var(--accent)"/>
+          <rect x="17" y="4" width="3" height="20" rx="1" fill="#8891A0"/>
+          <rect x="22" y="12" width="2" height="4" rx="1" fill="#5A6373"/>
+        </svg>
+        <div class="brand-name">Highlight <b>Studio</b></div>
+      </div>
+      <div>
+        <h2 data-i18n-html="auth.visualHeading">配信の切り抜きを、<b>ブラウザだけ</b>で自動化。</h2>
+        <div class="auth-perk">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.5 8 10 4.6-1.5 8-5 8-10V5l-8-3Z"/></svg>
+          <span data-i18n="auth.perk1">動画は一度もサーバーに送信されません</span>
+        </div>
+        <div class="auth-perk">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>
+          <span data-i18n="auth.perk2">盛り上がりを自動検出して1〜4本に切り抜き</span>
+        </div>
+        <div class="auth-perk">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          <span data-i18n="auth.perk3">インストール不要、クレジットカードも不要</span>
+        </div>
+      </div>
+      <div class="auth-visual-quote" data-i18n="auth.quote">「アーカイブを見返す時間がなくても、見どころだけ勝手に切り抜かれているのが助かる」</div>
+    </div>
+    <div class="auth-card-col">
+    <div class="auth-tabs">
+      <button class="auth-tab selected" data-target="login" data-i18n="auth.tabLogin">ログイン</button>
+      <button class="auth-tab" data-target="signup" data-i18n="auth.tabSignup">アカウント作成</button>
+    </div>
+
+    <!-- ログイン -->
+    <div class="form-view active" id="view-login">
+      <h1 class="auth-title" data-i18n="auth.loginTitle">おかえりなさい</h1>
+      <p class="auth-sub" data-i18n="auth.loginSub">ログインして続きの編集を再開しましょう。</p>
+
+      <button class="btn-oauth" id="googleLoginBtn">
+        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.87c2.27-2.09 3.58-5.17 3.58-8.82Z"/><path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.91l-3.87-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.28v3.11A12 12 0 0 0 12 24Z"/><path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.61H1.28A12 12 0 0 0 0 12c0 1.94.47 3.77 1.28 5.39l4-3.11Z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.69 1.28 6.61l4 3.11C6.22 6.86 8.87 4.75 12 4.75Z"/></svg>
+        <span data-i18n="auth.googleLogin">Googleでログイン</span>
+      </button>
+
+      <div class="divider" data-i18n="auth.or">または</div>
+
+      <div class="field">
+        <label for="loginEmail" data-i18n="auth.emailLabel">メールアドレス</label>
+        <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="loginPassword" data-i18n="auth.pwLabel">パスワード</label>
+        <div class="pw-row">
+          <input type="password" id="loginPassword" placeholder="パスワードを入力" autocomplete="current-password" data-i18n-placeholder="auth.pwPlaceholder">
+          <button type="button" class="pw-toggle" data-for="loginPassword" aria-label="パスワードの表示切り替え" data-i18n-aria-label="auth.pwToggleAria">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="row-between">
+        <label class="checkbox-line"><input type="checkbox" checked><span data-i18n="auth.rememberMe">ログイン状態を保存</span></label>
+        <a class="link-muted" href="#" id="forgotLink" data-i18n="auth.forgotPw">パスワードをお忘れですか?</a>
+      </div>
+      <p class="field-error" id="loginApiError" style="display:none;margin-bottom:12px;"></p>
+      <button class="btn btn-primary" id="loginSubmitBtn" data-i18n="auth.loginBtn">ログイン</button>
+
+      <p class="auth-footer-note" data-i18n-html="auth.noAccountNote">アカウントをお持ちでない方は <a href="#" data-target="signup" class="switch-link">アカウント作成</a></p>
+    </div>
+
+    <!-- アカウント作成 -->
+    <div class="form-view" id="view-signup">
+      <h1 class="auth-title" data-i18n="auth.signupTitle">アカウントを作成</h1>
+      <p class="auth-sub" data-i18n="auth.signupSub">無料で始められます。クレジットカードは不要です。</p>
+
+      <button class="btn-oauth" id="googleSignupBtn">
+        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.87c2.27-2.09 3.58-5.17 3.58-8.82Z"/><path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.91l-3.87-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.28v3.11A12 12 0 0 0 12 24Z"/><path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.61H1.28A12 12 0 0 0 0 12c0 1.94.47 3.77 1.28 5.39l4-3.11Z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.69 1.28 6.61l4 3.11C6.22 6.86 8.87 4.75 12 4.75Z"/></svg>
+        <span data-i18n="auth.googleSignup">Googleで登録</span>
+      </button>
+
+      <div class="divider" data-i18n="auth.or">または</div>
+
+      <div class="field">
+        <label for="signupName" data-i18n="auth.nameLabel">表示名</label>
+        <input type="text" id="signupName" placeholder="配信者名など" autocomplete="nickname" data-i18n-placeholder="auth.namePlaceholder">
+      </div>
+      <div class="field">
+        <label for="signupEmail" data-i18n="auth.emailLabel">メールアドレス</label>
+        <input type="email" id="signupEmail" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="signupPassword" data-i18n="auth.pwLabel">パスワード</label>
+        <div class="pw-row">
+          <input type="password" id="signupPassword" placeholder="8文字以上" autocomplete="new-password" data-i18n-placeholder="auth.pwPlaceholder8">
+          <button type="button" class="pw-toggle" data-for="signupPassword" aria-label="パスワードの表示切り替え" data-i18n-aria-label="auth.pwToggleAria">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="field-note" data-i18n="auth.pwNote">英数字を含む8文字以上で設定してください。</div>
+      </div>
+      <div class="row-between" style="margin-bottom:8px;">
+        <label class="checkbox-line"><input type="checkbox" id="agreeCheck">
+          <span data-i18n-html="auth.agreeText"><a href="./highlight-studio-07-terms.html" class="link-muted" target="_blank" rel="noopener">利用規約</a>と<a href="./highlight-studio-08-privacy.html" class="link-muted" target="_blank" rel="noopener">プライバシーポリシー</a>に同意する</span>
+        </label>
+      </div>
+      <p class="field-error" id="agreeError" style="margin-bottom:12px;" data-i18n="auth.agreeError">利用規約とプライバシーポリシーへの同意が必要です。</p>
+      <p class="field-error" id="signupApiError" style="display:none;margin-bottom:12px;"></p>
+      <button class="btn btn-primary" id="signupSubmitBtn" data-i18n="auth.signupBtn">アカウントを作成</button>
+
+      <p class="auth-footer-note" data-i18n-html="auth.haveAccountNote">すでにアカウントをお持ちの方は <a href="#" data-target="login" class="switch-link">ログイン</a></p>
+    </div>
+
+    <!-- メール確認 -->
+    <div class="form-view" id="view-verify" style="text-align:center;">
+      <div style="width:52px;height:52px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;margin:4px auto 20px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+      </div>
+      <h1 class="auth-title" style="text-align:center;" data-i18n="auth.verifyTitle">確認メールを送信しました</h1>
+      <p class="auth-sub" style="text-align:center;"><b id="verifyEmailLabel" style="color:var(--text);"></b> <span data-i18n="auth.verifySub">宛に確認メールをお送りしました。メール内のリンクを開いて登録を完了してください。</span></p>
+
+      <div class="note-box" style="text-align:left;margin:20px 0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;flex-shrink:0;"><path d="M20 6 9 17l-5-5"/></svg>
+        <div data-i18n="auth.verifyDemoNote">デモ用のプロトタイプのため、実際にはメールは送信されません。下のボタンから確認済みとして進めます。</div>
+      </div>
+
+      <button class="btn btn-primary" id="verifyContinueBtn" data-i18n="auth.verifyContinueBtn">確認済みとして進む(デモ)</button>
+      <button class="btn-oauth" id="verifyResendBtn" style="margin-top:10px;" data-i18n="auth.verifyResendBtn">確認メールを再送する</button>
+      <p class="auth-footer-note" data-i18n-html="auth.wrongEmailNote">メールアドレスを間違えた場合は <a href="#" data-target="signup" class="switch-link">登録をやり直す</a></p>
+    </div>
+    </div>
+  </div>
+</div>
+
+<!-- window.HS_API_BASEを設定した場合のみ実バックエンドに接続する(未設定時は従来のデモ動作)。 -->
+<script src="./api-client.js"></script>
+<script>
+  const tabs = document.querySelectorAll('.auth-tab');
+  const authTabsEl = document.querySelector('.auth-tabs');
+  const views = { login: document.getElementById('view-login'), signup: document.getElementById('view-signup'), verify: document.getElementById('view-verify') };
+
+  function showView(name){
+    tabs.forEach(t => t.classList.toggle('selected', t.dataset.target === name));
+    Object.entries(views).forEach(([k,v]) => v.classList.toggle('active', k === name));
+    authTabsEl.style.display = (name === 'verify') ? 'none' : '';
+  }
+  tabs.forEach(t => t.addEventListener('click', () => showView(t.dataset.target)));
+
+  const initialTab = new URLSearchParams(window.location.search).get('tab');
+  if(initialTab === 'signup' || initialTab === 'login'){ showView(initialTab); }
+  document.querySelectorAll('.switch-link').forEach(a => {
+    a.addEventListener('click', (e) => { e.preventDefault(); showView(a.dataset.target); });
+  });
+
+  document.querySelectorAll('.pw-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.for);
+      input.type = input.type === 'password' ? 'text' : 'password';
+    });
+  });
+
+  function validateEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+  // Enterキーでの送信対応(フォームタグを使わないUIのため個別にバインド)
+  ['loginEmail','loginPassword'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', (e) => {
+      if(e.key === 'Enter'){ e.preventDefault(); document.getElementById('loginSubmitBtn').click(); }
+    });
+  });
+  ['signupName','signupEmail','signupPassword'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', (e) => {
+      if(e.key === 'Enter'){ e.preventDefault(); document.getElementById('signupSubmitBtn').click(); }
+    });
+  });
+
+  // ---- 管理者(デバッグ用)アカウント ----
+  // 社内の動作確認・デバッグ専用のログイン。バックエンド接続の有無に関わらず、
+  // ここでメールアドレス・パスワードが一致した場合はAPIを呼ばずにローカルで
+  // 「管理者プラン(無制限・無料)」としてログイン状態にする。
+  // 本番公開前に、必ず下記の値を推測されにくいものへ変更するか、
+  // 環境変数化する等の対応を行うこと(現状はプロトタイプのためハードコード)。
+  const ADMIN_CREDENTIALS = { email: 'admin@highlight-studio.local', password: 'debug-admin-2026' };
+  function tryAdminLogin(emailValue, passwordValue){
+    if (emailValue.trim().toLowerCase() === ADMIN_CREDENTIALS.email && passwordValue === ADMIN_CREDENTIALS.password){
+      localStorage.setItem('hs_loggedIn', '1');
+      localStorage.setItem('hs_isAdmin', '1');
+      localStorage.setItem('hs_plan', 'admin');
+      localStorage.setItem('hs_userName', '管理者(デバッグ用)');
+      localStorage.setItem('hs_userEmail', ADMIN_CREDENTIALS.email);
+      window.location.href = './highlight-studio-03-app.html';
+      return true;
+    }
+    return false;
+  }
+
+  document.getElementById('loginSubmitBtn').addEventListener('click', async () => {
+    const email = document.getElementById('loginEmail');
+    const pw = document.getElementById('loginPassword');
+    const errBox = document.getElementById('loginApiError');
+    if (tryAdminLogin(email.value, pw.value)) return;
+    let ok = true;
+    if(!validateEmail(email.value)){ ok = false; email.style.borderColor = 'var(--danger)'; } else { email.style.borderColor = ''; }
+    if(pw.value.length < 1){ ok = false; pw.style.borderColor = 'var(--danger)'; } else { pw.style.borderColor = ''; }
+    if(!ok) return;
+
+    // バックエンド接続が有効な場合(window.HS_API_BASE設定時)は実APIでログインする。
+    // 未設定の場合は従来通りモックとしてlocalStorageに書くだけのデモ動作。
+    if(window.HSApi && HSApi.enabled){
+      const btn = document.getElementById('loginSubmitBtn');
+      btn.disabled = true;
+      if(errBox) errBox.style.display = 'none';
+      try{
+        const data = await HSApi.login(email.value.trim(), pw.value);
+        localStorage.setItem('hs_loggedIn', '1');
+        localStorage.setItem('hs_userEmail', data.user.email);
+        if(data.user.displayName){ localStorage.setItem('hs_userName', data.user.displayName); }
+        window.location.href = './highlight-studio-03-app.html';
+      }catch(err){
+        if(errBox){ errBox.textContent = err.message; errBox.style.display = 'block'; }
+        btn.disabled = false;
+      }
+      return;
+    }
+
+    localStorage.setItem('hs_loggedIn', '1');
+    const existingName = localStorage.getItem('hs_userName');
+    if(!existingName){ localStorage.setItem('hs_userName', email.value.split('@')[0]); }
+    if(!localStorage.getItem('hs_userEmail')){ localStorage.setItem('hs_userEmail', email.value.trim()); }
+    window.location.href = './highlight-studio-03-app.html';
+  });
+
+  document.getElementById('signupSubmitBtn').addEventListener('click', async () => {
+    const name = document.getElementById('signupName');
+    const email = document.getElementById('signupEmail');
+    const pw = document.getElementById('signupPassword');
+    const agree = document.getElementById('agreeCheck');
+    const errBox = document.getElementById('signupApiError');
+    let ok = true;
+    if(!name.value.trim()){ ok = false; name.style.borderColor = 'var(--danger)'; } else { name.style.borderColor = ''; }
+    if(!validateEmail(email.value)){ ok = false; email.style.borderColor = 'var(--danger)'; } else { email.style.borderColor = ''; }
+    if(pw.value.length < 8){ ok = false; pw.style.borderColor = 'var(--danger)'; } else { pw.style.borderColor = ''; }
+    if(!agree.checked){ ok = false; document.getElementById('agreeError').style.display = 'block'; }
+    else { document.getElementById('agreeError').style.display = 'none'; }
+    if(!ok) return;
+
+    if(window.HSApi && HSApi.enabled){
+      const btn = document.getElementById('signupSubmitBtn');
+      btn.disabled = true;
+      if(errBox) errBox.style.display = 'none';
+      try{
+        await HSApi.signup(email.value.trim(), pw.value);
+        localStorage.setItem('hs_userName', name.value.trim());
+        localStorage.setItem('hs_userEmail', email.value.trim());
+        document.getElementById('verifyEmailLabel').textContent = email.value.trim();
+        showView('verify');
+      }catch(err){
+        if(errBox){ errBox.textContent = err.message; errBox.style.display = 'block'; }
+      }
+      btn.disabled = false;
+      return;
+    }
+
+    localStorage.setItem('hs_userName', name.value.trim());
+    localStorage.setItem('hs_userEmail', email.value.trim());
+    document.getElementById('verifyEmailLabel').textContent = email.value.trim();
+    showView('verify');
+  });
+
+  document.getElementById('verifyContinueBtn').addEventListener('click', () => {
+    // 実運用では確認メール内リンク(?token=...)からHSApi.verifyEmail()を呼ぶ画面に
+    // 遷移させる想定。このボタンはデモ用に「確認済みとして先へ進む」ショートカット。
+    localStorage.setItem('hs_loggedIn', '1');
+    window.location.href = './highlight-studio-03-app.html';
+  });
+  document.getElementById('verifyResendBtn').addEventListener('click', (e) => {
+    const btn = e.currentTarget;
+    const original = btn.textContent;
+    const lang = window.HS_I18N ? HS_I18N.getLang() : 'ja';
+    btn.textContent = lang === 'en' ? 'Sent (demo)' : '再送しました(デモ)';
+    btn.disabled = true;
+    setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 2500);
+  });
+
+  document.getElementById('googleLoginBtn').addEventListener('click', () => {
+    localStorage.setItem('hs_loggedIn', '1');
+    if(!localStorage.getItem('hs_userName')){ localStorage.setItem('hs_userName', 'ゲスト'); }
+    if(!localStorage.getItem('hs_userEmail')){ localStorage.setItem('hs_userEmail', 'guest@gmail.com'); }
+    window.location.href = './highlight-studio-03-app.html';
+  });
+  document.getElementById('googleSignupBtn').addEventListener('click', () => {
+    localStorage.setItem('hs_loggedIn', '1');
+    localStorage.setItem('hs_userName', 'ゲスト');
+    localStorage.setItem('hs_userEmail', 'guest@gmail.com');
+    window.location.href = './highlight-studio-03-app.html';
+  });
+  document.getElementById('forgotLink').addEventListener('click', (e) => { e.preventDefault(); window.location.href = './highlight-studio-04-reset-password.html'; });
+</script>
+<script src="./i18n-common.js"></script>
+<script>
+window.HS_I18N_DICT = {
+  "auth.backToTop": { ja: "トップに戻る", en: "Back to top" },
+  "auth.visualHeading": { ja: "配信の切り抜きを、<b>ブラウザだけ</b>で自動化。", en: "Automate stream clipping, <b>right in your browser</b>." },
+  "auth.perk1": { ja: "動画は一度もサーバーに送信されません", en: "Your video is never sent to a server" },
+  "auth.perk2": { ja: "盛り上がりを自動検出して1〜4本に切り抜き", en: "Automatically detects highlights and clips 1–4 videos" },
+  "auth.perk3": { ja: "インストール不要、クレジットカードも不要", en: "No install, no credit card required" },
+  "auth.quote": { ja: "「アーカイブを見返す時間がなくても、見どころだけ勝手に切り抜かれているのが助かる」", en: "\"Even without time to rewatch the archive, having the highlights clipped automatically is a huge help.\"" },
+  "auth.tabLogin": { ja: "ログイン", en: "Log in" },
+  "auth.tabSignup": { ja: "アカウント作成", en: "Sign up" },
+  "auth.loginTitle": { ja: "おかえりなさい", en: "Welcome back" },
+  "auth.loginSub": { ja: "ログインして続きの編集を再開しましょう。", en: "Log in to pick up where you left off." },
+  "auth.googleLogin": { ja: "Googleでログイン", en: "Log in with Google" },
+  "auth.googleSignup": { ja: "Googleで登録", en: "Sign up with Google" },
+  "auth.or": { ja: "または", en: "or" },
+  "auth.emailLabel": { ja: "メールアドレス", en: "Email address" },
+  "auth.pwLabel": { ja: "パスワード", en: "Password" },
+  "auth.pwPlaceholder": { ja: "パスワードを入力", en: "Enter your password" },
+  "auth.pwPlaceholder8": { ja: "8文字以上", en: "8+ characters" },
+  "auth.pwToggleAria": { ja: "パスワードの表示切り替え", en: "Toggle password visibility" },
+  "auth.rememberMe": { ja: "ログイン状態を保存", en: "Keep me logged in" },
+  "auth.forgotPw": { ja: "パスワードをお忘れですか?", en: "Forgot your password?" },
+  "auth.loginBtn": { ja: "ログイン", en: "Log in" },
+  "auth.noAccountNote": { ja: "アカウントをお持ちでない方は <a href=\"#\" data-target=\"signup\" class=\"switch-link\">アカウント作成</a>", en: "Don't have an account? <a href=\"#\" data-target=\"signup\" class=\"switch-link\">Sign up</a>" },
+  "auth.signupTitle": { ja: "アカウントを作成", en: "Create an account" },
+  "auth.signupSub": { ja: "無料で始められます。クレジットカードは不要です。", en: "Get started for free. No credit card required." },
+  "auth.nameLabel": { ja: "表示名", en: "Display name" },
+  "auth.namePlaceholder": { ja: "配信者名など", en: "Your streamer name, etc." },
+  "auth.pwNote": { ja: "英数字を含む8文字以上で設定してください。", en: "Use at least 8 characters, including letters and numbers." },
+  "auth.agreeText": { ja: "<a href=\"./highlight-studio-07-terms.html\" class=\"link-muted\" target=\"_blank\" rel=\"noopener\">利用規約</a>と<a href=\"./highlight-studio-08-privacy.html\" class=\"link-muted\" target=\"_blank\" rel=\"noopener\">プライバシーポリシー</a>に同意する", en: "I agree to the <a href=\"./highlight-studio-07-terms.html\" class=\"link-muted\" target=\"_blank\" rel=\"noopener\">Terms of Service</a> and <a href=\"./highlight-studio-08-privacy.html\" class=\"link-muted\" target=\"_blank\" rel=\"noopener\">Privacy Policy</a>" },
+  "auth.agreeError": { ja: "利用規約とプライバシーポリシーへの同意が必要です。", en: "You must agree to the Terms of Service and Privacy Policy." },
+  "auth.signupBtn": { ja: "アカウントを作成", en: "Create account" },
+  "auth.haveAccountNote": { ja: "すでにアカウントをお持ちの方は <a href=\"#\" data-target=\"login\" class=\"switch-link\">ログイン</a>", en: "Already have an account? <a href=\"#\" data-target=\"login\" class=\"switch-link\">Log in</a>" },
+  "auth.verifyTitle": { ja: "確認メールを送信しました", en: "Verification email sent" },
+  "auth.verifySub": { ja: "宛に確認メールをお送りしました。メール内のリンクを開いて登録を完了してください。", en: "We've sent a verification email to this address. Open the link in the email to finish signing up." },
+  "auth.verifyDemoNote": { ja: "デモ用のプロトタイプのため、実際にはメールは送信されません。下のボタンから確認済みとして進めます。", en: "This is a demo prototype, so no email is actually sent. Use the button below to continue as if verified." },
+  "auth.verifyContinueBtn": { ja: "確認済みとして進む(デモ)", en: "Continue as verified (demo)" },
+  "auth.verifyResendBtn": { ja: "確認メールを再送する", en: "Resend verification email" },
+  "auth.wrongEmailNote": { ja: "メールアドレスを間違えた場合は <a href=\"#\" data-target=\"signup\" class=\"switch-link\">登録をやり直す</a>", en: "Entered the wrong email? <a href=\"#\" data-target=\"signup\" class=\"switch-link\">Start over</a>" }
+};
+</script>
+<script src="./i18n.js"></script>
+</body>
+</html>

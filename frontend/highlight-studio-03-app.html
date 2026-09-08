@@ -1281,6 +1281,23 @@
   }
 
   // ffmpegインスタンスの読み込み・input.mp4の書き込みを1度だけ行う(以後の呼び出しは即返る)
+  //
+  // 38章の修正では、書き出し(STEP4)がffmpegを読み込み直したときだけ
+  // cropped_N.mp4を復元していたが、実際には**STEP3の音声抽出
+  // (extractAudioSnippet16k、キャプション1個ごとに何度も呼ばれる)の途中でも
+  // 同じ「不安定→読み込み直し」が起こりうる**ため、STEP4が始まる前に
+  // 共有ffmpegインスタンスがすでに(cropped_N.mp4を持たない)新しいものに
+  // すり替わっているケースを見落としていた。STEP4自身の再試行だけを
+  // 守っても、STEP4の1回目の実行時点ですでにファイルが無ければ意味がない。
+  //
+  // そこで対応箇所ごとに個別に復元するのではなく、input.mp4を書き直す
+  // タイミング(=新しいインスタンス、またはFSがリセットされたタイミング)で
+  // 「これまでに登録された、消えると困るファイル」をまとめて復元する方式に
+  // 変更した。呼び出し元は`registerPersistentFile(name, data)`で登録するだけで、
+  // どのタイミングでffmpegが読み込み直されても自動的に復元される。
+  const persistentFiles = new Map(); // name -> Uint8Array
+  function registerPersistentFile(name, data){ persistentFiles.set(name, data); }
+  function clearPersistentFiles(){ persistentFiles.clear(); }
   async function ensureFfmpegLoaded(preset){
     if (!ffmpeg || ffmpeg.__coreType !== preset.coreType){
       const { createFFmpeg } = FFmpeg;
@@ -1296,6 +1313,9 @@
     if (!ffmpegInputReady){
       const { fetchFile } = FFmpeg;
       ffmpeg.FS('writeFile', 'input.mp4', await fetchFile(file));
+      persistentFiles.forEach((data, name) => {
+        try { ffmpeg.FS('writeFile', name, data); } catch (e) { /* 復元できなければ後段のrun()側で失敗が顕在化する */ }
+      });
       ffmpegInputReady = true;
     }
   }
@@ -1772,6 +1792,7 @@
     document.querySelectorAll('.stage-item').forEach(el => el.classList.remove('active','done'));
     clips.forEach(c => { if (c.croppedUrl) URL.revokeObjectURL(c.croppedUrl); });
     clips = [];
+    clearPersistentFiles();
     const overallStart = performance.now();
 
     const preset = getSelectedPreset();
@@ -1847,6 +1868,7 @@
       // 消えても復元できるようバイト列自体をJS側(clip.croppedData)にも
       // 保持しておく。data.slice()でWASM側のメモリから独立したコピーを取る。
       const clip = { startSec: w.startSec, endSec: w.endSec, lenSec, score, croppedFile: outName, croppedData: data.slice(), croppedUrl: url, chunks: [] };
+      registerPersistentFile(outName, clip.croppedData);
       clips.push(clip);
 
       const card = document.createElement('div');

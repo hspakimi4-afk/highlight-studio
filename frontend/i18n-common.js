@@ -35,5 +35,5 @@ window.HS_I18N_COMMON = {
   "common.footerTokushoho": { ja: "特定商取引法に基づく表記", en: "Legal Notice (Japan)" },
   "common.footerTokushohoShort": { ja: "特商法表記", en: "Legal Notice" },
   "common.footerContact": { ja: "お問い合わせ", en: "Contact" },
-  "common.footerCopyright": { ja: "© 2026 株式会社ハイライトスタジオ", en: "© 2026 Highlight Studio, Inc." }
+  "common.footerCopyright": { ja: "© 2026 HighlightStudio", en: "© 2026 HighlightStudio" }
 };

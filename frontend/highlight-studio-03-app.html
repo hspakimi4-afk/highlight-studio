@@ -1284,16 +1284,41 @@
     }
   }
 
+  // ffmpeg.wasm(特に1コア版core-st)は、同じインスタンスに対して`ffmpeg.run()`を
+  // 2回目以降呼び出すと、内部状態がおかしくなって「Program terminated with
+  // exit(0)」という中身のない汎用エラーで落ちることがある既知の不具合がある
+  // (処理内容そのものが異常なわけではない)。このエラーが出たときに限り、
+  // ffmpegインスタンスを丸ごと読み込み直してから同じコマンドを1回だけ
+  // 自動で再試行する共通ヘルパー。音量解析・切り出し・字幕焼き込みの
+  // すべてのffmpeg呼び出しをここ経由にすることで、アプリ全体でこの不具合に
+  // 耐えられるようにしている。
+  async function runFfmpegSafe(preset, args){
+    try {
+      await ffmpeg.run(...args);
+    } catch (runErr) {
+      const runMsg = String(runErr?.message || runErr);
+      if (/exit\(0\)|ExitStatus/i.test(runMsg)){
+        log(`ffmpeg.wasmが不安定な状態になったため、読み込み直して再試行します(${runMsg})`);
+        ffmpeg = null;
+        ffmpegInputReady = false;
+        await ensureFfmpegLoaded(preset);
+        await ffmpeg.run(...args);
+      } else {
+        throw runErr;
+      }
+    }
+  }
+
   // 動画全体を読み込まず、必要な区間(offsetSec〜+lenSec)だけをffmpegで16kHzモノラルwavに
   // 切り出してから読み込む。荒い区間シークのあとに正確な微調整シーク(2段階シーク)をすることで、
   // 長時間アーカイブでも「全体をデコードしてから切り出す」ような重い処理を避けられる。
-  async function extractAudioSnippet16k(offsetSec, lenSec){
+  async function extractAudioSnippet16k(offsetSec, lenSec, preset){
     const coarse = Math.max(0, offsetSec - 5);
     const remainder = Math.max(0, offsetSec - coarse);
     const outName = 'snippet.wav';
     try { ffmpeg.FS('unlink', outName); } catch (e) { /* まだ無ければ無視 */ }
     const args = ['-ss', coarse.toFixed(2), '-i', 'input.mp4', '-ss', remainder.toFixed(2), '-t', Math.max(0.1, lenSec).toFixed(2), '-vn', '-ac', '1', '-ar', '16000', outName];
-    await ffmpeg.run(...args);
+    await runFfmpegSafe(preset || activePreset || getSelectedPreset(), args);
     const data = ffmpeg.FS('readFile', outName);
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const decoded = await audioCtx.decodeAudioData(data.buffer.slice(0));
@@ -1445,8 +1470,8 @@
   // ---- 音量(RMS) ----
   // 動画全体をブラウザ内でデコードすると長時間アーカイブで非常に重くなるため、
   // ffmpegで解析に必要な範囲(先頭〜clipSec)だけを16kHzモノラルwavに切り出してから解析する。
-  async function computeAudioRms(clipSec, stepSec, onProgress){
-    const decoded = await extractAudioSnippet16k(0, clipSec);
+  async function computeAudioRms(clipSec, stepSec, onProgress, preset){
+    const decoded = await extractAudioSnippet16k(0, clipSec, preset);
     const dur = decoded.duration;
     const sr = decoded.sampleRate;
     const data = decoded.getChannelData(0);
@@ -1573,19 +1598,24 @@
   }
 
   // 指定した本数ぶん、重ならないように盛り上がり区間を上位から選ぶ(貪欲法)
+  // 累積和(prefix sum)で区間合計をO(1)で求めることで、毎回区間の中身を
+  // すべて足し直す(O(windowSteps))よりも高速化している。動画が長く・
+  // クリップ本数が多いほど効果が大きい。
   function findTopWindows(combined, stepSec, windowLenSec, clipDur, count){
     const windowSteps = Math.max(1, Math.round(windowLenSec / stepSec));
     if (windowSteps > combined.length) return [];
+    const SUPPRESSED = -1e6; // 選択済み区間を無効化するための十分小さいダミー値(累積和でも安全に使える有限値)
     const arr = combined.slice();
     const windows = [];
     for (let k = 0; k < count; k++){
+      const prefix = new Float64Array(arr.length + 1);
+      for (let i = 0; i < arr.length; i++) prefix[i + 1] = prefix[i] + arr[i];
       let bestSum = -Infinity, bestStart = -1;
       for (let i = 0; i <= arr.length - windowSteps; i++){
-        let sum = 0;
-        for (let j = 0; j < windowSteps; j++) sum += arr[i + j];
+        const sum = prefix[i + windowSteps] - prefix[i];
         if (sum > bestSum){ bestSum = sum; bestStart = i; }
       }
-      if (bestStart === -1 || !isFinite(bestSum)) break;
+      if (bestStart === -1 || bestSum <= SUPPRESSED / 2) break;
       let startSec = bestStart * stepSec;
       let endSec = Math.min(clipDur, startSec + windowLenSec);
       startSec = Math.max(0, endSec - windowLenSec);
@@ -1594,7 +1624,7 @@
       const margin = Math.floor(windowSteps / 2);
       const from = Math.max(0, bestStart - margin);
       const to = Math.min(arr.length, bestStart + windowSteps + margin);
-      for (let i = from; i < to; i++) arr[i] = -Infinity;
+      for (let i = from; i < to; i++) arr[i] = SUPPRESSED;
     }
     windows.sort((a, b) => a.startSec - b.startSec);
     return windows;
@@ -1602,8 +1632,8 @@
 
   // 動画全体を毎回デコードしていた旧実装は長時間アーカイブで非常に重かったため、
   // ffmpegで該当区間だけを16kHzモノラルwavに切り出してから読み込む方式に変更。
-  async function decodeTo16kMono(offsetSec, lenSec){
-    const decoded = await extractAudioSnippet16k(offsetSec, lenSec);
+  async function decodeTo16kMono(offsetSec, lenSec, preset){
+    const decoded = await extractAudioSnippet16k(offsetSec, lenSec, preset);
     return { audioData: decoded.getChannelData(0), durationSec: decoded.duration };
   }
 
@@ -1631,6 +1661,7 @@
       log('エラー: ' + (err?.message || err)); console.error(err);
       waveLabel.textContent = 'エラーが発生しました';
       waveLabel.classList.add('error');
+      waveTime.textContent = '';
       waveProgressFill.classList.remove('indeterminate');
       waveProgressFill.classList.add('error');
       waveProgressFill.style.width = '100%';
@@ -1686,7 +1717,7 @@
     t0 = performance.now();
     let rmsRatio = 0;
     startProgress('音量解析', waveTime, () => rmsRatio, waveProgressFill);
-    const { rms, dur, numSteps } = await computeAudioRms(clipSec, stepSec, (done, total) => { rmsRatio = done / total; });
+    const { rms, dur, numSteps } = await computeAudioRms(clipSec, stepSec, (done, total) => { rmsRatio = done / total; }, preset);
     stopProgress(waveProgressFill);
     log(`音量解析完了: ${((performance.now()-t0)/1000).toFixed(1)}秒 (${numSteps}区間)`);
 
@@ -1728,7 +1759,7 @@
         const args = ['-ss', w.startSec.toFixed(2), '-i', 'input.mp4', '-t', lenSec.toFixed(2), '-vf', vf, '-c:v', 'libx264', '-preset', preset.preset, '-crf', String(preset.crf)];
         if (preset.coreType === 'multi') args.push('-threads', String(preset.threads));
         args.push('-c:a', 'aac', outName);
-        await ffmpeg.run(...args);
+        await runFfmpegSafe(preset, args);
       } finally { stopProgress(waveProgressFill); }
       log(`クリップ${i+1}切り出し完了: ${((performance.now()-t0)/1000).toFixed(1)}秒`, true);
 
@@ -1824,7 +1855,7 @@
       const preset = activePreset || getSelectedPreset();
       await ensureFfmpegLoaded(preset);
       log(`クリップ${currentClipIndex+1}: この区間の音声を16kHzモノラルに変換中...`);
-      const { audioData } = await decodeTo16kMono(clip.startSec, clip.lenSec);
+      const { audioData } = await decodeTo16kMono(clip.startSec, clip.lenSec, preset);
 
       log('音声認識モデルを読み込み中(初回はダウンロードが入ります)...');
       let t0 = performance.now();
@@ -2003,7 +2034,7 @@
         args.push('-c:v', 'libx264', '-preset', preset.preset, '-crf', String(preset.crf));
         if (preset.coreType === 'multi') args.push('-threads', String(preset.threads));
         args.push('-c:a', 'copy', outName);
-        await ffmpeg.run(...args);
+        await runFfmpegSafe(preset, args);
       } finally { stopProgress(burnProgressFill); }
       log(`クリップ${i+1}焼き込み完了: ${((performance.now()-t0)/1000).toFixed(1)}秒`, true);
 

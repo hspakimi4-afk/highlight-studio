@@ -178,10 +178,6 @@
       <p class="lead" data-i18n="contact.lead">不具合のご報告、ご要望、料金プランに関するご質問など、お気軽にお送りください。内容を確認のうえ、担当より折り返しご連絡いたします。</p>
 
       <div class="info-card">
-        <h3 data-i18n="contact.emailCardTitle">メールで直接連絡する</h3>
-        <p data-i18n-html="contact.emailCardBody">フォームを使わず直接メールする場合は <a href="mailto:support@highlight-studio.example.com">support@highlight-studio.example.com</a> 宛にお送りください。</p>
-      </div>
-      <div class="info-card">
         <h3 data-i18n="contact.etaCardTitle">回答までの目安</h3>
         <p data-i18n="contact.etaCardBody">通常1〜3営業日以内にご返信します。混雑時はお時間をいただく場合があります。</p>
       </div>
@@ -191,46 +187,10 @@
       </div>
     </div>
 
-    <div class="card">
-      <div class="form-view" id="contactForm">
-        <div class="field" id="fieldName">
-          <label for="contactName" data-i18n="contact.nameLabel">お名前</label>
-          <input type="text" id="contactName" placeholder="配信者名など" autocomplete="name" data-i18n-placeholder="contact.namePlaceholder">
-          <div class="field-error" data-i18n="contact.nameError">お名前を入力してください。</div>
-        </div>
-        <div class="field" id="fieldEmail">
-          <label for="contactEmail" data-i18n="contact.emailLabel">メールアドレス</label>
-          <input type="email" id="contactEmail" placeholder="you@example.com" autocomplete="email">
-          <div class="field-error" data-i18n="contact.emailError">正しいメールアドレスを入力してください。</div>
-        </div>
-        <div class="field" id="fieldCategory">
-          <label for="contactCategory" data-i18n="contact.categoryLabel">お問い合わせ種別</label>
-          <select id="contactCategory">
-            <option value="bug" data-i18n="contact.catBug">不具合の報告</option>
-            <option value="billing" data-i18n="contact.catBilling">料金プラン・お支払いについて</option>
-            <option value="feature" data-i18n="contact.catFeature">機能のご要望</option>
-            <option value="account" data-i18n="contact.catAccount">アカウントについて</option>
-            <option value="other" data-i18n="contact.catOther">その他</option>
-          </select>
-        </div>
-        <div class="field" id="fieldMessage">
-          <label for="contactMessage" data-i18n="contact.messageLabel">お問い合わせ内容</label>
-          <textarea id="contactMessage" placeholder="できるだけ詳しくご記入ください(利用中のブラウザ、発生した操作の手順など)" data-i18n-placeholder="contact.messagePlaceholder"></textarea>
-          <div class="field-error" data-i18n="contact.messageError">お問い合わせ内容を入力してください。</div>
-        </div>
-        <p class="field-error" id="contactApiError" style="display:none;"></p>
-        <button class="btn btn-primary" id="contactSubmitBtn" data-i18n="contact.submitBtn">送信する</button>
-        <p id="demoModeNote" style="font-size:0.74rem;color:var(--text-faint);margin:12px 0 0;text-align:center;" data-i18n="contact.demoNote">デモ用のプロトタイプのため、送信内容はどこにも送信されません。</p>
-      </div>
-
-      <div class="success-view" id="contactSuccess">
-        <div class="success-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-        </div>
-        <h2 data-i18n="contact.successTitle">お問い合わせを受け付けました</h2>
-        <p><b id="successEmailLabel"></b> <span data-i18n="contact.successBody">宛にご返信いたします。内容の確認まで今しばらくお待ちください。</span></p>
-        <button class="btn btn-ghost" id="backToTopBtn" data-i18n="common.backToTop">トップに戻る</button>
-      </div>
+    <div class="card" style="text-align:center;">
+      <h3 style="font-size:1.05rem;margin:0 0 10px;" data-i18n="contact.formCardTitle">お問い合わせフォーム</h3>
+      <p style="color:var(--text-dim);font-size:0.88rem;margin:0 0 22px;line-height:1.6;" data-i18n="contact.formCardBody">下のボタンからGoogleフォームが開きます。お名前・メールアドレス・お問い合わせ内容をご入力のうえ送信してください。</p>
+      <a class="btn btn-primary" href="https://docs.google.com/forms/d/e/1FAIpQLSftwsSvulvMiHea5cXrFNdbWbUFYE5CiM0IdlBAS4wQLNmzXw/viewform?usp=publish-editor" target="_blank" rel="noopener" data-i18n="contact.formCardBtn">お問い合わせフォームを開く</a>
     </div>
   </div>
 </main>
@@ -256,96 +216,18 @@
   </div>
 </footer>
 
-<!-- window.HS_API_BASEを設定した場合のみ実バックエンドに接続する(未設定時は従来のデモ動作)。 -->
-<script src="./api-client.js"></script>
-<script>
-  function validateEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
-
-  const nameInput = document.getElementById('contactName');
-  const emailInput = document.getElementById('contactEmail');
-  const messageInput = document.getElementById('contactMessage');
-
-  if(window.HSApi && HSApi.enabled){
-    const note = document.getElementById('demoModeNote');
-    if(note) note.style.display = 'none';
-  }
-
-  document.getElementById('contactSubmitBtn').addEventListener('click', async () => {
-    let ok = true;
-    document.getElementById('fieldName').classList.toggle('error', !nameInput.value.trim());
-    if(!nameInput.value.trim()) ok = false;
-    document.getElementById('fieldEmail').classList.toggle('error', !validateEmail(emailInput.value));
-    if(!validateEmail(emailInput.value)) ok = false;
-    document.getElementById('fieldMessage').classList.toggle('error', !messageInput.value.trim());
-    if(!messageInput.value.trim()) ok = false;
-    if(!ok) return;
-
-    const apiError = document.getElementById('contactApiError');
-    if(window.HSApi && HSApi.enabled){
-      const btn = document.getElementById('contactSubmitBtn');
-      btn.disabled = true;
-      if(apiError) apiError.style.display = 'none';
-      try{
-        await HSApi.submitContact({
-          name: nameInput.value.trim(),
-          email: emailInput.value.trim(),
-          subject: document.getElementById('contactCategory').value,
-          body: messageInput.value.trim(),
-        });
-      }catch(err){
-        if(apiError){ apiError.textContent = err.message; apiError.style.display = 'block'; }
-        btn.disabled = false;
-        return;
-      }
-      btn.disabled = false;
-    }
-
-    document.getElementById('successEmailLabel').textContent = emailInput.value.trim();
-    document.getElementById('contactForm').classList.add('hidden');
-    document.getElementById('contactSuccess').classList.add('active');
-  });
-
-  document.getElementById('backToTopBtn').addEventListener('click', () => {
-    window.location.href = './index.html';
-  });
-
-  // ログイン中であれば、名前・メールアドレスを自動入力
-  if(localStorage.getItem('hs_loggedIn') === '1'){
-    const n = localStorage.getItem('hs_userName');
-    const e = localStorage.getItem('hs_userEmail');
-    if(n) nameInput.value = n;
-    if(e) emailInput.value = e;
-  }
-</script>
 <script src="./i18n-common.js"></script>
 <script>
 window.HS_I18N_DICT = {
   "contact.title": { ja: "お問い合わせ", en: "Contact us" },
   "contact.lead": { ja: "不具合のご報告、ご要望、料金プランに関するご質問など、お気軽にお送りください。内容を確認のうえ、担当より折り返しご連絡いたします。", en: "Feel free to reach out about bugs, feature requests, or questions about pricing plans. We'll review your message and get back to you." },
-  "contact.emailCardTitle": { ja: "メールで直接連絡する", en: "Contact us directly by email" },
-  "contact.emailCardBody": { ja: "フォームを使わず直接メールする場合は <a href=\"mailto:support@highlight-studio.example.com\">support@highlight-studio.example.com</a> 宛にお送りください。", en: "To skip the form and email us directly, write to <a href=\"mailto:support@highlight-studio.example.com\">support@highlight-studio.example.com</a>." },
   "contact.etaCardTitle": { ja: "回答までの目安", en: "Typical response time" },
   "contact.etaCardBody": { ja: "通常1〜3営業日以内にご返信します。混雑時はお時間をいただく場合があります。", en: "We usually reply within 1–3 business days. It may take longer during busy periods." },
   "contact.faqCardTitle": { ja: "先によくある質問もご確認ください", en: "Check the FAQ first" },
   "contact.faqCardBody": { ja: "料金プランや解約に関するご質問は、<a href=\"./highlight-studio-06-pricing.html#faq\">料金プランページのFAQ</a>で解決する場合があります。", en: "Questions about pricing plans or cancellation may already be answered in the <a href=\"./highlight-studio-06-pricing.html#faq\">pricing page FAQ</a>." },
-  "contact.nameLabel": { ja: "お名前", en: "Name" },
-  "contact.namePlaceholder": { ja: "配信者名など", en: "Your streamer name, etc." },
-  "contact.nameError": { ja: "お名前を入力してください。", en: "Please enter your name." },
-  "contact.emailLabel": { ja: "メールアドレス", en: "Email address" },
-  "contact.emailError": { ja: "正しいメールアドレスを入力してください。", en: "Please enter a valid email address." },
-  "contact.categoryLabel": { ja: "お問い合わせ種別", en: "Inquiry type" },
-  "contact.catBug": { ja: "不具合の報告", en: "Report a bug" },
-  "contact.catBilling": { ja: "料金プラン・お支払いについて", en: "Pricing & billing" },
-  "contact.catFeature": { ja: "機能のご要望", en: "Feature request" },
-  "contact.catAccount": { ja: "アカウントについて", en: "Account" },
-  "contact.catOther": { ja: "その他", en: "Other" },
-  "contact.messageLabel": { ja: "お問い合わせ内容", en: "Message" },
-  "contact.messagePlaceholder": { ja: "できるだけ詳しくご記入ください(利用中のブラウザ、発生した操作の手順など)", en: "Please include as much detail as possible (your browser, the steps that led to the issue, etc.)" },
-  "contact.messageError": { ja: "お問い合わせ内容を入力してください。", en: "Please enter your message." },
-  "contact.submitBtn": { ja: "送信する", en: "Send" },
-  "contact.demoNote": { ja: "デモ用のプロトタイプのため、送信内容はどこにも送信されません。", en: "This is a demo prototype — your message is not actually sent anywhere." },
-  "contact.successTitle": { ja: "お問い合わせを受け付けました", en: "Your message has been received" },
-  "contact.successBody": { ja: "宛にご返信いたします。内容の確認まで今しばらくお待ちください。", en: "We'll get back to you at this address. Thanks for your patience while we review it." }
+  "contact.formCardTitle": { ja: "お問い合わせフォーム", en: "Contact form" },
+  "contact.formCardBody": { ja: "下のボタンからGoogleフォームが開きます。お名前・メールアドレス・お問い合わせ内容をご入力のうえ送信してください。", en: "The button below opens our Google Form. Please fill in your name, email address, and message, then submit." },
+  "contact.formCardBtn": { ja: "お問い合わせフォームを開く", en: "Open the contact form" }
 };
 </script>
 <script src="./i18n.js"></script>

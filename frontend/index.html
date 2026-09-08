@@ -431,9 +431,21 @@
   .retro-counter-digits span.dim{color:#245a34;text-shadow:none;} /* データ取得前のプレースホルダー表示用 */
   .retro-counter-unit{font-size:0.7rem;color:var(--text-faint);}
   .retro-counter[hidden]{display:none;}
+  .retro-counter-top{
+    margin:0;padding:6px 16px;border:none;border-radius:0;
+    border-bottom:1px solid var(--line);background:var(--surface);
+  }
+  .retro-counter-top .retro-counter-digits{padding:2px 6px;}
+  .retro-counter-top .retro-counter-digits span{font-size:0.9rem;}
 </style>
 </head>
 <body>
+
+<div class="retro-counter retro-counter-top" id="retroCounterTop" hidden>
+  <span class="retro-counter-label" data-i18n="landing.retroCounterLabel">このブラウザでの累計アクセス</span>
+  <span class="retro-counter-digits" aria-live="polite"></span>
+  <span class="retro-counter-unit" data-i18n="landing.retroCounterUnit">回</span>
+</div>
 
 <div class="toast" id="toast" role="status" aria-live="polite">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
@@ -701,8 +713,8 @@
       </div>
     </div>
     <div class="retro-counter" id="retroCounter" hidden>
-      <span class="retro-counter-label" data-i18n="landing.retroCounterLabel">このサイトへの累計アクセス</span>
-      <span class="retro-counter-digits" id="retroCounterDigits" aria-live="polite"></span>
+      <span class="retro-counter-label" data-i18n="landing.retroCounterLabel">このブラウザでの累計アクセス</span>
+      <span class="retro-counter-digits" aria-live="polite"></span>
       <span class="retro-counter-unit" data-i18n="landing.retroCounterUnit">回</span>
     </div>
   </div>
@@ -752,7 +764,7 @@
 <script>
 window.HS_I18N_DICT = {
   "pricing.finalHeading": { ja: "次の切り抜きを、今すぐ自動で。", en: "Automate your next clip, right now." },
-  "landing.retroCounterLabel": { ja: "このサイトへの累計アクセス", en: "Total visits to this site" },
+  "landing.retroCounterLabel": { ja: "このブラウザでの累計アクセス", en: "Total visits from this browser" },
   "landing.retroCounterUnit": { ja: "回", en: "visits" },
   "landing.eyebrow": { ja: "インストール不要・ブラウザだけで完結", en: "No install — runs entirely in your browser" },
   "landing.heroTitle": { ja: "配信のアーカイブから、<br>伸びる<span class=\"accentline\">切り抜き</span>を自動で。", en: "Turn your stream archive into<br><span class=\"accentline\">clips that grow your channel</span> — automatically." },
@@ -817,54 +829,38 @@ window.HS_I18N_DICT = {
 </script>
 <script src="./i18n.js"></script>
 <script>
-  // 昔ながらの「累計アクセスカウンター」。バックエンドを持たない静的サイトなので、
-  // 無料の外部カウンターAPI(countapi.xyz、登録不要)にヒットを記録・取得する。
-  // 外部サービスが落ちている/ブロックされている場合でも壊れて見えないよう、
-  // 失敗時は前回ブラウザに保存した値を出すか、それも無ければ要素ごと非表示にする。
+  // 昔ながらの「累計アクセスカウンター」。
+  // 以前は外部カウンターAPI(countapi.xyz、登録不要)にヒットを記録・取得していたが、
+  // countapi.xyzは既にサービス終了しており(2026-09時点で名前解決すら失敗する)、
+  // 取得が常に失敗して要素が永久に非表示になっていたため、外部サービスへの依存をやめ、
+  // このブラウザ内(localStorage)だけで完結するカウンターに変更した。
+  // バックエンドを持たない静的サイトである以上「サイト全体の累計」を正確に数えることは
+  // できないため、ラベルも「このブラウザでの累計アクセス」に変更している(landing.retroCounterLabel参照)。
+  // ページ上部(ヘッダー手前)とフッターの2箇所に同じカウンターを表示するため、
+  // .retro-counter を持つ要素すべてに同じ値を反映する。
   (function(){
-    const NAMESPACE = 'highlightstudio-portfolio-demo'; // 他サイトと衝突しないよう十分ユニークな名前にすること
-    const KEY = 'index-visits';
-    const el = document.getElementById('retroCounter');
-    const digitsEl = document.getElementById('retroCounterDigits');
-    const CACHE_KEY = 'hs_retro_counter_last_value';
+    const counters = document.querySelectorAll('.retro-counter');
+    const CACHE_KEY = 'hs_retro_counter_local_visits';
 
-    function renderDigits(value, opts){
-      opts = opts || {};
+    function renderDigits(value){
       const str = String(Math.max(0, Math.floor(value))).padStart(6, '0');
-      digitsEl.innerHTML = '';
-      Array.from(str).forEach((ch) => {
-        const s = document.createElement('span');
-        s.textContent = ch;
-        if (opts.dim) s.classList.add('dim');
-        digitsEl.appendChild(s);
+      counters.forEach((el) => {
+        const digitsEl = el.querySelector('.retro-counter-digits');
+        digitsEl.innerHTML = '';
+        Array.from(str).forEach((ch) => {
+          const s = document.createElement('span');
+          s.textContent = ch;
+          digitsEl.appendChild(s);
+        });
+        el.hidden = false;
       });
-      el.hidden = false;
     }
 
-    // 取得前は薄い表示のプレースホルダーを出す(データ取得中と分かるように)
-    const cached = Number(localStorage.getItem(CACHE_KEY) || 0);
-    if (cached > 0) renderDigits(cached, { dim: true });
-
-    const url = `https://api.countapi.xyz/hit/${NAMESPACE}/${KEY}`;
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
-    fetch(url, { signal: controller.signal })
-      .then((res) => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
-      .then((data) => {
-        const value = Number(data && data.value);
-        if (!Number.isFinite(value)) throw new Error('unexpected response');
-        localStorage.setItem(CACHE_KEY, String(value));
-        renderDigits(value);
-      })
-      .catch((err) => {
-        console.warn('アクセスカウンターの取得に失敗しました(表示のみに影響、サイトの他の機能には影響しません):', err);
-        if (cached > 0){
-          renderDigits(cached, { dim: true }); // 直近キャッシュ値を「参考値」として出す
-        } else {
-          el.hidden = true; // 何も出せる値がなければ、壊れて見えないよう非表示のままにする
-        }
-      })
-      .finally(() => clearTimeout(timeout));
+    let count = Number(localStorage.getItem(CACHE_KEY) || 0);
+    if (!Number.isFinite(count) || count < 0) count = 0;
+    count += 1;
+    localStorage.setItem(CACHE_KEY, String(count));
+    renderDigits(count);
   })();
 </script>
 </body>

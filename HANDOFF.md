@@ -1496,3 +1496,39 @@ E2E動作確認が候補として残る。
 
 - コード変更なし(確認のみ)。29章で修正した`01-landing.html`の
   `overflow:hidden`はそのまま有効。
+
+## 31. Vercel公開後のバグ報告への対応 + ランディングページのファイル名変更対応(2026-09-08・13回目)
+
+公開後にユーザーからスクリーンショット付きでバグ報告があり、以下を修正した。
+
+### 修正したバグ
+- **ロゴ(左上のタイトル)が未ログイン/ログイン/一部ページでクリック不可だった**: `highlight-studio-01-landing.html`(現`index.html`)・`02-auth.html`・`04-reset-password.html`の3ページで、ヘッダーのロゴが`<div>`のままリンクになっていなかった。`<a>`タグ化した上で、全12ページに「未ログインならトップ、ログイン済みならアプリ本体(`03-app.html`)へ遷移」というログイン状態に応じたリンク先切り替えスクリプトを追加し、サイト全体で統一した。
+- **トップページ右上に「出」とだけ表示される謎の表示崩れ**: ヒーローのスマホ風モックアップに浮かせている「盛り上がり自動検出」バッジ(`.chip-detect`)が`z-index`未指定のため、後から描画される`.phone-frame`の背景に隠れ、はみ出た最後の1文字だけが見えていた。`.float-chip`に`z-index:5`を追加し、常に手前に表示されるよう修正。あわせてオフセットを`chip-detect: right:-14px→-38px`、`chip-caption: left:-30px→-54px`に広げ、顔カメラの丸モック(`.face-cam`)との重なりも軽減した。`white-space:nowrap`も追加。
+
+### ファイル名変更への追随
+ユーザーがGitHub上でランディングページのファイル名を`highlight-studio-01-landing.html`→`index.html`に変更したため、他11ページ+ランディング自身に残っていた同名参照(ロゴ、フッター各リンク、「トップに戻る」系リンク、料金ページの`#steps`/`#features`アンカー、ログイン状態判定JSの遷移先、og:url/canonicalメタタグ)を全て`index.html`に一括置換。これで`highlight-studio-01-landing.html`という文字列は本パッケージ内に残っていない。
+
+### 引き継ぎ事項
+- 現状、ランディングページのファイル名は`index.html`が正式。今後この一式を再度Vercel等にデプロイする際は、ルート直下に`index.html`として置く想定(サブディレクトリ`frontend/`ごと公開する場合は`frontend/index.html`がルートの`index.html`として解決される設定になっているか要確認)。
+- z-index修正は視覚的な応急処置。オフセット値(`-38px`/`-54px`)は目視確認をしていないため、実際の見え方次第で微調整が必要な場合がある。
+
+## 33. 本番公開に向けた最終仕上げ(2026-09-08・15回目)
+
+依頼者から「サービスは`https://highlight-studio.vercel.app/`で公開済み。やれることからやって」との指示があり、対応した。
+
+### 見つけて直したバグ
+- **`06-pricing.html`のフッターに、削除したはずの特商法ページへのリンクが2箇所残っていた**: 32-3で「index/app/mypage/terms/privacy/contact/about/sitemap.xmlから導線を削除」と記載されていたが、この対象リストに`06-pricing.html`が含まれておらず、フッターの通常表示・省略表示の2箇所にリンクが残存していた。他ページと同じ形に削除。
+- **`sitemap.xml`が旧ファイル名`highlight-studio-01-landing.html`を指したままだった**: 31章でランディングページを`index.html`にリネームした際の一括置換対象にsitemap.xmlが含まれておらず、存在しないファイルへのリンクが残っていた。`index.html`に修正。
+- **`07-terms.html`に旧お問い合わせ用メールアドレス(`support@highlight-studio.example.com`のmailtoリンク)が残っていた**: 32-1で`10-contact.html`・`09-tokushoho.html`・`08-privacy.html`はGoogleフォーム導線に置換されたが、`07-terms.html`だけ対象から漏れていた。他ページと同じGoogleフォームリンクに統一。
+
+### 実施した対応
+- `09-tokushoho.html`のファイル削除(32-4で積み残しになっていたタスク。全ページからの参照が既に無いことを確認した上で削除)。
+- 仮ドメイン`https://highlight-studio.example.com`を本番ドメイン`https://highlight-studio.vercel.app`に一括置換(`og:url`/`og:image`/`twitter:image`/`canonical`/`sitemap.xml`の全`<loc>`/`robots.txt`のSitemap行、計9ファイル)。
+
+### 確認方法
+- 置換後、`example.com`の残存を全文検索 → 残っているのは`you@example.com`(メール入力欄のプレースホルダー文言)と`api-client.js`内のサンプルコメントのみで、いずれも無害であることを確認。
+- 編集した`06-pricing.html`・`07-terms.html`のインラインJSを`node --check`で構文確認、異常なし。
+
+### 未対応(変わらず引き継ぎ)
+- ネットワーク制限により、バックエンドの`pip install -r requirements.txt && pytest`は今回も実行できていない(27章の記録が最後の実測)。
+- 広告ネットワーク未確定、`backend/app/routes/billing.py`・`06-pricing.html`・`05-mypage.html`の決済モーダルは意図的に未着手のまま(将来の有料プラン復活用に温存)。

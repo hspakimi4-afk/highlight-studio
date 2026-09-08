@@ -1512,6 +1512,51 @@ E2E動作確認が候補として残る。
 - 現状、ランディングページのファイル名は`index.html`が正式。今後この一式を再度Vercel等にデプロイする際は、ルート直下に`index.html`として置く想定(サブディレクトリ`frontend/`ごと公開する場合は`frontend/index.html`がルートの`index.html`として解決される設定になっているか要確認)。
 - z-index修正は視覚的な応急処置。オフセット値(`-38px`/`-54px`)は目視確認をしていないため、実際の見え方次第で微調整が必要な場合がある。
 
+## 32. お問い合わせ手段のGoogleフォーム化 + 特商法表記の整理 + 広告収益モデルへの方針転換(2026-09-08・14回目)
+
+運営者(個人)から「問い合わせ先のメールアドレスが実在しない」「特商法表記に架空の会社名・代表者名が入っている」という指摘があり、対応した。途中で「有料プランをやめて広告収益の無料サービスにしたい」という方針転換の指示が入ったため、関連するUI・文言もあわせて修正した。
+
+### 32-1. お問い合わせ手段をGoogleフォームに変更
+- 実在しない`support@highlight-studio.example.com`(mailto)を、運営者が別途作成したGoogleフォームへの導線に差し替えた。フォームURL: `https://docs.google.com/forms/d/e/1FAIpQLSftwsSvulvMiHea5cXrFNdbWbUFYE5CiM0IdlBAS4wQLNmzXw/viewform?usp=publish-editor`
+- `highlight-studio-10-contact.html`: 自前実装だった入力フォーム(名前・メール・種別・内容 → `backend/app/routes/contact.py`へPOST)を撤去し、「お問い合わせフォームを開く」ボタン1つでGoogleフォームを新規タブで開く構成に変更。フォーム送信まわりのJS(`validateEmail`、送信ハンドラ、`HSApi.submitContact`呼び出し、成功画面切り替え)と`api-client.js`の読み込みを削除。
+- 回答期限の文言を「5日以内に確認、内容によっては返信しない場合がある」旨に変更(以前の「1〜3営業日以内に返信」という確約表現をやめた)。
+- `highlight-studio-09-tokushoho.html`・`highlight-studio-08-privacy.html`の連絡先欄も同じGoogleフォームリンクに差し替え済み(その後32-3で09-tokushoho.htmlは削除方針)。
+
+### 32-2. 特商法表記の氏名非公開対応(個人事業主・広告モデル転換前の暫定対応)
+- 運営者は個人で氏名を公開したくない意向のため、消費者庁ガイドライン(2022年6月〜)に基づき、屋号(`Highlight Studio`)表示 + 氏名・所在地は「請求があれば遅滞なく開示する」形式に変更。開示請求の窓口は上記Googleフォーム。
+- `highlight-studio-09-tokushoho.html`・`highlight-studio-11-about.html`(運営事業者情報テーブル)の両方で、架空の「株式会社ハイライトスタジオ」「代表取締役 佐藤 直哉」表記を修正。
+- ※この対応は32-3の広告モデルへの転換により、最終的には特商法ページ自体の削除という形に落ち着いている。過渡的な対応として記録を残す。
+
+### 32-3. 有料プラン廃止・広告収益モデルへの転換(方針: B)
+運営者の判断で「月額課金はやめて、無料+広告収益のサービスにする」ことになった。特定商取引法は「消費者から対価を得る通信販売」が対象のため、**無料化すれば特商法表記そのものが不要**という整理のもとで対応した。
+
+**削除・非表示にしたもの**
+- `highlight-studio-09-tokushoho.html`への導線を全ページ(index/app/mypage/terms/privacy/contact/about/sitemap.xml)から削除。**ファイル自体の削除はまだ完了していない**(次回引き継ぎ参照)。
+- `highlight-studio-11-about.html`の「運営事業者情報」テーブル(屋号・運営者・所在地・事業内容・連絡先)をセクションごと削除。セクション番号を振り直し済み(旧4→3)。
+- `index.html` / `highlight-studio-03-app.html`のヘッダーから「早期アクセス」プランピルを削除。
+- `highlight-studio-05-mypage.html`のヘッダープランピルをリンクなしのバッジ表示に変更。
+
+**「使わない状態で温存」にしたもの(削除はしていない)**
+- `highlight-studio-06-pricing.html`・`backend/app/routes/billing.py`本体は未着手。将来の有料プラン復活時にそのまま使える想定。
+- `highlight-studio-03-app.html`: `currentPlan`の判定を`localStorage.getItem('hs_plan')`ベースから`'pro'`固定に変更(該当行はコメントアウトで残し、1行のコメントアウト解除で元に戻せる)。これにより無料プラン向けの透かし表示・画質/字幕スタイル/音声認識モデルのロック・アップグレード誘導が全て無効化されている。
+- `highlight-studio-05-mypage.html`: `PLAN_LIMITS`に無制限の`adfree`プランを追加し、`currentPlanKey`をこれに固定(同じくコメントアウトで元の判定ロジックを保持)。`admin`プラン用に既にあった「アップグレード・お支払いボタンを隠す」分岐に`adfree`も追加する形で流用。決済モーダル(`billingModal`)自体のマークアップ・JSは未削除(ボタンが出ないため到達不能な状態)。
+- `backend/app/routes/billing.py`のBlueprint登録(`app/__init__.py`側)は未確認・未変更。フロントから叩かれなくなっただけで、エンドポイント自体は生きている可能性が高い。
+
+**文言・規約まわり**
+- `highlight-studio-07-terms.html`: 「料金プラン・お支払い」の章を「ご利用料金・広告について」に書き換え(無料・広告表示ありの旨、特商法への参照を削除)。
+- `highlight-studio-08-privacy.html`: 取得情報からお支払い情報の項目を削除し、Cookie利用の章に広告配信事業者によるCookie利用の可能性を追記(広告ネットワーク未定のため、事業者名は「導入次第追ってご案内」という書き方にしてある)。
+- `highlight-studio-10-contact.html`: 料金プランFAQへの案内カードを削除。
+
+**広告枠のプレースホルダー**
+- 広告ネットワークが未定のため、実際の広告タグは未実装。`id="ad-slot-1"`(`index.html`、compareセクション直前)と`id="ad-slot-export"`(`highlight-studio-03-app.html`、書き出し完了パネル内)に、破線枠のプレースホルダーdivを設置済み。広告ネットワーク導入時はこの2箇所に配信タグを差し込むだけでよい想定。
+
+### 32-4. 未対応・次回引き継ぎ事項
+- **`highlight-studio-09-tokushoho.html`のファイル削除が未完了**。参照は全ページから外したが、ファイル自体はパッケージ内に残っている。次回、忘れずに削除すること。
+- 広告ネットワーク未確定。決まり次第、`ad-slot-1`・`ad-slot-export`への実装と、`highlight-studio-08-privacy.html`のCookie章(「導入次第追ってご案内」の部分)を実際の事業者名・オプトアウト方法の記載に更新する必要がある。
+- `backend/app/routes/billing.py`・`highlight-studio-06-pricing.html`は意図的に未着手。Blueprint登録を外すか等の判断は次回検討。
+- `highlight-studio-05-mypage.html`の決済モーダル(カード登録デモ)は表示経路がなくなっただけで中身は残存。完全に無料サービスとして割り切るなら、いずれこのモーダルごと削除してよい。
+- 個人事業主として運営する場合の各種届出(開業届など)や、広告収益が発生した際の確定申告まわりは本メモの対象外。税理士等に別途確認が必要。
+
 ## 33. 本番公開に向けた最終仕上げ(2026-09-08・15回目)
 
 依頼者から「サービスは`https://highlight-studio.vercel.app/`で公開済み。やれることからやって」との指示があり、対応した。

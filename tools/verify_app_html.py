@@ -64,13 +64,8 @@ def run():
         page.route("https://fonts.gstatic.com/**", lambda route: route.abort())
         page.route("https://unpkg.com/**", lambda route: route.abort())
 
-        # app.htmlは hs_loggedIn=1 が無いとログインページへリダイレクトされる
-        page.goto(f"{BASE_URL}/highlight-studio-01-landing.html", wait_until="load")
-        page.evaluate(
-            "() => { localStorage.setItem('hs_loggedIn','1'); "
-            "localStorage.setItem('hs_userName','テストユーザー'); "
-            "localStorage.setItem('hs_plan','pro'); }"
-        )
+        # app.htmlは会員登録不要になり、ログイン状態のチェックは行わない。
+        # 直接app.htmlを開いて検証する。
         page.goto(f"{BASE_URL}/highlight-studio-03-app.html", wait_until="load")
         page.wait_for_timeout(300)
 

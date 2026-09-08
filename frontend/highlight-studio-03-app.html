@@ -1292,21 +1292,38 @@
   // 自動で再試行する共通ヘルパー。音量解析・切り出し・字幕焼き込みの
   // すべてのffmpeg呼び出しをここ経由にすることで、アプリ全体でこの不具合に
   // 耐えられるようにしている。
+  //
+  // 追加修正: ffmpeg.wasmは同じインスタンスに対して同時に2つ以上の
+  // run()を呼ぶと「ffmpeg.wasm can only run one command at a time」で
+  // 即失敗する。書き出し(runBurnAll)と検出・切り出し(runDetectAndCrop)の
+  // ffmpeg呼び出しはすべてこの関数を経由するが、「もう一度試す」の連打や、
+  // 前段の処理が完全に終わる前に次の処理が始まるタイミング次第では
+  // 呼び出しが重なりうる。呼び出し元がいくつあっても実行が確実に
+  // 1つずつ順番になるよう、共有のキュー(Promiseチェーン)に通してから
+  // 実行するようにした。
+  let ffmpegQueue = Promise.resolve();
   async function runFfmpegSafe(preset, args){
-    try {
-      await ffmpeg.run(...args);
-    } catch (runErr) {
-      const runMsg = String(runErr?.message || runErr);
-      if (/exit\(0\)|ExitStatus/i.test(runMsg)){
-        log(`ffmpeg.wasmが不安定な状態になったため、読み込み直して再試行します(${runMsg})`);
-        ffmpeg = null;
-        ffmpegInputReady = false;
-        await ensureFfmpegLoaded(preset);
+    const runOnce = async () => {
+      try {
         await ffmpeg.run(...args);
-      } else {
-        throw runErr;
+      } catch (runErr) {
+        const runMsg = String(runErr?.message || runErr);
+        if (/exit\(0\)|ExitStatus|can only run one command at a time/i.test(runMsg)){
+          log(`ffmpeg.wasmが不安定な状態になったため、読み込み直して再試行します(${runMsg})`);
+          ffmpeg = null;
+          ffmpegInputReady = false;
+          await ensureFfmpegLoaded(preset);
+          await ffmpeg.run(...args);
+        } else {
+          throw runErr;
+        }
       }
-    }
+    };
+    // 前の呼び出しが成功/失敗のどちらで終わっても、次の呼び出しは
+    // 必ずそのあとに実行されるようにする(キューが失敗で止まらないようにする)。
+    const scheduled = ffmpegQueue.then(runOnce, runOnce);
+    ffmpegQueue = scheduled.catch(() => {});
+    return scheduled;
   }
 
   // 動画全体を読み込まず、必要な区間(offsetSec〜+lenSec)だけをffmpegで16kHzモノラルwavに
@@ -1949,12 +1966,16 @@
   const burnErrorBanner = document.getElementById('burnErrorBanner');
   const burnErrorDesc = document.getElementById('burnErrorDesc');
   const burnRetryBtn = document.getElementById('burnRetryBtn');
+  let burnInProgress = false; // 「もう一度試す」連打などでrunBurnAllが二重に走るのを防ぐ
   async function startBurn(){
+    if (burnInProgress) return;
+    burnInProgress = true;
     burnErrorBanner.style.display = 'none';
     burnProgressTrack.style.display = 'block';
     burnProgressFill.classList.remove('error');
     burnProgressFill.style.width = '0%';
     burnToStep4Btn.disabled = true;
+    burnRetryBtn.disabled = true;
     try { await runBurnAll(); }
     catch (err) {
       log('エラー: ' + (err?.message || err)); console.error(err);
@@ -1965,6 +1986,8 @@
       burnErrorBanner.style.display = 'flex';
     }
     burnToStep4Btn.disabled = false;
+    burnRetryBtn.disabled = false;
+    burnInProgress = false;
   }
   burnToStep4Btn.addEventListener('click', () => {
     saveCurrentCaptionsToClip();

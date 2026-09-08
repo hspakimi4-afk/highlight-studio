@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>【プレリリース】Highlight Studio — プライバシーポリシー</title>
+<meta name="description" content="Highlight Studioのプライバシーポリシーです。動画データはブラウザ内でのみ処理され、サーバーには送信されません。">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Highlight Studio">
+<meta property="og:title" content="Highlight Studio — プライバシーポリシー">
+<meta property="og:description" content="動画データはブラウザ内でのみ処理され、サーバーには送信されません。">
+<meta property="og:image" content="https://highlight-studio.vercel.app/ogp.png">
+<link rel="canonical" href="https://highlight-studio.vercel.app/highlight-studio-08-privacy.html">
+<meta name="theme-color" content="#07080C">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'%3E%3Crect x='2' y='11' width='3' height='6' rx='1' fill='%235A6373'/%3E%3Crect x='7' y='6' width='3' height='16' rx='1' fill='%238891A0'/%3E%3Crect x='12' y='9' width='3' height='10' rx='1' fill='%23E8B84B'/%3E%3Crect x='17' y='4' width='3' height='20' rx='1' fill='%238891A0'/%3E%3Crect x='22' y='12' width='2' height='4' rx='1' fill='%235A6373'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+<link rel="manifest" href="./site.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Highlight Studio">
+<meta property="og:locale" content="ja_JP">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#07080C;--surface:#0E1119;--surface2:#161A24;--surface3:#1D2230;
+    --line:rgba(255,255,255,.08);--line-soft:rgba(255,255,255,.05);--line-strong:rgba(255,255,255,.14);
+    --text:#EDEFF2;--text-dim:#8891A0;--text-faint:#7E88A0;
+    --accent:#E8B84B;--accent-hi:#F3CA6C;--accent-soft:#3A331F;--accent-line:#5C4E28;
+    --live:#4FD1C5;--live-soft:#152B2A;--danger:#E2685A;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+    --shadow-lg:0 2px 4px rgba(0,0,0,.5), 0 28px 56px -20px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);
+    --shadow-card:0 1px 0 rgba(255,255,255,.02) inset, 0 20px 40px -24px rgba(0,0,0,.85);
+    --card-border:linear-gradient(160deg, rgba(255,255,255,.10), rgba(255,255,255,.02) 40%, rgba(255,255,255,.02) 60%, rgba(255,255,255,.06));
+    --ease:cubic-bezier(.25,.8,.4,1);
+    --sans:'Noto Sans JP',-apple-system,'Hiragino Sans',sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;}
+  @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+  html,body{margin:0;padding:0;}
+  body{color-scheme:dark;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.7;-webkit-font-smoothing:antialiased;}
+  body::before{
+    content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse 900px 500px at 50% -10%, rgba(232,184,75,0.05), transparent 60%),
+      radial-gradient(ellipse 700px 400px at 100% 0%, rgba(79,209,197,0.03), transparent 60%);
+    pointer-events:none;
+  }
+  body::after{
+    content:'';position:fixed;inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+    opacity:.025;mix-blend-mode:overlay;pointer-events:none;
+  }
+  a{color:var(--accent);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px;}
+
+  header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 28px;border-bottom:1px solid var(--line-soft);position:sticky;top:0;z-index:20;
+    background:rgba(7,8,12,.85);backdrop-filter:blur(10px);
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{width:26px;height:26px;flex-shrink:0;filter:drop-shadow(0 2px 6px rgba(232,184,75,.25));}
+  .brand-name{font-size:1.02rem;font-weight:700;letter-spacing:0.01em;}
+  .brand-name b{color:var(--accent);font-weight:700;}
+  .prerelease-badge{display:inline-block;margin-left:8px;padding:2px 8px;font-size:0.66rem;font-weight:700;letter-spacing:0.03em;color:#E8B84B;background:rgba(232,184,75,0.14);border:1px solid rgba(232,184,75,0.4);border-radius:999px;vertical-align:middle;white-space:nowrap;}
+  .back-link{display:flex;align-items:center;gap:6px;color:var(--text-dim);font-size:0.85rem;transition:color .15s ease;}
+  .back-link:hover{color:var(--text);text-decoration:none;}
+  .back-link svg{width:15px;height:15px;}
+
+  .wrap{max-width:760px;margin:0 auto;padding:56px 24px 90px;position:relative;z-index:1;}
+  .doc-eyebrow{font-family:var(--mono);font-size:0.76rem;color:var(--live);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;}
+  h1.doc-title{font-size:1.9rem;font-weight:800;letter-spacing:-.01em;margin:0 0 10px;}
+  .doc-updated{font-size:0.82rem;color:var(--text-faint);margin:0 0 32px;}
+
+  .highlight-banner{
+    display:flex;gap:14px;align-items:flex-start;background:var(--live-soft);border:1px solid #2c6560;
+    border-radius:12px;padding:18px 20px;margin-bottom:44px;box-shadow:var(--shadow-card);position:relative;
+  }
+  .highlight-banner::before{
+    content:'';position:absolute;inset:0;border-radius:12px;padding:1px;pointer-events:none;
+    background:linear-gradient(160deg, rgba(79,209,197,.45), rgba(79,209,197,.04) 45%, rgba(79,209,197,.04) 60%, rgba(79,209,197,.3));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;
+  }
+  .highlight-banner svg{width:22px;height:22px;color:var(--live);flex-shrink:0;margin-top:1px;}
+  .highlight-banner .hb-title{font-weight:700;color:var(--live);margin-bottom:4px;font-size:0.94rem;}
+  .highlight-banner p{margin:0;color:var(--text-dim);font-size:0.86rem;}
+
+  .toc{
+    background:var(--surface2);border:1px solid var(--line);border-radius:12px;
+    padding:18px 22px;margin-bottom:44px;box-shadow:var(--shadow-card);position:relative;
+  }
+  .toc::before{
+    content:'';position:absolute;inset:0;border-radius:12px;padding:1px;pointer-events:none;
+    background:var(--card-border);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;
+  }
+  .toc-title{font-size:0.78rem;color:var(--text-dim);font-weight:600;margin:0 0 10px;letter-spacing:.02em;}
+  .toc ol{margin:0;padding-left:1.2em;font-size:0.86rem;}
+  .toc li{margin-bottom:6px;}
+  .toc a{color:var(--text-dim);}
+  .toc a:hover{color:var(--accent);}
+
+  section.doc-section{margin-bottom:38px;scroll-margin-top:80px;}
+  h2{font-size:1.12rem;font-weight:700;margin:0 0 14px;letter-spacing:-.005em;display:flex;align-items:center;gap:10px;}
+  h2 .num{
+    font-family:var(--mono);font-size:0.78rem;color:var(--accent);
+    border:1px solid var(--accent-line);background:var(--accent-soft);
+    border-radius:6px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  p{color:var(--text-dim);font-size:0.92rem;margin:0 0 14px;}
+  ul{color:var(--text-dim);font-size:0.92rem;margin:0 0 14px;padding-left:1.3em;}
+  li{margin-bottom:6px;}
+  strong{color:var(--text);font-weight:600;}
+
+  table{width:100%;border-collapse:collapse;margin:0 0 14px;font-size:0.86rem;}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line-soft);color:var(--text-dim);}
+  th{color:var(--text);font-weight:600;background:var(--surface2);}
+  tr:last-child td{border-bottom:none;}
+
+  footer{border-top:1px solid var(--line-soft);padding:26px 28px;}
+  .footer-row{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;}
+  .footer-brand{display:flex;align-items:center;gap:8px;color:var(--text-faint);font-size:0.82rem;}
+  .footer-links{display:flex;gap:20px;font-size:0.82rem;}
+  .footer-links a{color:var(--text-dim);}
+  .footer-links a:hover{color:var(--text);}
+  .footer-links a.current{color:var(--accent);}
+
+  @media(max-width:640px){
+    .wrap{padding:36px 18px 70px;}
+    h1.doc-title{font-size:1.5rem;}
+    table{font-size:0.78rem;}
+    th,td{padding:8px;}
+  }
+  @media print{
+    body::before,body::after{display:none;}
+    header,footer,.toc,.highlight-banner{display:none;}
+    body{background:#fff;color:#000;}
+    h1,h2,h3{color:#000;}
+    section{border-color:#ccc;}
+    a{color:#000;text-decoration:underline;}
+    th,td{border-color:#ccc;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="./index.html" style="text-decoration:none;">
+    <svg class="brand-mark" viewBox="0 0 26 26" fill="none">
+      <rect x="2" y="11" width="3" height="6" rx="1" fill="#5A6373"/>
+      <rect x="7" y="6" width="3" height="16" rx="1" fill="#8891A0"/>
+      <rect x="12" y="9" width="3" height="10" rx="1" fill="var(--accent)"/>
+      <rect x="17" y="4" width="3" height="20" rx="1" fill="#8891A0"/>
+      <rect x="22" y="12" width="2" height="4" rx="1" fill="#5A6373"/>
+    </svg>
+    <div class="brand-name">Highlight <b>Studio</b></div>
+    <span class="prerelease-badge">プレリリース</span>
+  </a>
+  <a class="back-link" href="./index.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    トップに戻る
+  </a>
+</header>
+
+<div class="wrap">
+  <div class="doc-eyebrow">Privacy Policy</div>
+  <h1 class="doc-title">プライバシーポリシー</h1>
+  <p class="doc-updated">最終更新日: 2026年9月6日</p>
+
+  <div class="highlight-banner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    <div>
+      <div class="hb-title">動画データはサーバーに送信されません</div>
+      <p>アップロードした動画の解析・切り抜き・字幕焼き込みは、すべてお使いのブラウザの中(端末内)で処理されます。動画ファイル自体を弊社のサーバーで保管・閲覧することはありません。</p>
+    </div>
+  </div>
+
+  <div class="toc">
+    <p class="toc-title">目次</p>
+    <ol>
+      <li><a href="#p1">取得する情報</a></li>
+      <li><a href="#p2">動画データの取り扱い</a></li>
+      <li><a href="#p3">情報の利用目的</a></li>
+      <li><a href="#p4">第三者提供・委託</a></li>
+      <li><a href="#p5">Cookie等の利用</a></li>
+      <li><a href="#p6">データの保存期間</a></li>
+      <li><a href="#p7">安全管理措置</a></li>
+      <li><a href="#p8">ユーザーの権利</a></li>
+      <li><a href="#p9">プライバシーポリシーの変更</a></li>
+      <li><a href="#p10">お問い合わせ</a></li>
+    </ol>
+  </div>
+
+  <section class="doc-section" id="p1">
+    <h2><span class="num">1</span>取得する情報</h2>
+    <p>本サービスは会員登録を必要とせず、氏名・メールアドレス等の個人情報の登録を求めません。ご利用にあたり、以下の情報のみ取得します。</p>
+    <table>
+      <tr><th>情報の種類</th><th>取得タイミング</th></tr>
+      <tr><td>広告配信に伴うアクセスログ、Cookie等の技術情報</td><td>サービス利用時</td></tr>
+      <tr><td>お問い合わせ内容(お問い合わせフォーム経由)</td><td>お問い合わせ時</td></tr>
+    </table>
+  </section>
+
+  <section class="doc-section" id="p2">
+    <h2><span class="num">2</span>動画データの取り扱い</h2>
+    <p>ユーザーがアップロードする配信アーカイブ等の動画ファイルは、<strong>ブラウザ内のメモリ・一時領域でのみ処理</strong>され、本サービスのサーバーにアップロード・保存されることはありません。</p>
+    <ul>
+      <li>盛り上がり検出(音量・映像解析)、縦動画への切り抜き、字幕の音声認識、字幕の焼き込みは、いずれもブラウザ上で動作する処理エンジン(WebAssembly)によって行われます。</li>
+      <li>処理に使う音声認識モデル等はブラウザにダウンロードされますが、動画そのものが外部に送信されることはありません。</li>
+      <li>書き出したクリップ(動画本体)はユーザーの端末に直接ダウンロードされ、本サービス側では動画ファイルの実体を保持しません。</li>
+    </ul>
+  </section>
+
+  <section class="doc-section" id="p3">
+    <h2><span class="num">3</span>情報の利用目的</h2>
+    <ul>
+      <li>広告の配信・最適化のため</li>
+      <li>不具合の調査、品質改善、機能開発のため</li>
+      <li>お問い合わせへの対応のため</li>
+      <li>不正利用の検知・防止のため</li>
+    </ul>
+  </section>
+
+  <section class="doc-section" id="p4">
+    <h2><span class="num">4</span>第三者提供・委託</h2>
+    <p>取得した情報は、法令に基づく場合を除き、ご本人の同意なく第三者に提供することはありません。ただし、広告配信、アクセス解析等の業務の一部を外部事業者(広告配信事業者を含む)に委託する場合があり、この場合は委託先に対して適切な監督を行います。</p>
+  </section>
+
+  <section class="doc-section" id="p5">
+    <h2><span class="num">5</span>Cookie等の利用</h2>
+    <p>本サービスは広告収益により運営されており、広告の配信・最適化やアクセス状況の把握のためにCookieおよび類似の技術を利用します(利用する広告配信事業者は導入次第、本ページで追ってご案内します)。ブラウザの設定によりCookieを無効化することもできますが、その場合一部機能や広告の表示に影響が出ることがあります。</p>
+  </section>
+
+  <section class="doc-section" id="p6">
+    <h2><span class="num">6</span>データの保存期間</h2>
+    <p>本サービスはアカウント情報を保持しません。お問い合わせ内容は、対応完了後、合理的な期間内に削除します。法令上の保存義務がある情報については、当該期間保持します。</p>
+  </section>
+
+  <section class="doc-section" id="p7">
+    <h2><span class="num">7</span>安全管理措置</h2>
+    <p>取得した情報の漏えい、滅失またはき損の防止その他の安全管理のため、通信の暗号化(HTTPS)、アクセス権限の制限等、必要かつ適切な措置を講じます。</p>
+  </section>
+
+  <section class="doc-section" id="p8">
+    <h2><span class="num">8</span>ユーザーの権利</h2>
+    <p>お問い合わせ内容など、ユーザーがご自身で提供した情報について、開示・訂正・削除をご希望の場合は、下記のお問い合わせ先よりご連絡ください。</p>
+  </section>
+
+  <section class="doc-section" id="p9">
+    <h2><span class="num">9</span>プライバシーポリシーの変更</h2>
+    <p>本ポリシーの内容は、法令の変更やサービス内容の変更等に応じて、予告なく変更されることがあります。重要な変更を行う場合は、本サービス上での掲示等により通知します。</p>
+  </section>
+
+  <section class="doc-section" id="p10">
+    <h2><span class="num">10</span>お問い合わせ</h2>
+    <p>本ポリシーに関するお問い合わせは、<a href="https://docs.google.com/forms/d/e/1FAIpQLSftwsSvulvMiHea5cXrFNdbWbUFYE5CiM0IdlBAS4wQLNmzXw/viewform?usp=publish-editor" target="_blank" rel="noopener">お問い合わせフォーム</a>よりご連絡ください。</p>
+  </section>
+</div>
+
+<footer>
+  <div class="footer-row">
+    <div class="footer-brand">
+      <svg class="brand-mark" style="width:18px;height:18px;" viewBox="0 0 26 26" fill="none">
+        <rect x="2" y="11" width="3" height="6" rx="1" fill="#5A6373"/>
+        <rect x="7" y="6" width="3" height="16" rx="1" fill="#8891A0"/>
+        <rect x="12" y="9" width="3" height="10" rx="1" fill="var(--accent)"/>
+        <rect x="17" y="4" width="3" height="20" rx="1" fill="#8891A0"/>
+        <rect x="22" y="12" width="2" height="4" rx="1" fill="#5A6373"/>
+      </svg>
+      Highlight Studio
+    </div>
+    <div class="footer-links">
+      <a href="./highlight-studio-07-terms.html">利用規約</a>
+      <a href="./highlight-studio-08-privacy.html" class="current">プライバシー</a>
+      <a href="./highlight-studio-10-contact.html">お問い合わせ</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+</script>
+</body>
+</html>

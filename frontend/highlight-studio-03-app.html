@@ -1,0 +1,2210 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>【プレリリース】Highlight Studio — エディタ</title>
+<meta name="description" content="Highlight Studio — 配信アーカイブから見どころを自動検出し、切り抜き動画をブラウザだけで仕上げます。">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Highlight Studio">
+<meta property="og:title" content="Highlight Studio — エディタ">
+<meta property="og:description" content="配信アーカイブから見どころを自動検出し、切り抜き動画をブラウザだけで仕上げます。">
+<meta property="og:image" content="https://highlight-studio.vercel.app/ogp.png">
+<meta property="og:url" content="https://highlight-studio.vercel.app/highlight-studio-03-app.html">
+<link rel="canonical" href="https://highlight-studio.vercel.app/highlight-studio-03-app.html">
+<meta name="theme-color" content="#07080C">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'%3E%3Crect x='2' y='11' width='3' height='6' rx='1' fill='%235A6373'/%3E%3Crect x='7' y='6' width='3' height='16' rx='1' fill='%238891A0'/%3E%3Crect x='12' y='9' width='3' height='10' rx='1' fill='%23E8B84B'/%3E%3Crect x='17' y='4' width='3' height='20' rx='1' fill='%238891A0'/%3E%3Crect x='22' y='12' width='2' height='4' rx='1' fill='%235A6373'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+<link rel="manifest" href="./site.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Highlight Studio">
+<meta property="og:locale" content="ja_JP">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#07080C;
+    --surface:#0E1119;
+    --surface2:#161A24;
+    --surface3:#1D2230;
+    --line:rgba(255,255,255,.08);
+    --line-soft:rgba(255,255,255,.05);
+    --line-strong:rgba(255,255,255,.14);
+    --text:#EDEFF2;
+    --text-dim:#8891A0;
+    --text-faint:#7E88A0;
+    --accent:#E8B84B;
+    --accent-hi:#F3CA6C;
+    --accent-soft:#3A331F;
+    --accent-line:#5C4E28;
+    --live:#4FD1C5;
+    --live-soft:#152B2A;
+    --danger:#E2685A;
+    --radius:6px;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+    --shadow-md:0 1px 1px rgba(0,0,0,.5), 0 16px 32px -16px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.03);
+    --shadow-lg:0 2px 4px rgba(0,0,0,.5), 0 28px 56px -20px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);
+    --shadow-key:0 1px 1px rgba(0,0,0,.45), 0 1px 0 rgba(255,255,255,.06) inset, 0 -1px 1px rgba(0,0,0,.35) inset;
+    --shadow-card:0 1px 0 rgba(255,255,255,.02) inset, 0 20px 40px -24px rgba(0,0,0,.85);
+    --card-border:linear-gradient(160deg, rgba(255,255,255,.10), rgba(255,255,255,.02) 40%, rgba(255,255,255,.02) 60%, rgba(255,255,255,.06));
+    --ease:cubic-bezier(.25,.8,.4,1);
+    --sans:'Noto Sans JP',-apple-system,'Hiragino Sans',sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;}
+  @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+  html,body{margin:0;padding:0;}
+  body{
+    color-scheme:dark;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  body::before{
+    content:'';
+    position:fixed;inset:0;
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -10%, rgba(232,184,75,0.05), transparent 60%),
+      radial-gradient(ellipse 700px 400px at 100% 0%, rgba(79,209,197,0.03), transparent 60%);
+    pointer-events:none;
+  }
+  body::after{
+    content:'';
+    position:fixed;inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+    opacity:.025;
+    mix-blend-mode:overlay;
+    pointer-events:none;
+  }
+  ::selection{background:var(--accent-soft);color:var(--text);}
+  ::-webkit-scrollbar{width:9px;height:9px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:5px;}
+  ::-webkit-scrollbar-thumb:hover{background:var(--text-faint);}
+  a{color:var(--accent);}
+  button, input, select{font:inherit;}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px;}
+
+  /* ---------- header ---------- */
+  header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 28px;
+    border-bottom:1px solid var(--line-soft);
+    background:linear-gradient(180deg, rgba(18,22,31,.6), transparent);
+    position:sticky;top:0;z-index:20;
+    backdrop-filter:blur(10px);
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{width:26px;height:26px;flex-shrink:0;filter:drop-shadow(0 2px 6px rgba(232,184,75,.25));}
+  .brand-name{font-size:1.02rem;font-weight:700;letter-spacing:0.01em;}
+  .brand-name b{color:var(--accent);font-weight:700;}
+  .prerelease-badge{display:inline-block;margin-left:8px;padding:2px 8px;font-size:0.66rem;font-weight:700;letter-spacing:0.03em;color:#E8B84B;background:rgba(232,184,75,0.14);border:1px solid rgba(232,184,75,0.4);border-radius:999px;vertical-align:middle;white-space:nowrap;}
+  .header-right{display:flex;align-items:center;gap:14px;}
+  .plan-pill{
+    font-family:var(--mono);font-size:0.7rem;letter-spacing:.04em;color:var(--accent);
+    border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:20px;padding:4px 11px;
+  }
+  .avatar{
+    width:28px;height:28px;border-radius:50%;
+    background:linear-gradient(160deg,var(--surface3),var(--surface2));
+    border:1px solid var(--line);box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+  }
+
+  /* ---------- timeline stepper ---------- */
+  .stepper-wrap{
+    max-width:920px;margin:0 auto;padding:34px 28px 8px;
+  }
+  .stepper-track{
+    position:relative;height:2px;background:var(--line);
+    margin:0 6px 0;border-radius:2px;
+  }
+  .stepper-track-fill{
+    position:absolute;left:0;top:0;height:2px;background:var(--accent);
+    border-radius:2px;transition:width .5s var(--ease);
+    box-shadow:0 0 10px rgba(232,184,75,.4);
+  }
+  .stepper-nodes{
+    display:flex;justify-content:space-between;margin-top:-7px;position:relative;
+  }
+  .step-node{
+    display:flex;flex-direction:column;align-items:center;gap:10px;
+    background:transparent;border:none;cursor:pointer;font-family:var(--sans);
+    padding:4px;border-radius:8px;transition:opacity .2s ease;
+  }
+  .step-node:disabled,.step-node[aria-disabled=true]{cursor:default;}
+  .step-dot{
+    width:14px;height:14px;border-radius:50%;
+    background:var(--bg);border:2px solid var(--line);
+    transition:all .25s var(--ease);
+  }
+  .step-node.done .step-dot{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,184,75,.12);}
+  .step-node.active .step-dot{
+    background:var(--bg);border-color:var(--accent);
+    box-shadow:0 0 0 4px var(--accent-soft);
+    transform:scale(1.15);
+  }
+  .step-node:hover .step-dot{border-color:var(--accent-hi);}
+  .step-label{font-size:0.82rem;color:var(--text-dim);transition:color .2s ease;}
+  .step-node.active .step-label{color:var(--text);font-weight:600;}
+
+  /* ---------- main ---------- */
+  main{max-width:920px;margin:0 auto;padding:22px 28px 40px;}
+  .panel{
+    background:linear-gradient(180deg,var(--surface),var(--surface) 60%,var(--surface2));
+    border:1px solid var(--line);border-radius:14px;
+    padding:28px 30px;display:none;
+    box-shadow:var(--shadow-card);
+    animation:panel-in .35s var(--ease);
+    position:relative;
+  }
+  .panel::before{
+    content:'';position:absolute;inset:0;border-radius:14px;padding:1px;pointer-events:none;
+    background:var(--card-border);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;
+  }
+  @keyframes panel-in{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+  .panel.active{display:block;}
+  .panel-title{font-size:1.1rem;font-weight:700;margin:0 0 4px;letter-spacing:-.005em;}
+  .title-check{
+    display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;
+    border-radius:50%;background:var(--live);color:#07201D;font-size:0.72rem;font-weight:800;
+    margin-right:4px;vertical-align:2px;
+  }
+  .panel-sub{color:var(--text-dim);font-size:0.88rem;margin:0 0 24px;max-width:62ch;}
+
+  /* upload */
+  .dropzone{
+    border:1.5px dashed var(--line);border-radius:10px;
+    padding:38px 20px;text-align:center;color:var(--text-dim);
+    background:var(--surface2);margin-bottom:24px;
+    cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:10px;
+    transition:border-color .18s var(--ease),background .18s var(--ease),transform .18s var(--ease);
+  }
+  .dropzone:hover{border-color:var(--text-faint);background:var(--surface3);}
+  .dropzone:active{transform:scale(.995);}
+  .dropzone.drag-over{
+    border-color:var(--accent);background:var(--accent-soft);color:var(--text);
+    transform:scale(1.005);
+  }
+  .dropzone-icon{width:30px;height:30px;color:var(--text-faint);flex-shrink:0;display:block;transition:color .18s ease,transform .18s ease;}
+  .dropzone:hover .dropzone-icon{transform:translateY(-2px);}
+  .dropzone.drag-over .dropzone-icon{color:var(--accent);}
+  .dropzone-text{font-size:0.88rem;}
+  .field-error{font-size:0.8rem;color:var(--danger);display:none;}
+  .field-error.show{display:block;}
+  .dropzone strong{color:var(--text);font-weight:600;}
+  .dropzone .filesize{font-family:var(--mono);font-size:0.78rem;color:var(--text-faint);display:none;}
+  .dropzone .filesize.show{display:block;}
+  .dropzone input[type=file]{display:none;}
+
+  .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 24px;}
+  .field{display:flex;flex-direction:column;gap:8px;}
+  .field label{font-size:0.82rem;color:var(--text-dim);font-weight:500;}
+  .field-note{font-size:0.76rem;color:var(--text-faint);margin-top:2px;line-height:1.5;}
+  .field-warning{font-size:0.78rem;color:var(--accent);margin-top:6px;line-height:1.5;display:none;}
+  .field-warning.show{display:block;animation:panel-in .25s var(--ease);}
+  .segmented{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface2);}
+  .segmented button{
+    flex:1;background:transparent;color:var(--text-dim);border:none;
+    font-family:var(--sans);font-size:0.85rem;padding:10px 8px;cursor:pointer;
+    border-right:1px solid var(--line);transition:background .15s ease,color .15s ease;
+  }
+  .segmented button:last-child{border-right:none;}
+  .segmented button:hover:not(.selected){background:var(--surface3);color:var(--text);}
+  .segmented button.selected{background:var(--surface);color:var(--accent);font-weight:600;box-shadow:inset 0 0 0 1px var(--accent-line);}
+  .segmented button.locked{opacity:0.6;cursor:pointer;}
+  .segmented button.locked:hover{background:var(--surface3);}
+  .segmented button.locked .upgrade-badge{display:block;margin:4px auto 0;width:fit-content;font-size:0.62rem;padding:1px 6px;}
+  .segmented.color-segmented button{padding:9px 6px;}
+  .segmented.color-segmented .dot{
+    display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;
+    vertical-align:-1px;border:1px solid rgba(255,255,255,.35);
+  }
+  .custom-color-row{display:none;align-items:center;gap:8px;margin-top:8px;}
+  .custom-color-row.show{display:flex;animation:panel-in .25s var(--ease);}
+  .custom-color-row input[type=color]{
+    width:34px;height:30px;padding:0;border:1px solid var(--line);border-radius:6px;
+    background:var(--surface2);cursor:pointer;
+  }
+
+  .option-card{
+    position:relative;border:1px solid var(--line);border-radius:8px;
+    padding:13px 14px;background:var(--surface2);cursor:pointer;
+    display:flex;align-items:flex-start;gap:10px;
+    transition:border-color .15s ease,background .15s ease;
+  }
+  .option-card:hover{border-color:var(--text-faint);}
+  .option-card:has(input:checked){border-color:var(--accent-line);background:var(--accent-soft);}
+  .option-card input{margin-top:3px;accent-color:var(--accent);width:15px;height:15px;flex-shrink:0;}
+  .option-card .ot{font-size:0.87rem;font-weight:600;display:flex;align-items:center;gap:7px;}
+  .option-card:has(input:checked) .ot{color:var(--accent);}
+  .option-card .od{font-size:0.78rem;color:var(--text-dim);margin-top:3px;}
+  .option-card.locked{cursor:pointer;opacity:0.75;}
+  .option-card.locked:hover{border-color:var(--accent-line);}
+  .option-card.locked input{pointer-events:none;}
+  .upgrade-badge{
+    font-family:var(--mono);font-size:0.68rem;color:var(--accent);
+    border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:20px;padding:2px 8px;
+    display:inline-flex;align-items:center;gap:4px;
+  }
+  .upgrade-badge svg{width:11px;height:11px;}
+
+  .inline-field{
+    margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:8px;
+    background:var(--surface2);display:none;
+  }
+  .inline-field.show{display:block;animation:panel-in .25s var(--ease);}
+  .inline-field label{display:flex;align-items:center;gap:10px;font-size:0.85rem;color:var(--text);flex-wrap:wrap;}
+  .inline-field input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;}
+  .inline-field input[type=text]{
+    flex:1;min-width:140px;background:var(--surface);border:1px solid var(--line);color:var(--text);
+    border-radius:6px;padding:8px 10px;font-family:var(--sans);font-size:0.85rem;
+    transition:border-color .15s ease;
+  }
+  .inline-field input[type=text]:focus{border-color:var(--accent-line);}
+
+  .btn-row{margin-top:26px;display:flex;justify-content:flex-end;gap:10px;}
+  .btn{
+    font-family:var(--sans);font-size:0.9rem;font-weight:600;border:none;
+    border-radius:8px;padding:11px 20px;cursor:pointer;
+    transition:transform .12s var(--ease),box-shadow .12s ease,background .15s ease,opacity .15s ease;
+  }
+  .btn-primary{
+    background:linear-gradient(180deg,var(--accent-hi),var(--accent));color:#1A1400;
+    box-shadow:0 1px 1px rgba(0,0,0,.3), 0 8px 20px -8px rgba(232,184,75,.35), inset 0 1px 0 rgba(255,255,255,.35), inset 0 -1px 1px rgba(0,0,0,.12);
+  }
+  .btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 2px 2px rgba(0,0,0,.3), 0 10px 24px -6px rgba(232,184,75,.5), inset 0 1px 0 rgba(255,255,255,.4), inset 0 -1px 1px rgba(0,0,0,.12);}
+  .btn-primary:active:not(:disabled){transform:translateY(0);box-shadow:0 1px 1px rgba(0,0,0,.3), inset 0 1px 2px rgba(0,0,0,.25);}
+  .btn-primary:disabled{background:var(--surface2);color:var(--text-faint);cursor:not-allowed;box-shadow:none;}
+  .btn-ghost{background:var(--surface2);color:var(--text-dim);border:1px solid var(--line);box-shadow:inset 0 1px 0 rgba(255,255,255,.03);}
+  .btn-ghost:hover:not(:disabled){background:var(--surface3);color:var(--text);border-color:var(--text-faint);}
+  .btn-ghost:active:not(:disabled){transform:translateY(0);}
+  .btn-ghost:disabled{opacity:0.5;cursor:not-allowed;}
+
+  /* detecting */
+  .wave-stage{
+    background:var(--surface2);border:1px solid var(--line);border-radius:10px;
+    padding:20px 20px 14px;margin-bottom:22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+  }
+  .wave-row{display:flex;align-items:center;gap:14px;}
+  .live-dot{
+    width:8px;height:8px;border-radius:50%;background:var(--live);flex-shrink:0;
+    animation:pulse 1.4s infinite;box-shadow:0 0 8px rgba(79,209,197,.6);
+  }
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+  .wave-label{font-size:0.82rem;color:var(--live);font-weight:600;}
+  .wave-label.error{color:var(--danger);}
+  .progress-fill.error{background:var(--danger);box-shadow:none;}
+  .error-banner{
+    display:flex;align-items:flex-start;gap:10px;background:var(--danger-soft,#2A1815);
+    border:1px solid rgba(226,104,90,.35);border-radius:10px;padding:14px 16px;margin-top:16px;
+    font-size:0.85rem;color:var(--text);
+  }
+  .error-banner svg{width:18px;height:18px;color:var(--danger);flex-shrink:0;margin-top:1px;}
+  .error-banner .eb-title{font-weight:700;margin-bottom:3px;}
+  .error-banner .eb-desc{color:var(--text-dim);font-size:0.82rem;line-height:1.6;white-space:pre-wrap;word-break:break-word;}
+  .error-banner .eb-retry{
+    margin-left:auto;flex-shrink:0;background:var(--surface2);border:1px solid var(--line);color:var(--text);
+    border-radius:7px;padding:7px 13px;font-size:0.8rem;font-weight:600;cursor:pointer;
+  }
+  .error-banner .eb-retry:hover{background:var(--surface3);}
+  .wave-time{margin-left:auto;font-family:var(--mono);font-size:0.78rem;color:var(--text-dim);text-align:right;}
+  .wave-bars{
+    display:flex;align-items:flex-end;gap:2px;height:46px;margin-top:14px;overflow:hidden;
+  }
+  .wave-bars span{
+    flex:1;background:var(--line);border-radius:1px;min-width:2px;
+    transition:background .3s ease,height .3s ease;
+  }
+  .wave-bars span.lit{background:var(--live);}
+  .wave-bars span.peak{background:var(--accent);box-shadow:0 0 6px rgba(232,184,75,.5);}
+
+  /* progress bar (処理待ちの体感時間対策) */
+  .progress-track{
+    position:relative;height:6px;border-radius:4px;background:var(--surface3);
+    overflow:hidden;margin-top:14px;
+  }
+  .progress-fill{
+    height:100%;border-radius:4px;width:0%;
+    background:linear-gradient(90deg,var(--accent),var(--accent-hi));
+    box-shadow:0 0 8px rgba(232,184,75,.35);
+    transition:width .4s var(--ease);
+  }
+  .progress-fill.indeterminate{
+    width:32% !important;animation:indet 1.3s ease-in-out infinite;
+  }
+  @keyframes indet{
+    0%{transform:translateX(-40%);}
+    100%{transform:translateX(310%);}
+  }
+  .stage-list{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
+  .stage-item{
+    display:flex;align-items:center;gap:7px;font-size:0.76rem;color:var(--text-faint);
+    background:var(--surface3);border:1px solid var(--line);border-radius:20px;padding:5px 12px 5px 8px;
+    transition:color .2s ease,border-color .2s ease,background .2s ease;
+  }
+  .stage-item .stage-mark{
+    width:15px;height:15px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    border:1.5px solid var(--text-faint);color:transparent;
+  }
+  .stage-item .stage-mark svg{width:10px;height:10px;}
+  .stage-item.active{color:var(--text);border-color:var(--accent-line);background:var(--accent-soft);}
+  .stage-item.active .stage-mark{border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,184,75,.15);}
+  .stage-item.active .stage-mark::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);}
+  .stage-item.done{color:var(--text-dim);}
+  .stage-item.done .stage-mark{border-color:var(--live);background:var(--live);color:#07201D;}
+
+  /* detected results (複数) */
+  .result-label{font-size:0.82rem;color:var(--text-dim);margin:22px 0 12px;font-weight:500;}
+  #resultArea{display:flex;flex-direction:column;gap:12px;}
+  .result-card{
+    display:flex;gap:16px;border:1px solid var(--line);border-radius:10px;
+    padding:16px;background:var(--surface2);box-shadow:var(--shadow-sm);
+    opacity:0;transform:translateY(6px);transition:opacity .4s ease,transform .4s ease,border-color .15s ease;
+    position:relative;
+  }
+  .result-card::before{
+    content:'';position:absolute;inset:0;border-radius:10px;padding:1px;pointer-events:none;
+    background:var(--card-border);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .15s ease;
+  }
+  .result-card:hover::before{opacity:1;}
+  .result-card.in{opacity:1;transform:translateY(0);}
+  .result-card:hover{border-color:var(--text-faint);}
+  .result-thumb{
+    width:90px;height:140px;border-radius:7px;flex-shrink:0;
+    background:linear-gradient(160deg,#22293580,#12161F);
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+    color:var(--text-faint);font-size:0.7rem;box-shadow:var(--shadow-sm);
+  }
+  .result-meta{flex:1;font-size:0.85rem;color:var(--text-dim);display:flex;flex-direction:column;gap:8px;}
+  .result-meta .rt{font-family:var(--mono);color:var(--accent);font-size:0.95rem;font-weight:600;}
+  .result-meta .rd{font-size:0.8rem;}
+  .tag-row{display:flex;flex-wrap:wrap;gap:6px;}
+  .score-tag{
+    font-family:var(--mono);font-size:0.72rem;font-weight:600;letter-spacing:.02em;
+    border-radius:20px;padding:3px 10px;border:1px solid var(--line-strong);color:var(--text-dim);
+  }
+  .score-tag.high{color:var(--live);border-color:#2c6560;background:var(--live-soft);}
+  .score-tag.mid{color:var(--accent);border-color:var(--accent-line);background:var(--accent-soft);}
+  .style-tag{
+    font-size:0.72rem;color:var(--text-dim);border:1px solid var(--line-strong);
+    border-radius:20px;padding:3px 10px;
+  }
+  .result-placeholder{color:var(--text-faint);font-size:0.85rem;padding:28px 0;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .result-placeholder svg{width:24px;height:24px;opacity:.5;}
+
+  /* clip tabs (STEP3) */
+  .clip-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+  .clip-tab{
+    font-family:var(--sans);font-size:0.82rem;color:var(--text-dim);
+    background:var(--surface2);border:1px solid var(--line);border-radius:20px;
+    padding:7px 15px;cursor:pointer;transition:all .15s ease;
+  }
+  .clip-tab:hover{border-color:var(--text-faint);color:var(--text);}
+  .clip-tab.selected{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent);font-weight:600;}
+
+  /* caption editor */
+  .cap-toggle{
+    display:flex;align-items:center;gap:10px;margin-bottom:18px;font-size:0.85rem;color:var(--text-dim);
+  }
+  .cap-toggle input{accent-color:var(--accent);width:15px;height:15px;}
+  .cap-row{
+    display:flex;align-items:center;gap:14px;padding:9px 0;border-bottom:1px solid var(--line-soft);
+  }
+  .cap-time{font-family:var(--mono);font-size:0.76rem;color:var(--text-faint);width:118px;flex-shrink:0;}
+  .cap-row input[type=text]{
+    flex:1;background:var(--surface2);border:1px solid var(--line);color:var(--text);
+    border-radius:6px;padding:9px 11px;font-family:var(--sans);font-size:0.9rem;
+    transition:border-color .15s ease,background .15s ease;
+  }
+  .cap-row input[type=text]:focus{border-color:var(--accent-line);background:var(--surface3);}
+  .cap-preview{
+    margin-top:22px;border:1px solid var(--line);border-radius:10px;padding:16px;
+    background:var(--surface2);display:flex;gap:16px;align-items:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+  }
+  .cap-preview .mini{
+    width:70px;height:110px;border-radius:6px;background:#000;flex-shrink:0;position:relative;
+    display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;box-shadow:var(--shadow-sm);
+    overflow:hidden;
+  }
+  .cap-preview .mini span{
+    font-size:0.6rem;color:#fff;-webkit-text-stroke:1.5px #000;paint-order:stroke fill;
+    padding:0 6px;text-align:center;font-weight:700;line-height:1.3;
+  }
+  .cap-preview .mini.style2{align-items:flex-start;padding-top:10px;padding-bottom:0;background:linear-gradient(180deg,#000 22%,#1a1400 22%,#1a1400 32%,#000 32%);}
+  .cap-preview .mini.style2 span{color:#000;-webkit-text-stroke:0;background:#F3CA6C;border-radius:3px;padding:1px 5px;font-weight:800;}
+  .cap-preview .mini.size-small span{font-size:0.5rem;}
+  .cap-preview .mini.size-large span{font-size:0.74rem;}
+  .cap-preview .mini.bgbox:not(.style2) span{background:rgba(0,0,0,.55);border-radius:4px;padding:3px 7px;-webkit-text-stroke:0.6px #000;}
+  .cap-preview .mini.pos-top:not(.style2){align-items:flex-start;padding-top:8px;padding-bottom:0;}
+  .cap-preview .mini.pos-center:not(.style2){align-items:center;padding-bottom:0;}
+  .cap-preview p{margin:0;font-size:0.82rem;color:var(--text-dim);}
+
+  /* export (複数クリップ) */
+  .export-grid{display:flex;flex-direction:column;gap:14px;}
+  .export-card{
+    display:flex;gap:16px;border:1px solid var(--line);border-radius:10px;
+    padding:16px;background:var(--surface2);box-shadow:var(--shadow-sm);
+    transition:border-color .15s ease;
+  }
+  .export-card:hover{border-color:var(--text-faint);}
+  .export-video-sm{
+    width:110px;height:174px;border-radius:6px;background:#000;border:1px solid var(--line);
+    flex-shrink:0;overflow:hidden;box-shadow:var(--shadow-sm);
+  }
+  .export-video-sm video{width:100%;height:100%;object-fit:cover;}
+  .export-meta2{flex:1;display:flex;flex-direction:column;gap:8px;font-size:0.85rem;color:var(--text-dim);justify-content:center;}
+  .export-meta2 .et{font-family:var(--mono);color:var(--accent);font-weight:600;font-size:0.9rem;}
+  .export-meta2 .dl-btn{align-self:flex-start;margin-top:4px;transition:all .15s ease;}
+  .export-meta2 .dl-btn.done{color:var(--live);border-color:#2c6560;background:var(--live-soft);}
+  .export-done-banner{
+    display:flex;align-items:center;gap:10px;border:1px solid #2c6560;background:var(--live-soft);
+    color:var(--live);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.86rem;font-weight:600;
+  }
+
+  /* log drawer */
+  .log-drawer{max-width:920px;margin:0 auto;padding:0 28px 40px;}
+  .log-toggle{
+    display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--text-dim);
+    font-size:0.8rem;user-select:none;transition:color .15s ease;
+  }
+  .log-toggle:hover{color:var(--text);}
+  .log-toggle .chev{transition:transform .2s ease;}
+  .log-toggle.open .chev{transform:rotate(90deg);}
+  .log-body{display:none;margin-top:10px;}
+  .log-body.open{display:block;animation:panel-in .2s var(--ease);}
+  .log-lines{
+    background:#080A0E;border:1px solid var(--line);border-radius:8px;padding:14px 16px;
+    font-family:var(--mono);font-size:0.76rem;color:var(--text-dim);max-height:200px;overflow:auto;
+  }
+  .log-lines div{padding:1.5px 0;}
+  .log-lines .ok{color:var(--live);}
+
+  @media(max-width:640px){
+    header{padding:14px 18px;}
+    .stepper-wrap{padding:24px 18px 8px;}
+    main{padding:16px 18px 32px;}
+    .panel{padding:20px 18px;}
+    .log-drawer{padding:0 18px 32px;}
+    .field-grid{grid-template-columns:1fr;}
+    .step-label{display:none;}
+    .export-preview{flex-direction:column;}
+    .result-card{flex-direction:column;}
+    .result-thumb{width:100%;height:180px;}
+    .export-card{flex-direction:column;}
+    .export-video-sm{width:100%;height:200px;}
+    .btn-row{flex-wrap:wrap;}
+    .btn{flex:1;text-align:center;}
+    .wave-row{flex-wrap:wrap;row-gap:4px;}
+    .wave-time{margin-left:0;text-align:left;}
+    .stage-list{gap:6px;}
+    .stage-item{font-size:0.72rem;padding:4px 10px 4px 6px;}
+    .error-banner{flex-wrap:wrap;}
+    .error-banner .eb-retry{margin-left:0;width:100%;}
+  }
+  @media(max-width:420px){
+    .segmented button{font-size:0.78rem;padding:9px 4px;}
+    .option-card{padding:11px 12px;}
+    .option-card .od{font-size:0.75rem;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="./index.html" style="text-decoration:none;color:inherit;">
+    <svg class="brand-mark" viewBox="0 0 26 26" fill="none">
+      <rect x="2" y="11" width="3" height="6" rx="1" fill="#5A6373"/>
+      <rect x="7" y="6" width="3" height="16" rx="1" fill="#8891A0"/>
+      <rect x="12" y="9" width="3" height="10" rx="1" fill="var(--accent)"/>
+      <rect x="17" y="4" width="3" height="20" rx="1" fill="#8891A0"/>
+      <rect x="22" y="12" width="2" height="4" rx="1" fill="#5A6373"/>
+    </svg>
+    <div class="brand-name">Highlight <b>Studio</b></div>
+    <span class="prerelease-badge">プレリリース</span>
+  </a>
+</header>
+
+<div id="adGateOverlay" style="display:none;position:fixed;inset:0;background:rgba(8,10,16,0.82);z-index:100;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--surface2);border:1px solid var(--line);border-radius:14px;max-width:420px;width:100%;padding:24px;text-align:center;">
+    <div style="border:1px dashed var(--line-strong);border-radius:10px;padding:36px 16px;color:var(--text-faint);font-size:0.78rem;font-family:var(--mono);margin-bottom:18px;">
+      AD PLACEHOLDER<br>
+      <span style="font-size:0.7rem;">広告ネットワーク導入後、ここに広告を表示します</span>
+    </div>
+    <p class="field-note" id="adGateNote" style="margin-bottom:16px;">広告を表示しています。<span id="adGateCountdown">5</span>秒後に続行できます。</p>
+    <button class="btn btn-primary" id="adGateContinueBtn" disabled style="width:100%;">続ける</button>
+  </div>
+</div>
+
+<div class="stepper-wrap">
+  <div class="stepper-track"><div class="stepper-track-fill" id="trackFill" style="width:0%"></div></div>
+  <div class="stepper-nodes">
+    <button class="step-node active" data-step="1"><span class="step-dot"></span><span class="step-label">取込</span></button>
+    <button class="step-node" data-step="2"><span class="step-dot"></span><span class="step-label">検出</span></button>
+    <button class="step-node" data-step="3"><span class="step-dot"></span><span class="step-label">字幕</span></button>
+    <button class="step-node" data-step="4"><span class="step-dot"></span><span class="step-label">書き出し</span></button>
+  </div>
+</div>
+
+<main>
+
+  <!-- STEP 1: 取込・設定 -->
+  <section class="panel active" id="panel-1" data-reachable="1">
+    <h2 class="panel-title">動画を取り込む</h2>
+    <p class="panel-sub">配信のアーカイブ動画をアップロードしてください。動画はブラウザの中だけで処理され、サーバーには送信されません。</p>
+
+    <label class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="クリックして動画を選択、またはドラッグ&ドロップ">
+      <input type="file" id="videoInput" accept="video/*">
+      <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 15V4"/><path d="M7.5 8.5 12 4l4.5 4.5"/>
+        <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>
+      </svg>
+      <span class="dropzone-text" id="dropzoneText"><strong>クリックして動画を選択</strong><br>または、ここにドラッグ&amp;ドロップ</span>
+      <div class="filesize" id="dropzoneSize"></div>
+    </label>
+    <p class="field-error" id="dropzoneError" style="margin-top:8px;">動画ファイルを選択してください(mp4・movなど)。</p>
+    <p style="margin:10px 2px 0;font-size:0.78rem;color:var(--text-faint);">処理はすべて端末内で行われるため、長時間・大容量の動画は処理に時間がかかったり、端末のメモリ状況によっては失敗する場合があります。最新版のGoogle Chrome・Microsoft Edgeでのご利用を推奨しています。</p>
+
+    <div class="field-grid">
+      <div class="field">
+        <label>切り出す縦動画の長さ</label>
+        <div class="segmented" id="lenSegmented">
+          <button class="selected" data-val="15">15秒</button>
+          <button data-val="20">20秒</button>
+          <button data-val="30">30秒</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>字幕・レイアウトのスタイル</label>
+        <div class="segmented" id="styleSegmented">
+          <button class="selected" data-val="style1">顔出しカメラ型</button>
+          <button data-val="style2" id="style2Btn">イラスト+テロップ型</button>
+        </div>
+        <div class="field-note">顔出しカメラ型: ゲーム画面を中央に、上下は同じ映像のぼかしで埋めます。イラスト+テロップ型: 画面全体を縮小し、上下を黒帯で埋めます。</div>
+      </div>
+    </div>
+
+    <!-- ハイライトボックス: スタイル2選択時のみ表示 -->
+    <div class="inline-field" id="highlightBoxField">
+      <label>
+        <input type="checkbox" id="highlightBoxCheck" checked>
+        画面上部に固定のハイライトボックスを表示する
+      </label>
+      <input type="text" id="highlightBoxText" value="ここが神展開" placeholder="表示するテキスト" aria-label="ハイライトボックスに表示するテキスト" style="margin-top:8px;">
+    </div>
+
+    <div class="field" style="margin-top:22px;">
+      <label>検出する盛り上がりの数</label>
+      <div class="segmented" id="countSegmented" style="max-width:340px;">
+        <button data-val="1">1本</button>
+        <button data-val="2">2本</button>
+        <button class="selected" data-val="3">3本</button>
+        <button data-val="4">4本</button>
+      </div>
+      <div class="field-note">指定した本数ぶん、盛り上がっている区間を重ならないように自動で選び、それぞれ別の縦動画として切り出します。</div>
+    </div>
+
+    <div class="field" style="margin-top:22px;">
+      <label>解析する範囲(動画の先頭から)</label>
+      <div class="segmented" id="rangeSegmented" style="max-width:340px;">
+        <button class="selected" data-val="60">先頭60秒</button>
+        <button data-val="120">先頭120秒</button>
+        <button data-val="180">先頭180秒</button>
+      </div>
+      <div class="field-note">この範囲の中から、一番盛り上がっている区間を自動で選びます。</div>
+    </div>
+
+    <div class="field" style="margin-top:22px;">
+      <label>音声認識モデル</label>
+      <div class="field-grid">
+        <label class="option-card">
+          <input type="radio" name="model" value="base" checked>
+          <div><div class="ot">base</div><div class="od">軽量・速い。BGMが大きい動画では精度が落ちることがある</div></div>
+        </label>
+        <label class="option-card" id="modelSmallCard">
+          <input type="radio" name="model" value="small">
+          <div><div class="ot">small</div><div class="od">baseより高精度。読み込み・処理はやや時間がかかる</div></div>
+        </label>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:18px;">
+      <label>画質・処理モード</label>
+      <div class="field-grid">
+        <label class="option-card">
+          <input type="radio" name="quality" value="test" checked>
+          <div><div class="ot">テスト用</div><div class="od">1コア・簡易画質。確認用に速く仕上げる</div></div>
+        </label>
+        <label class="option-card" id="qualityProCard">
+          <input type="radio" name="quality" value="production">
+          <div><div class="ot">本番相当</div><div class="od">複数コア・高画質。配信そのままの画質で仕上げる(時間がかかる)</div></div>
+        </label>
+      </div>
+      <div class="field-note" id="qualityNote">1コア・簡易画質で処理します。動作確認向けです。</div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="toStep2Btn" disabled>盛り上がりを検出する</button>
+    </div>
+  </section>
+
+  <!-- STEP 2: 検出 -->
+  <section class="panel" id="panel-2">
+    <h2 class="panel-title" id="panel2Title">盛り上がりを検出しています</h2>
+    <p class="panel-sub">音量と映像の動き量から、指定した範囲の中で盛り上がっている区間を指定の本数ぶん選び、それぞれ縦動画に切り出します。</p>
+
+    <div class="wave-stage">
+      <div class="wave-row">
+        <span class="live-dot"></span>
+        <span class="wave-label" id="waveLabel">待機中</span>
+        <span class="wave-time" id="waveTime"></span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="waveProgressFill"></div></div>
+      <div class="wave-bars" id="waveBars"></div>
+      <div class="stage-list">
+        <div class="stage-item" id="stage-audio"><span class="stage-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>音量解析</div>
+        <div class="stage-item" id="stage-motion"><span class="stage-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>映像解析</div>
+        <div class="stage-item" id="stage-crop"><span class="stage-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>縦動画に切り出し</div>
+      </div>
+      <div class="error-banner" id="waveErrorBanner" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        <div>
+          <div class="eb-title">検出処理に失敗しました</div>
+          <div class="eb-desc" id="waveErrorDesc">動画の読み込みか解析でエラーが発生しました。動画ファイルを変えるか、もう一度お試しください。</div>
+        </div>
+        <button class="eb-retry" id="waveRetryBtn">もう一度試す</button>
+      </div>
+    </div>
+
+    <div class="result-label">検出結果</div>
+    <div id="resultArea">
+      <div class="result-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>検出が完了すると、ここに選ばれた区間が表示されます。</div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goStep(1)">戻る</button>
+      <button class="btn btn-primary" id="toStep3Btn" disabled onclick="goStep(3)">このクリップで字幕へ進む</button>
+    </div>
+  </section>
+
+  <!-- STEP 3: 字幕 -->
+  <section class="panel" id="panel-3">
+    <h2 class="panel-title">字幕を確認・修正</h2>
+    <p class="panel-sub">クリップごとにタブを切り替えて、音声認識で検出した字幕のたたき台を直せます。時間はそのままに、文字だけ自由に直せます。字幕検出はスキップして、字幕なし(またはハイライトボックスのみ)で進むこともできます。</p>
+    <p class="field-note" style="margin-bottom:18px;">字幕用フォント(NotoSansJP-Regular.ttf、Google Fontsのstaticフォルダ内のもの)を、このHTMLと同じフォルダに置いておく必要があります。</p>
+
+    <div class="clip-tabs" id="clipTabs"></div>
+
+    <div class="btn-row" style="justify-content:flex-start;margin-top:0;margin-bottom:18px;">
+      <button class="btn btn-ghost" id="transcribeBtn">このクリップを音声認識で字幕検出する</button>
+    </div>
+
+    <label class="cap-toggle"><input type="checkbox" id="subtitleBurnCheck" checked>字幕を動画に焼き込む(すべてのクリップに共通)</label>
+
+    <div class="field" style="margin-top:14px;">
+      <label>字幕の文字サイズ</label>
+      <div class="segmented" id="capSizeSegmented" style="max-width:300px;">
+        <button data-val="small">小さめ</button>
+        <button class="selected" data-val="standard">標準</button>
+        <button data-val="large">大きめ</button>
+      </div>
+    </div>
+    <label class="cap-toggle" style="margin-top:10px;"><input type="checkbox" id="capBgBoxCheck">字幕の背後に半透明の帯を敷く(背景が明るい映像でも読みやすくなります)</label>
+
+    <div class="field" style="margin-top:14px;">
+      <label>字幕の表示位置</label>
+      <div class="segmented" id="capPosSegmented" style="max-width:300px;">
+        <button data-val="top">上</button>
+        <button data-val="center">中央</button>
+        <button class="selected" data-val="bottom">下(既定)</button>
+      </div>
+      <div class="field-note">「イラスト+テロップ型」でハイライトボックスを表示している場合、「上」を選んでもハイライトボックスの下に自動でよける位置に字幕が焼き込まれます。</div>
+    </div>
+
+    <div class="field" style="margin-top:14px;">
+      <label>字幕の文字色</label>
+      <div class="segmented color-segmented" id="capColorSegmented">
+        <button class="selected" data-val="auto"><span class="dot" style="background:linear-gradient(135deg,#fff 50%,#FF69B4 50%);"></span>既定</button>
+        <button data-val="white"><span class="dot" style="background:#ffffff;"></span>白</button>
+        <button data-val="yellow"><span class="dot" style="background:#F5D742;"></span>黄色</button>
+        <button data-val="hotpink"><span class="dot" style="background:#FF69B4;"></span>ピンク</button>
+        <button data-val="cyan"><span class="dot" style="background:#4DD9E8;"></span>水色</button>
+        <button data-val="lime"><span class="dot" style="background:#A6E22E;"></span>黄緑</button>
+        <button data-val="custom"><span class="dot" id="capColorCustomDot" style="background:conic-gradient(from 0deg,#ff0000,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff,#ff0000);"></span>カスタム</button>
+      </div>
+      <div class="custom-color-row" id="capColorCustomRow">
+        <input type="color" id="capColorCustomPicker" value="#ffffff" aria-label="字幕の文字色をカスタム指定">
+        <span class="field-note" style="margin:0;">好きな色を選べます(選ぶとすぐにプレビューへ反映されます)</span>
+      </div>
+      <div class="field-note">「既定」は選んだレイアウトスタイル(顔出しカメラ型=白 / イラスト+テロップ型=ピンク)に合わせた色になります。</div>
+    </div>
+
+    <div class="field" style="margin-top:14px;">
+      <label>字幕の縁取り色</label>
+      <div class="segmented color-segmented" id="capBorderColorSegmented">
+        <button class="selected" data-val="auto"><span class="dot" style="background:#000000;"></span>既定(黒)</button>
+        <button data-val="black"><span class="dot" style="background:#000000;"></span>黒</button>
+        <button data-val="white"><span class="dot" style="background:#ffffff;"></span>白</button>
+        <button data-val="navy"><span class="dot" style="background:#000080;"></span>濃紺</button>
+        <button data-val="custom"><span class="dot" id="capBorderColorCustomDot" style="background:conic-gradient(from 0deg,#ff0000,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff,#ff0000);"></span>カスタム</button>
+      </div>
+      <div class="custom-color-row" id="capBorderColorCustomRow">
+        <input type="color" id="capBorderColorCustomPicker" value="#000000" aria-label="字幕の縁取り色をカスタム指定">
+        <span class="field-note" style="margin:0;">好きな色を選べます(選ぶとすぐにプレビューへ反映されます)</span>
+      </div>
+      <div class="field-note">文字色を明るい色(白・黄色など)にした場合、縁取りは「黒」のままが読みやすい傾向があります。文字色を暗めにする場合は縁取りを「白」にすると見やすくなります。</div>
+      <div class="field-warning" id="capColorContrastWarning">⚠ 文字色と縁取り色が近い色のため、字幕が読みづらくなる可能性があります。どちらかの色を変えることをおすすめします。</div>
+    </div>
+
+    <p class="field-note" style="margin-top:8px;">長い字幕は自動で複数行に折り返して焼き込まれます。</p>
+
+    <div id="capRows"></div>
+
+    <div class="cap-preview">
+      <div class="mini" id="capPreviewMiniBox"><span id="capPreviewMini">プレビュー</span></div>
+      <p id="capPreviewText">音声認識を実行するか、下の字幕を直すとここに反映されます。</p>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goStep(2)">戻る</button>
+      <button class="btn btn-primary" id="burnToStep4Btn">すべてのクリップを書き出す</button>
+    </div>
+  </section>
+
+  <!-- STEP 4: 書き出し -->
+  <section class="panel" id="panel-4">
+    <h2 class="panel-title">書き出し</h2>
+    <p class="panel-sub">切り抜き・字幕焼き込みまで完了したクリップです。1本ずつ、またはまとめてダウンロードできます。</p>
+    <p class="field-note" id="burnStatus" style="margin-bottom:6px;"></p>
+    <div class="progress-track" id="burnProgressTrack" style="display:none;margin-bottom:14px;"><div class="progress-fill" id="burnProgressFill"></div></div>
+    <div class="error-banner" id="burnErrorBanner" style="display:none;margin-bottom:14px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <div>
+        <div class="eb-title">書き出しに失敗しました</div>
+        <div class="eb-desc" id="burnErrorDesc">字幕の焼き込み中にエラーが発生しました。もう一度お試しください。</div>
+      </div>
+      <button class="eb-retry" id="burnRetryBtn">もう一度試す</button>
+    </div>
+    <div class="export-grid" id="exportResults">
+      <div class="result-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>書き出すとここにクリップが並びます。</div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goStep(3)">字幕を直す</button>
+      <button class="btn btn-primary" id="downloadAllBtn" disabled>すべてダウンロード</button>
+    </div>
+
+    <div id="ad-slot-export" style="margin-top:20px;border:1px dashed var(--line-strong);border-radius:10px;padding:16px;text-align:center;color:var(--text-faint);font-size:0.76rem;font-family:var(--mono);">
+      AD PLACEHOLDER — 728x90 / responsive<br>
+      <span style="font-size:0.7rem;">広告ネットワーク導入後、ここに広告タグを差し込んでください</span>
+    </div>
+  </section>
+
+</main>
+
+<div class="log-drawer">
+  <div class="log-toggle" id="logToggle" onclick="toggleLog()">
+    <span class="chev">▸</span> 処理ログを表示
+  </div>
+  <div class="log-body" id="logBody">
+    <div class="log-lines" id="logLines">
+      <div>(まだ実行していません)</div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { pipeline, env } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0";
+  env.backends.onnx.wasm.proxy = false;
+  env.backends.onnx.wasm.numThreads = 1;
+
+  // ============================================================
+  // 見た目は「統合版(骨組み)」、処理は「本番相当設定テスト」から接続。
+  // 盛り上がり検出→縦動画切り抜き(ffmpeg.wasm)→字幕検出(Whisper)→
+  // drawtextでの字幕焼き込み、までを本物のデータで一気通貫につなげています。
+  // ============================================================
+
+  // ---- ログ ----
+  const logLines = document.getElementById('logLines');
+  function log(msg, ok){
+    if (logLines.children.length === 1 && logLines.children[0].textContent === '(まだ実行していません)') {
+      logLines.innerHTML = '';
+    }
+    const div = document.createElement('div');
+    if (ok) div.className = 'ok';
+    div.textContent = msg;
+    logLines.appendChild(div);
+    logLines.parentElement.scrollTop = logLines.parentElement.scrollHeight;
+    console.log(msg);
+  }
+
+  let progressTimer = null;
+  function formatDuration(sec){
+    sec = Math.max(0, Math.round(sec));
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return m > 0 ? `${m}分${s}秒` : `${s}秒`;
+  }
+  // label: ログ・UIに出す処理名。timeEl: 残り時間を表示する要素(省略可)。
+  // getRatio: 0〜1の進捗を返す関数(nullやundefinedの間は「準備中」扱い)。
+  // barFillEl: 視覚的な進捗バー(省略可)。準備中は縞々アニメーションで「動いている」ことを示す。
+  function startProgress(label, timeEl, getRatio, barFillEl){
+    const start = performance.now();
+    let lastLogged = 0;
+    if (barFillEl){ barFillEl.classList.add('indeterminate'); barFillEl.style.width = ''; }
+    progressTimer = setInterval(() => {
+      const elapsedSec = (performance.now() - start) / 1000;
+      const ratio = getRatio ? getRatio() : null;
+      let text;
+      if (ratio != null && ratio > 0.02){
+        const remaining = Math.max(0, (elapsedSec / ratio) - elapsedSec);
+        text = `${label}: 残り約${formatDuration(remaining)}(${Math.min(99, Math.round(ratio * 100))}%)`;
+        if (barFillEl){
+          barFillEl.classList.remove('indeterminate');
+          barFillEl.style.width = `${Math.min(99, Math.round(ratio * 100))}%`;
+        }
+      } else {
+        text = `${label}: 準備中…(経過約${formatDuration(elapsedSec)})`;
+      }
+      if (timeEl) timeEl.textContent = text;
+      if (elapsedSec - lastLogged >= 10){
+        lastLogged = elapsedSec;
+        log(`  (${text}。フリーズはしていません)`);
+      }
+    }, 500);
+  }
+  function stopProgress(barFillEl){
+    if (progressTimer) { clearInterval(progressTimer); progressTimer = null; }
+    if (barFillEl){ barFillEl.classList.remove('indeterminate'); barFillEl.style.width = '100%'; }
+  }
+  // 検出フローの3ステージ(音量解析→映像解析→切り出し)の見た目を更新する。
+  function setStage(activeId){
+    const order = ['stage-audio','stage-motion','stage-crop'];
+    const idx = order.indexOf(activeId);
+    order.forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.toggle('done', idx >= 0 && i < idx);
+      el.classList.toggle('active', i === idx);
+    });
+  }
+
+  function formatTime(sec){
+    const m = Math.floor(sec / 60);
+    const s = (sec % 60).toFixed(1);
+    return `${String(m).padStart(2,'0')}:${s.padStart(4,'0')}`;
+  }
+
+  // ---- DOM要素 ----
+  const videoInput = document.getElementById('videoInput');
+  const dropzone = document.getElementById('dropzone');
+  const dropzoneText = document.getElementById('dropzoneText');
+  const dropzoneSize = document.getElementById('dropzoneSize');
+  const toStep2Btn = document.getElementById('toStep2Btn');
+  const highlightBoxCheck = document.getElementById('highlightBoxCheck');
+  const highlightBoxText = document.getElementById('highlightBoxText');
+  const waveLabel = document.getElementById('waveLabel');
+  const waveTime = document.getElementById('waveTime');
+  const waveBars = document.getElementById('waveBars');
+  const waveProgressFill = document.getElementById('waveProgressFill');
+  const burnProgressTrack = document.getElementById('burnProgressTrack');
+  const burnProgressFill = document.getElementById('burnProgressFill');
+  const resultArea = document.getElementById('resultArea');
+  const toStep3Btn = document.getElementById('toStep3Btn');
+  const clipTabs = document.getElementById('clipTabs');
+  const transcribeBtn = document.getElementById('transcribeBtn');
+  const subtitleBurnCheck = document.getElementById('subtitleBurnCheck');
+  const capSizeSegmented = document.getElementById('capSizeSegmented');
+  const capBgBoxCheck = document.getElementById('capBgBoxCheck');
+  const capPosSegmented = document.getElementById('capPosSegmented');
+  const capColorSegmented = document.getElementById('capColorSegmented');
+  const capBorderColorSegmented = document.getElementById('capBorderColorSegmented');
+  const capColorCustomRow = document.getElementById('capColorCustomRow');
+  const capColorCustomPicker = document.getElementById('capColorCustomPicker');
+  const capColorCustomDot = document.getElementById('capColorCustomDot');
+  const capBorderColorCustomRow = document.getElementById('capBorderColorCustomRow');
+  const capBorderColorCustomPicker = document.getElementById('capBorderColorCustomPicker');
+  const capBorderColorCustomDot = document.getElementById('capBorderColorCustomDot');
+  const capRows = document.getElementById('capRows');
+  const capPreviewText = document.getElementById('capPreviewText');
+  const burnToStep4Btn = document.getElementById('burnToStep4Btn');
+  const exportResults = document.getElementById('exportResults');
+  const downloadAllBtn = document.getElementById('downloadAllBtn');
+  const burnStatus = document.getElementById('burnStatus');
+
+  let file = null;
+  let ffmpeg = null;
+  let ffmpegInputReady = false; // ffmpeg仮想FSに input.mp4 を書き込み済みか
+  // ffmpeg.wasm本体が吐く実際のstderr/stdoutを直近分だけ保持しておくバッファ。
+  // 「Program terminated with exit(1)」のような、ffmpeg.run()が投げる例外の
+  // message自体には具体的な失敗理由(未対応オプション・フィルタ構文エラー・
+  // ストリームが見つからない等)が含まれないことが多い。実際の理由は
+  // setLoggerで拾えるffmpeg内部ログの方に出るため、ここに溜めておき、
+  // エラーバナー表示時に末尾を一緒に見せることで、開発者ツールを開かなくても
+  // 依頼者からのスクリーンショット報告だけで原因を特定できるようにする。
+  let ffmpegLogBuffer = [];
+  function pushFfmpegLog(message){
+    ffmpegLogBuffer.push(String(message));
+    if (ffmpegLogBuffer.length > 40) ffmpegLogBuffer.shift();
+  }
+  function ffmpegLogTail(n){
+    return ffmpegLogBuffer.slice(-n).join('\n');
+  }
+  let activePreset = null;
+  let clips = [];           // {startSec,endSec,lenSec,score,croppedFile,croppedUrl,chunks}
+
+  // ---------- 広告視聴ゲート ----------
+  // 会員登録・課金プランを廃止し、無料+広告収益モデルに一本化。
+  // 書き出し開始時とダウンロード時に、都度この広告ゲートを挟んで収益化する。
+  // 広告ネットワーク未確定のため、現状はカウントダウン付きのモック表示。
+  const adGateOverlay = document.getElementById('adGateOverlay');
+  const adGateContinueBtn = document.getElementById('adGateContinueBtn');
+  const adGateCountdown = document.getElementById('adGateCountdown');
+  const adGateNote = document.getElementById('adGateNote');
+  const AD_GATE_SECONDS = 5;
+  function showAdGate(onContinue){
+    let remaining = AD_GATE_SECONDS;
+    adGateCountdown.textContent = String(remaining);
+    adGateContinueBtn.disabled = true;
+    adGateNote.style.display = 'block';
+    adGateOverlay.style.display = 'flex';
+    const timer = setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0){
+        clearInterval(timer);
+        adGateNote.style.display = 'none';
+        adGateContinueBtn.disabled = false;
+      } else {
+        adGateCountdown.textContent = String(remaining);
+      }
+    }, 1000);
+    const handler = () => {
+      adGateOverlay.style.display = 'none';
+      adGateContinueBtn.removeEventListener('click', handler);
+      onContinue();
+    };
+    adGateContinueBtn.addEventListener('click', handler);
+  }
+  let currentClipIndex = 0;
+  let finalClips = [];      // {url}(clipsと同じ並び)
+  let ffmpegRatio = 0;      // ffmpeg.wasmのsetProgressから更新される進捗(0〜1)
+  let modelDownloadRatio = 0; // 音声認識モデルのダウンロード進捗(0〜1)
+
+  // ---- ステッパー ----
+  const totalSteps = 4;
+  function goStep(n){
+    for (let i = 1; i <= totalSteps; i++){
+      document.getElementById('panel-' + i).classList.toggle('active', i === n);
+    }
+    document.querySelectorAll('.step-node').forEach(node => {
+      const s = parseInt(node.dataset.step);
+      node.classList.toggle('active', s === n);
+      node.classList.toggle('done', s < n);
+    });
+    document.getElementById('trackFill').style.width = ((n - 1) / (totalSteps - 1) * 100) + '%';
+  }
+  window.goStep = goStep;
+
+  document.querySelectorAll('.step-node').forEach(node => {
+    node.addEventListener('click', () => {
+      const s = parseInt(node.dataset.step);
+      if (document.getElementById('panel-' + s).dataset.reachable === '1') goStep(s);
+    });
+  });
+
+  function toggleLog(){
+    document.getElementById('logToggle').classList.toggle('open');
+    document.getElementById('logBody').classList.toggle('open');
+  }
+  window.toggleLog = toggleLog;
+
+  // ---- セグメント/オプション共通 ----
+  function wireSegmented(id){
+    const wrap = document.getElementById(id);
+    wrap.querySelectorAll('button').forEach(btn => {
+      btn.setAttribute('aria-pressed', btn.classList.contains('selected') ? 'true' : 'false');
+      btn.addEventListener('click', () => {
+        wrap.querySelectorAll('button').forEach(b => { b.classList.remove('selected'); b.setAttribute('aria-pressed', 'false'); });
+        btn.classList.add('selected');
+        btn.setAttribute('aria-pressed', 'true');
+        if (id === 'styleSegmented') updateHighlightBoxVisibility();
+        if (id === 'capColorSegmented' && capColorCustomRow) capColorCustomRow.classList.toggle('show', btn.dataset.val === 'custom');
+        if (id === 'capBorderColorSegmented' && capBorderColorCustomRow) capBorderColorCustomRow.classList.toggle('show', btn.dataset.val === 'custom');
+      });
+    });
+  }
+  ['lenSegmented','styleSegmented','rangeSegmented','countSegmented','capSizeSegmented','capPosSegmented','capColorSegmented','capBorderColorSegmented'].forEach(wireSegmented);
+
+  // 字幕の文字色プリセット(「既定」選択時はレイアウトスタイルごとの既定色を使う)
+  const CAPTION_COLOR_SWATCH = { white:'#ffffff', yellow:'#F5D742', hotpink:'#FF69B4', cyan:'#4DD9E8', lime:'#A6E22E' };
+  // 字幕の縁取り色プリセット(「既定」選択時はスタイル共通の黒を使う)
+  const CAPTION_BORDER_COLOR_SWATCH = { black:'#000000', white:'#ffffff', navy:'#000080' };
+  // 選択値からプレビュー/焼き込みに使う実際の色コードを解決する。
+  // 'custom'の場合はカラーピッカーの値(#RRGGBB)を、それ以外はプリセットの色コードを返す。
+  // ffmpeg drawtextの fontcolor/bordercolor は '#RRGGBB' 形式をそのまま解釈できるため変換不要。
+  function resolveCustomColor(val, swatchMap, customPicker){
+    if (val === 'custom') return (customPicker && customPicker.value) || null;
+    return swatchMap[val] || null;
+  }
+
+  function selectedVal(segId){
+    return document.querySelector('#' + segId + ' button.selected').dataset.val;
+  }
+
+  const CAPTION_STYLES = {
+    style1: { fontsize:34, fontcolor:'white',   bordercolor:'black', borderw:4, y:'h-th-50'  },
+    style2: { fontsize:30, fontcolor:'hotpink', bordercolor:'black', borderw:3, y:'h-th-160' },
+  };
+  // ハイライトボックス(イラスト+テロップ型のみ、STEP3下部の入力欄で表示するテロップ)の
+  // 位置・サイズ。実際の焼き込み(runBurnAll内のdrawtext)と、字幕「上」位置の重なり自動回避
+  // (下記CAPTION_POSITION_Yのtop算出)の両方でこの値を参照するため、値を変える場合は
+  // ここを直せば両方に反映される。
+  const HIGHLIGHT_BOX = { fontsize: 30, y: 50, boxborderw: 14 };
+  // ハイライトボックスの下端のおおよそのy座標(1行のみ・改行なしなので高さは固定)。
+  // fontsize×1.2を行の高さの概算とし、上下のboxborderw分を加算している。
+  const HIGHLIGHT_BOX_BOTTOM_Y = HIGHLIGHT_BOX.y + Math.round(HIGHLIGHT_BOX.fontsize * 1.2) + HIGHLIGHT_BOX.boxborderw;
+  // ハイライトボックス下端から字幕までの余白
+  const CAPTION_TOP_AVOID_MARGIN = 30;
+  // 字幕の表示位置に「上」を選び、かつイラスト+テロップ型でハイライトボックスが実際に
+  // 表示される(チェックON・テキスト入力あり)場合に、字幕をよける必要があるかどうかを判定する。
+  function isHighlightBoxActive(styleVal){
+    return styleVal === 'style2' && !!(highlightBoxCheck && highlightBoxCheck.checked) &&
+      !!(highlightBoxText && highlightBoxText.value.trim());
+  }
+  // 字幕サイズの選択(小さめ/標準/大きめ)にかける倍率
+  const CAPTION_SIZE_MULT = { small: 0.8, standard: 1, large: 1.25 };
+  // 字幕の表示位置(下=既定/レイアウトスタイルごとのy、中央、上)
+  const CAPTION_POSITION_Y = { center: '(h-th)/2', top: '110' };
+  // 「既定」選択時にffmpegへ渡している色名(white/hotpink/black)を、見づらさ判定用に
+  // hexへ変換するための対応表。プリセット・カスタム選択時はCAPTION_COLOR_SWATCH等が
+  // 常にhexを返すため、ここに載せる必要があるのは「既定」で使われる色名のみ。
+  const NAMED_COLOR_HEX = { white:'#ffffff', hotpink:'#FF69B4', black:'#000000' };
+  // 文字色・縁取り色それぞれの「実際に使われる色」を解決する(焼き込み・見づらさ判定の両方で使用)。
+  // 「既定」の場合はレイアウトスタイル(styleVal)ごとの既定色にフォールバックする。
+  function resolveEffectiveCaptionColors(styleVal){
+    const base = CAPTION_STYLES[styleVal] || CAPTION_STYLES.style1;
+    const colorVal = (capColorSegmented && selectedVal('capColorSegmented')) || 'auto';
+    const resolvedFontColor = colorVal !== 'auto' ? resolveCustomColor(colorVal, CAPTION_COLOR_SWATCH, capColorCustomPicker) : null;
+    const fontcolor = resolvedFontColor || base.fontcolor;
+    const borderColorVal = (capBorderColorSegmented && selectedVal('capBorderColorSegmented')) || 'auto';
+    const resolvedBorderColor = borderColorVal !== 'auto' ? resolveCustomColor(borderColorVal, CAPTION_BORDER_COLOR_SWATCH, capBorderColorCustomPicker) : null;
+    const bordercolor = resolvedBorderColor || base.bordercolor;
+    return { fontcolor, bordercolor };
+  }
+  function getCaptionStyle(styleVal){
+    const base = CAPTION_STYLES[styleVal] || CAPTION_STYLES.style1;
+    const sizeVal = (capSizeSegmented && selectedVal('capSizeSegmented')) || 'standard';
+    const mult = CAPTION_SIZE_MULT[sizeVal] || 1;
+    const posVal = (capPosSegmented && selectedVal('capPosSegmented')) || 'bottom';
+    let y = CAPTION_POSITION_Y[posVal] || base.y; // 'bottom'はレイアウトスタイルごとの既定yをそのまま使う
+    if (posVal === 'top' && isHighlightBoxActive(styleVal)){
+      // ハイライトボックスの下に自動でよける(通常の「上」位置より下げる)
+      y = String(HIGHLIGHT_BOX_BOTTOM_Y + CAPTION_TOP_AVOID_MARGIN);
+    }
+    const { fontcolor, bordercolor } = resolveEffectiveCaptionColors(styleVal);
+    return Object.assign({}, base, { fontsize: Math.round(base.fontsize * mult), y, fontcolor, bordercolor });
+  }
+  // 色コード(hex, 3桁/6桁どちらも可)をRGBに変換する。
+  function hexToRgb(hex){
+    let h = (hex || '').replace('#', '');
+    if (h.length === 3) h = h.split('').map(c => c + c).join('');
+    const n = parseInt(h, 16) || 0;
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+  }
+  // 2色間の簡易的な近さをユークリッド距離(0〜約441.7)で表す。値が小さいほど似た色。
+  function colorDistance(hexA, hexB){
+    const a = hexToRgb(hexA), b = hexToRgb(hexB);
+    return Math.sqrt((a.r - b.r) ** 2 + (a.g - b.g) ** 2 + (a.b - b.b) ** 2);
+  }
+  // このしきい値未満の場合に「見づらい可能性」の警告を出す(白+白や黒+黒などの
+  // 同一・近似色を検出する目的の簡易的な値であり、厳密なコントラスト比計算ではない)。
+  const LOW_CONTRAST_DISTANCE_THRESHOLD = 90;
+  function isLowContrastCaptionColor(styleVal){
+    const { fontcolor, bordercolor } = resolveEffectiveCaptionColors(styleVal);
+    const fontHex = fontcolor.startsWith('#') ? fontcolor : (NAMED_COLOR_HEX[fontcolor] || '#ffffff');
+    const borderHex = bordercolor.startsWith('#') ? bordercolor : (NAMED_COLOR_HEX[bordercolor] || '#000000');
+    return colorDistance(fontHex, borderHex) < LOW_CONTRAST_DISTANCE_THRESHOLD;
+  }
+
+  function updateHighlightBoxVisibility(){
+    const style = selectedVal('styleSegmented');
+    document.getElementById('highlightBoxField').classList.toggle('show', style === 'style2');
+    const mini = document.getElementById('capPreviewMiniBox');
+    const miniText = document.getElementById('capPreviewMini');
+    if (mini){
+      mini.classList.toggle('style2', style === 'style2');
+      const sizeVal = selectedVal('capSizeSegmented') || 'standard';
+      mini.classList.toggle('size-small', sizeVal === 'small');
+      mini.classList.toggle('size-large', sizeVal === 'large');
+      mini.classList.toggle('bgbox', !!(capBgBoxCheck && capBgBoxCheck.checked));
+      const posVal = (capPosSegmented && selectedVal('capPosSegmented')) || 'bottom';
+      mini.classList.toggle('pos-top', posVal === 'top');
+      mini.classList.toggle('pos-center', posVal === 'center');
+      const colorVal = (capColorSegmented && selectedVal('capColorSegmented')) || 'auto';
+      const resolvedColor = colorVal !== 'auto' ? resolveCustomColor(colorVal, CAPTION_COLOR_SWATCH, capColorCustomPicker) : null;
+      if (style !== 'style2' && resolvedColor){
+        miniText.style.color = resolvedColor;
+      } else {
+        miniText.style.color = '';
+      }
+      const borderColorVal = (capBorderColorSegmented && selectedVal('capBorderColorSegmented')) || 'auto';
+      const resolvedBorderColor = borderColorVal !== 'auto' ? resolveCustomColor(borderColorVal, CAPTION_BORDER_COLOR_SWATCH, capBorderColorCustomPicker) : null;
+      if (style !== 'style2' && resolvedBorderColor){
+        miniText.style.webkitTextStroke = `1.5px ${resolvedBorderColor}`;
+      } else {
+        miniText.style.webkitTextStroke = '';
+      }
+      miniText.textContent = style === 'style2' ? (highlightBoxText.value || 'ここが神展開') : 'プレビュー';
+    }
+    const contrastWarning = document.getElementById('capColorContrastWarning');
+    if (contrastWarning){
+      contrastWarning.classList.toggle('show', isLowContrastCaptionColor(style));
+    }
+  }
+  updateHighlightBoxVisibility();
+  highlightBoxText.addEventListener('input', updateHighlightBoxVisibility);
+  if (capSizeSegmented){ capSizeSegmented.querySelectorAll('button').forEach(b => b.addEventListener('click', updateHighlightBoxVisibility)); }
+  if (capBgBoxCheck){ capBgBoxCheck.addEventListener('change', updateHighlightBoxVisibility); }
+  if (capPosSegmented){ capPosSegmented.querySelectorAll('button').forEach(b => b.addEventListener('click', updateHighlightBoxVisibility)); }
+  if (capColorSegmented){ capColorSegmented.querySelectorAll('button').forEach(b => b.addEventListener('click', updateHighlightBoxVisibility)); }
+  if (capBorderColorSegmented){ capBorderColorSegmented.querySelectorAll('button').forEach(b => b.addEventListener('click', updateHighlightBoxVisibility)); }
+  // カラーピッカーで色を選ぶたびに、対応する「カスタム」ボタンの色見本とプレビューを更新する。
+  if (capColorCustomPicker){
+    capColorCustomPicker.addEventListener('input', () => {
+      if (capColorCustomDot) capColorCustomDot.style.background = capColorCustomPicker.value;
+      updateHighlightBoxVisibility();
+    });
+  }
+  if (capBorderColorCustomPicker){
+    capBorderColorCustomPicker.addEventListener('input', () => {
+      if (capBorderColorCustomDot) capBorderColorCustomDot.style.background = capBorderColorCustomPicker.value;
+      updateHighlightBoxVisibility();
+    });
+  }
+
+  function crossOriginIsolatedOk(){
+    return typeof window.crossOriginIsolated !== 'undefined' && window.crossOriginIsolated === true;
+  }
+  function updateQualityNote(){
+    const note = document.getElementById('qualityNote');
+    const val = document.querySelector('input[name=quality]:checked').value;
+    const ok = crossOriginIsolatedOk();
+    if (val === 'production' && !ok){
+      note.textContent = '⚠ 現在このページは複数コアを使える状態ではないため、実際にはテスト用(1コア)相当の設定に自動で切り替わります。複数コアを試すには、COOP/COEPヘッダーを返すサーバー経由で開いてください。';
+    } else if (val === 'production'){
+      note.textContent = '複数コア・高画質で処理します。テスト用より数倍時間がかかります。';
+    } else {
+      note.textContent = '1コア・簡易画質で処理します。動作確認向けです。';
+    }
+  }
+  document.querySelectorAll('input[name=quality]').forEach(r => r.addEventListener('change', updateQualityNote));
+  updateQualityNote();
+
+  // ---- STEP1: ファイル選択(クリック/ドラッグ&ドロップ共通) ----
+  function setSelectedFile(f){
+    if (!f) return;
+    const dropzoneError = document.getElementById('dropzoneError');
+    if (!f.type.startsWith('video/')){
+      log('動画ファイルを選択してください: ' + f.name);
+      dropzoneError.classList.add('show');
+      dropzone.style.borderColor = 'var(--danger)';
+      setTimeout(() => { dropzone.style.borderColor = ''; }, 1600);
+      return;
+    }
+    dropzoneError.classList.remove('show');
+    file = f;
+    ffmpegInputReady = false; // 新しいファイルなのでffmpeg側の入力ファイルを書き直す必要がある
+    toStep2Btn.disabled = false;
+    dropzoneText.innerHTML = '<strong>' + f.name + '</strong>を選択中';
+    dropzoneSize.textContent = (f.size / 1024 / 1024).toFixed(1) + ' MB';
+    dropzoneSize.classList.add('show');
+  }
+
+  videoInput.addEventListener('change', (e) => {
+    setSelectedFile(e.target.files[0] || null);
+  });
+
+  let dragDepth = 0;
+  dropzone.addEventListener('dragenter', (e) => {
+    e.preventDefault();
+    dragDepth++;
+    dropzone.classList.add('drag-over');
+  });
+  dropzone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+  });
+  dropzone.addEventListener('dragleave', () => {
+    dragDepth = Math.max(0, dragDepth - 1);
+    if (dragDepth === 0) dropzone.classList.remove('drag-over');
+  });
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dragDepth = 0;
+    dropzone.classList.remove('drag-over');
+    const dropped = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (dropped){
+      videoInput.files = e.dataTransfer.files;
+      setSelectedFile(dropped);
+    }
+  });
+  // キーボード操作(ラベル+非表示inputの構成はEnter/Spaceでは開かないため明示的にハンドリング)
+  dropzone.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' '){
+      e.preventDefault();
+      videoInput.click();
+    }
+  });
+
+  // ---- 画質・レイアウト設定 ----
+  const QUALITY_PRESETS = {
+    test: { label:'テスト用(1コア・簡易画質)', coreType:'single', threads:1, scale:'540:960', preset:'ultrafast', crf:30 },
+    production: { label:'本番相当(複数コア・高画質)', coreType:'multi', threads:Math.min(navigator.hardwareConcurrency || 4, 8), scale:'1080:1920', preset:'medium', crf:20 },
+  };
+  const CORE_URLS = {
+    single: 'https://unpkg.com/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.js',
+    multi:  'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js',
+  };
+  function getSelectedPreset(){
+    const val = document.querySelector('input[name=quality]:checked').value;
+    const preset = QUALITY_PRESETS[val];
+    if (preset.coreType === 'multi' && !crossOriginIsolatedOk()){
+      return { ...QUALITY_PRESETS.test, label: QUALITY_PRESETS.test.label + '(本番相当を選んだが自動でテスト用に切替)' };
+    }
+    return preset;
+  }
+
+  // ffmpegインスタンスの読み込み・input.mp4の書き込みを1度だけ行う(以後の呼び出しは即返る)
+  //
+  // 38章の修正では、書き出し(STEP4)がffmpegを読み込み直したときだけ
+  // cropped_N.mp4を復元していたが、実際には**STEP3の音声抽出
+  // (extractAudioSnippet16k、キャプション1個ごとに何度も呼ばれる)の途中でも
+  // 同じ「不安定→読み込み直し」が起こりうる**ため、STEP4が始まる前に
+  // 共有ffmpegインスタンスがすでに(cropped_N.mp4を持たない)新しいものに
+  // すり替わっているケースを見落としていた。STEP4自身の再試行だけを
+  // 守っても、STEP4の1回目の実行時点ですでにファイルが無ければ意味がない。
+  //
+  // そこで対応箇所ごとに個別に復元するのではなく、input.mp4を書き直す
+  // タイミング(=新しいインスタンス、またはFSがリセットされたタイミング)で
+  // 「これまでに登録された、消えると困るファイル」をまとめて復元する方式に
+  // 変更した。呼び出し元は`registerPersistentFile(name, data)`で登録するだけで、
+  // どのタイミングでffmpegが読み込み直されても自動的に復元される。
+  const persistentFiles = new Map(); // name -> Uint8Array
+  function registerPersistentFile(name, data){ persistentFiles.set(name, data); }
+  function clearPersistentFiles(){ persistentFiles.clear(); }
+  async function ensureFfmpegLoaded(preset){
+    if (!ffmpeg || ffmpeg.__coreType !== preset.coreType){
+      const { createFFmpeg } = FFmpeg;
+      const opts = { log: true, corePath: CORE_URLS[preset.coreType] };
+      if (preset.coreType === 'single') opts.mainName = 'main';
+      ffmpeg = createFFmpeg(opts);
+      ffmpeg.__coreType = preset.coreType;
+      if (ffmpeg.setLogger) ffmpeg.setLogger(({ message }) => pushFfmpegLog(message));
+      await ffmpeg.load();
+      if (ffmpeg.setProgress) ffmpeg.setProgress(({ ratio }) => { ffmpegRatio = (typeof ratio === 'number' && isFinite(ratio)) ? ratio : 0; });
+      ffmpegInputReady = false;
+    }
+    if (!ffmpegInputReady){
+      const { fetchFile } = FFmpeg;
+      ffmpeg.FS('writeFile', 'input.mp4', await fetchFile(file));
+      persistentFiles.forEach((data, name) => {
+        try { ffmpeg.FS('writeFile', name, data); } catch (e) { /* 復元できなければ後段のrun()側で失敗が顕在化する */ }
+      });
+      ffmpegInputReady = true;
+    }
+  }
+
+  // ffmpeg.wasm(特に1コア版core-st)は、同じインスタンスに対して`ffmpeg.run()`を
+  // 2回目以降呼び出すと、内部状態がおかしくなって「Program terminated with
+  // exit(0)」という中身のない汎用エラーで落ちることがある既知の不具合がある
+  // (処理内容そのものが異常なわけではない)。このエラーが出たときに限り、
+  // ffmpegインスタンスを丸ごと読み込み直してから同じコマンドを1回だけ
+  // 自動で再試行する共通ヘルパー。音量解析・切り出し・字幕焼き込みの
+  // すべてのffmpeg呼び出しをここ経由にすることで、アプリ全体でこの不具合に
+  // 耐えられるようにしている。
+  //
+  // 追加修正: ffmpeg.wasmは同じインスタンスに対して同時に2つ以上の
+  // run()を呼ぶと「ffmpeg.wasm can only run one command at a time」で
+  // 即失敗する。書き出し(runBurnAll)と検出・切り出し(runDetectAndCrop)の
+  // ffmpeg呼び出しはすべてこの関数を経由するが、「もう一度試す」の連打や、
+  // 前段の処理が完全に終わる前に次の処理が始まるタイミング次第では
+  // 呼び出しが重なりうる。呼び出し元がいくつあっても実行が確実に
+  // 1つずつ順番になるよう、共有のキュー(Promiseチェーン)に通してから
+  // 実行するようにした。
+  //
+  // 追加修正2: 同じ不安定バグが、例外を投げずに「run()自体は正常終了したのに
+  // 出力ファイルが生成されない」という形で出ることも確認された(呼び出し元が
+  // 直後に`ffmpeg.FS('readFile', 出力ファイル名)`をすると
+  // 「Check if the path exists」エラーになる)。outputNameを渡された場合は
+  // run()成功後に出力ファイルの存在も確認し、無ければ同じ「読み込み直して
+  // 1回だけ再試行」の対象として扱う。
+  // 追加修正3: 上記の「読み込み直し」はffmpegインスタンスの仮想ファイル
+  // システムを丸ごと作り直すため、input.mp4以外にFS上に置いていた中間
+  // ファイル(例: 書き出し時に`-i`で読む切り抜き済みクリップcropped_N.mp4)は
+  // 消えてしまう。inputFilesに{name, data}の配列を渡すと、run()を試みる
+  // 直前(初回・読み込み直し後の再試行の両方)に必ずFSへ書き直してから
+  // 実行するようにし、読み込み直しで中間ファイルが消えたことによる
+  // 「入力ファイルが見つからない」という別の失敗を防ぐ。
+  let ffmpegQueue = Promise.resolve();
+  async function runFfmpegSafe(preset, args, outputName, inputFiles){
+    const restoreInputFiles = () => {
+      (inputFiles || []).forEach(({ name, data }) => {
+        try { ffmpeg.FS('writeFile', name, data); } catch (e) { /* 書き直せなければ後段のrun()側で失敗が顕在化する */ }
+      });
+    };
+    const attempt = async () => {
+      restoreInputFiles();
+      await ffmpeg.run(...args);
+      if (outputName){
+        try { ffmpeg.FS('readFile', outputName); }
+        catch (readErr) {
+          throw new Error(`ffmpeg実行は例外を投げずに終わったが、出力ファイル(${outputName})が生成されなかった`);
+        }
+      }
+    };
+    const runOnce = async () => {
+      try {
+        await attempt();
+      } catch (runErr) {
+        const runMsg = String(runErr?.message || runErr);
+        if (/exit\(0\)|ExitStatus|can only run one command at a time|出力ファイル.*生成されなかった/i.test(runMsg)){
+          log(`ffmpeg.wasmが不安定な状態になったため、読み込み直して再試行します(${runMsg})`);
+          ffmpeg = null;
+          ffmpegInputReady = false;
+          await ensureFfmpegLoaded(preset);
+          try {
+            await attempt();
+          } catch (retryErr) {
+            const tail = ffmpegLogTail(8);
+            if (tail) retryErr.message = `${retryErr.message || retryErr}\n[ffmpegログ末尾]\n${tail}`;
+            throw retryErr;
+          }
+        } else {
+          // exit(0)系の既知の不安定挙動ではない=ffmpegコマンド自体が本当に
+          // 失敗している可能性が高いケース。runErr.messageだけでは
+          // 「Program terminated with exit(1)」のような中身のない文言にしか
+          // ならないことが多いので、ffmpeg内部ログの直近数行を理由欄として
+          // 付け足してから投げ直す(画面のエラーバナーにそのまま表示される)。
+          const tail = ffmpegLogTail(8);
+          if (tail) runErr.message = `${runErr.message || runErr}\n[ffmpegログ末尾]\n${tail}`;
+          throw runErr;
+        }
+      }
+    };
+    // 前の呼び出しが成功/失敗のどちらで終わっても、次の呼び出しは
+    // 必ずそのあとに実行されるようにする(キューが失敗で止まらないようにする)。
+    const scheduled = ffmpegQueue.then(runOnce, runOnce);
+    ffmpegQueue = scheduled.catch(() => {});
+    return scheduled;
+  }
+
+  // 動画全体を読み込まず、必要な区間(offsetSec〜+lenSec)だけをffmpegで16kHzモノラルwavに
+  // 切り出してから読み込む。荒い区間シークのあとに正確な微調整シーク(2段階シーク)をすることで、
+  // 長時間アーカイブでも「全体をデコードしてから切り出す」ような重い処理を避けられる。
+  async function extractAudioSnippet16k(offsetSec, lenSec, preset){
+    const coarse = Math.max(0, offsetSec - 5);
+    const remainder = Math.max(0, offsetSec - coarse);
+    const outName = 'snippet.wav';
+    try { ffmpeg.FS('unlink', outName); } catch (e) { /* まだ無ければ無視 */ }
+    const args = ['-ss', coarse.toFixed(2), '-i', 'input.mp4', '-ss', remainder.toFixed(2), '-t', Math.max(0.1, lenSec).toFixed(2), '-vn', '-ac', '1', '-ar', '16000', outName];
+    await runFfmpegSafe(preset || activePreset || getSelectedPreset(), args, outName);
+    const data = ffmpeg.FS('readFile', outName);
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const decoded = await audioCtx.decodeAudioData(data.buffer.slice(0));
+    try { ffmpeg.FS('unlink', outName); } catch (e) { /* 無視 */ }
+    return decoded;
+  }
+
+  // 長い字幕をffmpeg drawtextで自然に複数行へ折り返すためのワードラップ。
+  // 実際に焼き込みに使うフォント(NotoSansJP)をCanvasで読み込めている場合は、
+  // measureTextで実測した文字幅をもとに折り返し位置を決める。フォント読み込みに
+  // 失敗した/未対応の環境では、文字種(全角/半角)ごとの概算幅にフォールバックする。
+  let _hsCaptionFontReady = false;
+  let _hsMeasureCtx = null;
+  function getMeasureCtx(){
+    if (!_hsMeasureCtx){
+      _hsMeasureCtx = document.createElement('canvas').getContext('2d');
+    }
+    return _hsMeasureCtx;
+  }
+  async function ensureCaptionFontLoaded(fontArrayBuffer){
+    if (_hsCaptionFontReady) return;
+    try {
+      if (typeof FontFace === 'undefined') return; // 未対応ブラウザはフォールバック計算のまま
+      const face = new FontFace('HSCaptionFont', fontArrayBuffer);
+      await face.load();
+      document.fonts.add(face);
+      _hsCaptionFontReady = true;
+    } catch (e) {
+      log(`字幕フォントのCanvas読み込みに失敗したため、折り返し計算は概算幅で行います(${e.message || e})`);
+      _hsCaptionFontReady = false;
+    }
+  }
+  function buildCharMeasurer(fontsize){
+    if (_hsCaptionFontReady){
+      const ctx = getMeasureCtx();
+      ctx.font = `${fontsize}px "HSCaptionFont", sans-serif`;
+      return (ch) => ctx.measureText(ch).width;
+    }
+    // フォールバック: 全角文字はfontsizeとほぼ同じ幅、半角英数記号はその半分強とみなす概算
+    const fullWidth = fontsize;
+    const halfWidth = fontsize * 0.55;
+    const isHalfWidth = (ch) => /^[\x20-\x7E\uFF61-\uFF9F]$/.test(ch);
+    return (ch) => isHalfWidth(ch) ? halfWidth : fullWidth;
+  }
+  // 半角英数字(アポストロフィ・ハイフン含む)は1単語として1トークンに、空白はまとめて
+  // 1トークンに、それ以外(日本語・記号等)は1文字ずつ1トークンに分割する。
+  // これにより、後段の詰め込み処理で英単語の途中では改行しないようにできる。
+  function tokenizeForWrap(text){
+    return text.match(/[A-Za-z0-9'’-]+|\s+|./gs) || [];
+  }
+  function tokenWidth(token, measureChar){
+    let w = 0;
+    for (const ch of token) w += measureChar(ch);
+    return w;
+  }
+  // トークン列を、幅制限なしで(何行になってもよいので)貪欲法で行に詰めていく。
+  // 英単語トークンは基本的に途中で割らないが、1トークンだけで1行分の幅を超える場合
+  // (画面が狭い/フォントが大きい状態で長い英単語が来た場合)のみ文字単位で強制分割する。
+  // 各行がどのトークン位置から始まったか(tokenStartIndexOfLine)も併せて返し、
+  // 3行に収まらない場合の末尾処理(元のテキストの該当箇所をそのまま切り詰める)に使う。
+  function wrapTokensToLinesUnbounded(tokens, usableWidth, measureChar){
+    const lines = [];
+    const tokenStartIndexOfLine = [];
+    let currentLine = '', currentWidth = 0, currentLineStartIdx = null;
+    const pushLine = () => {
+      lines.push(currentLine);
+      tokenStartIndexOfLine.push(currentLineStartIdx);
+      currentLine = ''; currentWidth = 0; currentLineStartIdx = null;
+    };
+    for (let idx = 0; idx < tokens.length; idx++){
+      const token = tokens[idx];
+      const isSpace = /^\s+$/.test(token);
+      if (isSpace && !currentLine) continue; // 行頭の空白は捨てる
+      const w = tokenWidth(token, measureChar);
+      if (currentWidth + w > usableWidth){
+        if (isSpace){
+          if (currentLine) pushLine();
+          continue; // 行末の空白は捨てて改行するだけ(次行の先頭には持ち越さない)
+        }
+        if (currentLine) pushLine();
+        if (w > usableWidth){
+          // 1トークン(長い英単語など)だけで1行分の幅を超える場合のみ文字単位で強制分割
+          const chArr = Array.from(token);
+          let chunk = '', chunkWidth = 0;
+          for (let ci = 0; ci < chArr.length; ci++){
+            const ch = chArr[ci];
+            const cw = measureChar(ch);
+            if (chunkWidth + cw > usableWidth && chunk){
+              lines.push(chunk);
+              tokenStartIndexOfLine.push(idx);
+              chunk = ''; chunkWidth = 0;
+            }
+            chunk += ch; chunkWidth += cw;
+          }
+          currentLine = chunk; currentWidth = chunkWidth; currentLineStartIdx = idx;
+          continue;
+        }
+        currentLine = token; currentWidth = w; currentLineStartIdx = idx;
+        continue;
+      }
+      if (currentLineStartIdx === null) currentLineStartIdx = idx;
+      currentLine += token; currentWidth += w;
+    }
+    if (currentLine) pushLine();
+    return { lines, tokenStartIndexOfLine };
+  }
+  function wrapCaptionText(text, fontsize, videoWidthPx){
+    const usableWidth = Math.max(fontsize * 4, (videoWidthPx || 1080) - 80);
+    const MAX_LINES = 3;
+    const measureChar = buildCharMeasurer(fontsize);
+    const tokens = tokenizeForWrap(text);
+    const { lines, tokenStartIndexOfLine } = wrapTokensToLinesUnbounded(tokens, usableWidth, measureChar);
+
+    if (lines.length <= MAX_LINES){
+      return lines.join('\n');
+    }
+
+    // 3行に収まらない場合: 4行目以降に相当する内容を、元のテキストからそのまま切り出して
+    // まとめ、実測幅ベースで末尾を削って省略記号「…」を付ける
+    // (この切り詰めのみ、見た目優先のため英単語の途中で終わることがある)
+    const cutTokenIdx = tokenStartIndexOfLine[MAX_LINES - 1];
+    const remainderText = tokens.slice(cutTokenIdx).join('').replace(/^\s+/, '');
+    let lastChars = Array.from(remainderText);
+    let lastWidth = lastChars.reduce((sum, c) => sum + measureChar(c), 0);
+    const ellipsisWidth = measureChar('…');
+    while (lastChars.length > 0 && lastWidth + ellipsisWidth > usableWidth){
+      const removed = lastChars.pop();
+      lastWidth -= measureChar(removed);
+    }
+    const finalLines = lines.slice(0, MAX_LINES - 1);
+    finalLines.push(lastChars.join('') + '…');
+    return finalLines.join('\n');
+  }
+
+  function buildCropVf(preset, styleValue){
+    const [w, h] = preset.scale.split(':').map(Number);
+    if (styleValue === 'style1'){
+      const blurSigma = Math.max(8, Math.round(w / 40));
+      return [
+        'split=2[bg][fg]',
+        `[bg]scale=${w}:${h}:force_original_aspect_ratio=increase,crop=${w}:${h},gblur=sigma=${blurSigma}[bgblur]`,
+        `[fg]scale=${w}:${h}:force_original_aspect_ratio=decrease[fgfit]`,
+        '[bgblur][fgfit]overlay=(W-w)/2:(H-h)/2:shortest=1,setsar=1',
+      ].join(';');
+    }
+    return `scale=${w}:${h}:force_original_aspect_ratio=decrease,pad=${w}:${h}:(ow-iw)/2:(oh-ih)/2:color=black,setsar=1`;
+  }
+
+  // ---- 音量(RMS) ----
+  // 動画全体をブラウザ内でデコードすると長時間アーカイブで非常に重くなるため、
+  // ffmpegで解析に必要な範囲(先頭〜clipSec)だけを16kHzモノラルwavに切り出してから解析する。
+  async function computeAudioRms(clipSec, stepSec, onProgress, preset){
+    const decoded = await extractAudioSnippet16k(0, clipSec, preset);
+    const dur = decoded.duration;
+    const sr = decoded.sampleRate;
+    const data = decoded.getChannelData(0);
+    const numSteps = Math.max(1, Math.floor(dur / stepSec));
+    const rms = new Array(numSteps).fill(0);
+    for (let i = 0; i < numSteps; i++){
+      const s0 = Math.floor(i * stepSec * sr);
+      const s1 = Math.min(data.length, Math.floor((i + 1) * stepSec * sr));
+      let sum = 0;
+      for (let s = s0; s < s1; s++) sum += data[s] * data[s];
+      rms[i] = Math.sqrt(sum / Math.max(1, s1 - s0));
+      if (onProgress && i % 10 === 0){
+        onProgress(i + 1, numSteps);
+        await new Promise((r) => setTimeout(r, 0)); // UI更新のための小休止
+      }
+    }
+    if (onProgress) onProgress(numSteps, numSteps);
+    return { rms, dur, numSteps };
+  }
+
+  // ---- 映像の動き量 ----
+  function seekTo(videoEl, t){
+    return new Promise((resolve) => {
+      const onSeeked = () => { videoEl.removeEventListener('seeked', onSeeked); resolve(); };
+      videoEl.addEventListener('seeked', onSeeked);
+      videoEl.currentTime = t;
+    });
+  }
+
+  // 1ステップごとにシークする方式(フォールバック用)。シークのたびにキーフレーム探索が
+  // 発生するため、対応ブラウザでは下の再生ベース方式のほうが大幅に速い。
+  async function computeVideoMotionBySeek(videoEl, canvas, ctx, numSteps, stepSec, onProgress){
+    const motion = new Array(numSteps).fill(0);
+    let prevFrame = null;
+    for (let i = 0; i < numSteps; i++){
+      const t = Math.max(0, i * stepSec);
+      await seekTo(videoEl, Math.min(t, videoEl.duration - 0.05));
+      ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+      const frame = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      if (prevFrame){
+        let diff = 0;
+        for (let p = 0; p < frame.length; p += 4) diff += Math.abs(frame[p] - prevFrame[p]);
+        motion[i] = diff / (canvas.width * canvas.height);
+      }
+      prevFrame = frame;
+      if (onProgress) onProgress(i + 1, numSteps);
+    }
+    return motion;
+  }
+
+  // 動画を(倍速)再生しながらrequestVideoFrameCallbackでフレームを拾う方式。
+  // シークを繰り返さないぶん、対応ブラウザ(Chrome/Edge/Safari)では大幅に高速。
+  function computeVideoMotionByPlayback(videoEl, canvas, ctx, dur, stepSec, numSteps, onProgress){
+    return new Promise((resolve, reject) => {
+      const motion = new Array(numSteps).fill(0);
+      let prevFrame = null;
+      let nextIndex = 0;
+      let settled = false;
+      function finish(){
+        if (settled) return;
+        settled = true;
+        videoEl.pause();
+        if (onProgress) onProgress(numSteps, numSteps);
+        resolve(motion);
+      }
+      function onFrame(now, metadata){
+        if (settled) return;
+        const t = metadata.mediaTime;
+        while (nextIndex < numSteps && t >= nextIndex * stepSec){
+          ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+          const frame = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+          if (prevFrame){
+            let diff = 0;
+            for (let p = 0; p < frame.length; p += 4) diff += Math.abs(frame[p] - prevFrame[p]);
+            motion[nextIndex] = diff / (canvas.width * canvas.height);
+          }
+          prevFrame = frame;
+          nextIndex++;
+          if (onProgress) onProgress(nextIndex, numSteps);
+        }
+        if (nextIndex >= numSteps || t >= dur - 0.02 || videoEl.ended){ finish(); return; }
+        videoEl.requestVideoFrameCallback(onFrame);
+      }
+      videoEl.addEventListener('ended', finish, { once: true });
+      videoEl.playbackRate = 4;
+      videoEl.requestVideoFrameCallback(onFrame);
+      videoEl.play().catch(reject);
+    });
+  }
+
+  async function computeVideoMotion(file, dur, stepSec, onProgress){
+    const videoEl = document.createElement('video');
+    videoEl.muted = true;
+    videoEl.playsInline = true;
+    videoEl.src = URL.createObjectURL(file);
+    await new Promise((res) => { videoEl.onloadedmetadata = res; });
+    const canvas = document.createElement('canvas');
+    canvas.width = 64; canvas.height = 36;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    const numSteps = Math.max(1, Math.floor(dur / stepSec));
+
+    let motion;
+    if (typeof videoEl.requestVideoFrameCallback === 'function'){
+      try {
+        motion = await computeVideoMotionByPlayback(videoEl, canvas, ctx, dur, stepSec, numSteps, onProgress);
+      } catch (e) {
+        log('高速方式での映像解析に失敗したため、通常方式に切り替えます: ' + (e?.message || e));
+      }
+    }
+    if (!motion){
+      videoEl.pause();
+      videoEl.currentTime = 0;
+      motion = await computeVideoMotionBySeek(videoEl, canvas, ctx, numSteps, stepSec, onProgress);
+    }
+    URL.revokeObjectURL(videoEl.src);
+    return motion;
+  }
+
+  function normalize(arr){
+    const max = Math.max(...arr);
+    const min = Math.min(...arr);
+    const range = (max - min) || 1;
+    return arr.map(v => (v - min) / range);
+  }
+
+  // 指定した本数ぶん、重ならないように盛り上がり区間を上位から選ぶ(貪欲法)
+  // 累積和(prefix sum)で区間合計をO(1)で求めることで、毎回区間の中身を
+  // すべて足し直す(O(windowSteps))よりも高速化している。動画が長く・
+  // クリップ本数が多いほど効果が大きい。
+  function findTopWindows(combined, stepSec, windowLenSec, clipDur, count){
+    const windowSteps = Math.max(1, Math.round(windowLenSec / stepSec));
+    if (windowSteps > combined.length) return [];
+    const SUPPRESSED = -1e6; // 選択済み区間を無効化するための十分小さいダミー値(累積和でも安全に使える有限値)
+    const arr = combined.slice();
+    const windows = [];
+    for (let k = 0; k < count; k++){
+      const prefix = new Float64Array(arr.length + 1);
+      for (let i = 0; i < arr.length; i++) prefix[i + 1] = prefix[i] + arr[i];
+      let bestSum = -Infinity, bestStart = -1;
+      for (let i = 0; i <= arr.length - windowSteps; i++){
+        const sum = prefix[i + windowSteps] - prefix[i];
+        if (sum > bestSum){ bestSum = sum; bestStart = i; }
+      }
+      if (bestStart === -1 || bestSum <= SUPPRESSED / 2) break;
+      let startSec = bestStart * stepSec;
+      let endSec = Math.min(clipDur, startSec + windowLenSec);
+      startSec = Math.max(0, endSec - windowLenSec);
+      windows.push({ startSec, endSec, bestStart, windowSteps, bestSum });
+      // 選んだ区間(前後にも少し余裕を持たせて)を潰し、次の候補が重ならないようにする
+      const margin = Math.floor(windowSteps / 2);
+      const from = Math.max(0, bestStart - margin);
+      const to = Math.min(arr.length, bestStart + windowSteps + margin);
+      for (let i = from; i < to; i++) arr[i] = SUPPRESSED;
+    }
+    windows.sort((a, b) => a.startSec - b.startSec);
+    return windows;
+  }
+
+  // 動画全体を毎回デコードしていた旧実装は長時間アーカイブで非常に重かったため、
+  // ffmpegで該当区間だけを16kHzモノラルwavに切り出してから読み込む方式に変更。
+  async function decodeTo16kMono(offsetSec, lenSec, preset){
+    const decoded = await extractAudioSnippet16k(offsetSec, lenSec, preset);
+    return { audioData: decoded.getChannelData(0), durationSec: decoded.duration };
+  }
+
+  function escapeForDrawtext(text){
+    return text
+      .replace(/\\/g, '\\\\')
+      .replace(/:/g, '\\:')
+      .replace(/%/g, '\\%')
+      .replace(/,/g, '\\,')
+      .replace(/'/g, '\u2019');
+  }
+
+  // ---- STEP2: 検出 → 縦動画への切り抜き ----
+  const waveErrorBanner = document.getElementById('waveErrorBanner');
+  const waveErrorDesc = document.getElementById('waveErrorDesc');
+  const waveRetryBtn = document.getElementById('waveRetryBtn');
+  async function startDetect(){
+    document.getElementById('panel2Title').textContent = '盛り上がりを検出しています';
+    waveErrorBanner.style.display = 'none';
+    waveLabel.classList.remove('error');
+    waveProgressFill.classList.remove('error');
+    toStep2Btn.disabled = true;
+    try { await runDetectAndCrop(); }
+    catch (err) {
+      log('エラー: ' + (err?.message || err)); console.error(err);
+      waveLabel.textContent = 'エラーが発生しました';
+      waveLabel.classList.add('error');
+      waveTime.textContent = '';
+      waveProgressFill.classList.remove('indeterminate');
+      waveProgressFill.classList.add('error');
+      waveProgressFill.style.width = '100%';
+      waveErrorDesc.textContent = (err?.message || String(err)) + ' — 動画ファイルを変えるか、もう一度お試しください。';
+      waveErrorBanner.style.display = 'flex';
+    }
+    toStep2Btn.disabled = false;
+  }
+  toStep2Btn.addEventListener('click', () => { goStep(2); startDetect(); });
+  waveRetryBtn.addEventListener('click', startDetect);
+
+  function renderWaveBars(combined, windows){
+    waveBars.innerHTML = '';
+    combined.forEach((v, i) => {
+      const s = document.createElement('span');
+      s.style.height = (6 + v * 40) + 'px';
+      s.classList.add('lit');
+      if (windows.some(w => i >= w.bestStart && i < w.bestStart + w.windowSteps)) s.classList.add('peak');
+      waveBars.appendChild(s);
+    });
+  }
+
+  async function runDetectAndCrop(){
+    const clipSec = parseInt(selectedVal('rangeSegmented'), 10);
+    const highlightLen = parseInt(selectedVal('lenSegmented'), 10);
+    const count = parseInt(selectedVal('countSegmented'), 10);
+    const stepSec = 0.5;
+    resultArea.innerHTML = '<div class="result-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>検出が完了すると、ここに選ばれた区間が表示されます。</div>';
+    toStep3Btn.disabled = true;
+    waveBars.innerHTML = '';
+    waveProgressFill.style.width = '0%';
+    waveProgressFill.classList.remove('indeterminate');
+    document.querySelectorAll('.stage-item').forEach(el => el.classList.remove('active','done'));
+    clips.forEach(c => { if (c.croppedUrl) URL.revokeObjectURL(c.croppedUrl); });
+    clips = [];
+    clearPersistentFiles();
+    const overallStart = performance.now();
+
+    const preset = getSelectedPreset();
+    activePreset = preset;
+    log(`画質・処理モード: ${preset.label}`);
+
+    waveLabel.textContent = '準備中';
+    waveTime.textContent = '';
+    waveProgressFill.classList.add('indeterminate');
+    log('ffmpeg.wasmを読み込み中...');
+    let t0 = performance.now();
+    await ensureFfmpegLoaded(preset);
+    log(`ffmpeg読み込み完了(${preset.coreType === 'multi' ? '複数コア版' : '1コア版'}): ${((performance.now()-t0)/1000).toFixed(1)}秒`);
+
+    setStage('stage-audio');
+    waveLabel.textContent = '音量を解析中';
+    log('音量(RMS)を解析中(必要な範囲だけ切り出して解析します)...');
+    t0 = performance.now();
+    let rmsRatio = 0;
+    startProgress('音量解析', waveTime, () => rmsRatio, waveProgressFill);
+    const { rms, dur, numSteps } = await computeAudioRms(clipSec, stepSec, (done, total) => { rmsRatio = done / total; }, preset);
+    stopProgress(waveProgressFill);
+    log(`音量解析完了: ${((performance.now()-t0)/1000).toFixed(1)}秒 (${numSteps}区間)`);
+
+    setStage('stage-motion');
+    waveLabel.textContent = '映像の動きを解析中';
+    t0 = performance.now();
+    let motionRatio = 0;
+    startProgress('映像解析', waveTime, () => motionRatio, waveProgressFill);
+    const motion = await computeVideoMotion(file, dur, stepSec, (done, total) => { motionRatio = done / total; });
+    stopProgress(waveProgressFill);
+    log(`映像解析完了: ${((performance.now()-t0)/1000).toFixed(1)}秒`);
+
+    const rmsN = normalize(rms), motionN = normalize(motion);
+    const combined = rmsN.map((v, i) => 0.6 * v + 0.4 * motionN[i]);
+    const windows = findTopWindows(combined, stepSec, highlightLen, dur, count);
+    if (!windows.length) throw new Error('盛り上がり区間を検出できませんでした。解析範囲や長さの設定を見直してください');
+    renderWaveBars(combined, windows);
+    log(`→ ${windows.length}件の盛り上がり区間を検出`, true);
+    windows.forEach((w, i) => log(`  クリップ${i+1}: ${formatTime(w.startSec)}〜${formatTime(w.endSec)}`));
+
+    const cropStyle = selectedVal('styleSegmented');
+    const vf = buildCropVf(preset, cropStyle);
+    resultArea.innerHTML = '';
+    setStage('stage-crop');
+
+    for (let i = 0; i < windows.length; i++){
+      const w = windows[i];
+      const lenSec = w.endSec - w.startSec;
+      const score = Math.round(Math.min(1, w.bestSum / w.windowSteps) * 100);
+      waveLabel.textContent = `クリップ${i+1}/${windows.length}を切り出し中`;
+      log(cropStyle === 'style1'
+        ? `クリップ${i+1}: 縦動画(9:16)に変換中...(背景ぼかし埋め / ${preset.scale}, preset:${preset.preset}, crf:${preset.crf})`
+        : `クリップ${i+1}: 縦動画(9:16)に切り抜き中...(${preset.scale}, preset:${preset.preset}, crf:${preset.crf})`);
+      t0 = performance.now();
+      ffmpegRatio = 0;
+      startProgress(`クリップ${i+1}切り出し`, waveTime, () => ffmpegRatio, waveProgressFill);
+      const outName = `cropped_${i}.mp4`;
+      try {
+        const args = ['-ss', w.startSec.toFixed(2), '-i', 'input.mp4', '-t', lenSec.toFixed(2), '-vf', vf, '-c:v', 'libx264', '-preset', preset.preset, '-crf', String(preset.crf)];
+        if (preset.coreType === 'multi') args.push('-threads', String(preset.threads));
+        args.push('-c:a', 'aac', outName);
+        await runFfmpegSafe(preset, args, outName);
+      } finally { stopProgress(waveProgressFill); }
+      log(`クリップ${i+1}切り出し完了: ${((performance.now()-t0)/1000).toFixed(1)}秒`, true);
+
+      const data = ffmpeg.FS('readFile', outName);
+      const blob = new Blob([data.buffer], { type: 'video/mp4' });
+      const url = URL.createObjectURL(blob);
+      // ffmpegインスタンスが後で(不安定挙動検知による)読み込み直しの対象に
+      // なると、仮想ファイルシステムごと初期化されてこのcropped_N.mp4は
+      // 消えてしまう。書き出し(STEP4)は後からこのファイルを`-i`で読むため、
+      // 消えても復元できるようバイト列自体をJS側(clip.croppedData)にも
+      // 保持しておく。data.slice()でWASM側のメモリから独立したコピーを取る。
+      const clip = { startSec: w.startSec, endSec: w.endSec, lenSec, score, croppedFile: outName, croppedData: data.slice(), croppedUrl: url, chunks: [] };
+      registerPersistentFile(outName, clip.croppedData);
+      clips.push(clip);
+
+      const card = document.createElement('div');
+      card.className = 'result-card';
+      const scoreClass = score >= 80 ? 'high' : score >= 50 ? 'mid' : '';
+      card.innerHTML = `
+        <div class="result-thumb"><video src="${url}" muted loop autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video></div>
+        <div class="result-meta">
+          <div class="rt">クリップ${i+1}: ${formatTime(w.startSec)}〜${formatTime(w.endSec)}</div>
+          <div class="tag-row">
+            <span class="score-tag ${scoreClass}">スコア ${score}</span>
+            <span class="style-tag">${lenSec.toFixed(1)}秒</span>
+            <span class="style-tag">${cropStyle === 'style1' ? '顔出しカメラ型' : 'イラスト+テロップ型'}</span>
+          </div>
+          <div class="rd">音量と映像の動きから自動検出</div>
+        </div>`;
+      resultArea.appendChild(card);
+      requestAnimationFrame(() => card.classList.add('in'));
+    }
+
+    document.getElementById('panel2Title').innerHTML = '<span class="title-check">✓</span> 検出が完了しました';
+    waveLabel.textContent = '検出完了';
+    waveTime.textContent = `${windows.length}件のクリップを作成`;
+    setStage(null);
+    document.querySelectorAll('.stage-item').forEach(el => { el.classList.remove('active'); el.classList.add('done'); });
+    waveProgressFill.classList.remove('indeterminate');
+    waveProgressFill.style.width = '100%';
+    toStep3Btn.disabled = false;
+    document.getElementById('panel-2').dataset.reachable = '1';
+    document.getElementById('panel-3').dataset.reachable = '1';
+
+    currentClipIndex = 0;
+    renderClipTabs();
+    renderCaptionEditor(clips[0].chunks, clips[0].lenSec);
+
+    const totalSec = (performance.now() - overallStart) / 1000;
+    log(`--- 検出〜切り抜きここまで: ${totalSec.toFixed(1)}秒(${windows.length}件) ---`);
+    log('クリップごとに「音声認識で字幕を検出する」(任意)を実行できます');
+  }
+
+  // ---- クリップタブ(STEP3) ----
+  function renderClipTabs(){
+    clipTabs.innerHTML = '';
+    clips.forEach((c, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'clip-tab' + (i === currentClipIndex ? ' selected' : '');
+      btn.textContent = `クリップ${i+1}`;
+      btn.addEventListener('click', () => switchClip(i));
+      clipTabs.appendChild(btn);
+    });
+  }
+
+  function saveCurrentCaptionsToClip(){
+    const clip = clips[currentClipIndex];
+    if (!clip) return;
+    const rows = Array.from(capRows.querySelectorAll('input[type=text]'));
+    if (!rows.length) return;
+    clip.chunks = rows.map(inp => ({
+      timestamp: [parseFloat(inp.dataset.start), parseFloat(inp.dataset.end)],
+      text: inp.value,
+    }));
+  }
+
+  function switchClip(i){
+    if (i === currentClipIndex) return;
+    saveCurrentCaptionsToClip();
+    currentClipIndex = i;
+    document.querySelectorAll('.clip-tab').forEach((b, idx) => b.classList.toggle('selected', idx === i));
+    renderCaptionEditor(clips[i].chunks, clips[i].lenSec);
+  }
+
+  // ---- STEP3: 字幕検出・編集 ----
+  transcribeBtn.addEventListener('click', async () => {
+    transcribeBtn.disabled = true;
+    try { await runTranscribe(); }
+    catch (err) { log('エラー: ' + (err?.message || err)); console.error(err); }
+    transcribeBtn.disabled = false;
+  });
+
+  async function runTranscribe(){
+    const clip = clips[currentClipIndex];
+    if (!clip) return;
+    const overallStart = performance.now();
+    const origBtnText = transcribeBtn.textContent;
+    try {
+      const preset = activePreset || getSelectedPreset();
+      await ensureFfmpegLoaded(preset);
+      log(`クリップ${currentClipIndex+1}: この区間の音声を16kHzモノラルに変換中...`);
+      const { audioData } = await decodeTo16kMono(clip.startSec, clip.lenSec, preset);
+
+      log('音声認識モデルを読み込み中(初回はダウンロードが入ります)...');
+      let t0 = performance.now();
+      const modelId = document.querySelector('input[name=model]:checked').value === 'small' ? 'Xenova/whisper-small' : 'Xenova/whisper-base';
+      log(`使用モデル: ${modelId}`);
+      modelDownloadRatio = 0;
+      const dlTimer = setInterval(() => {
+        transcribeBtn.textContent = modelDownloadRatio > 0.02
+          ? `モデル読み込み中…(${Math.round(modelDownloadRatio * 100)}%)`
+          : `モデル読み込み中…`;
+      }, 400);
+      let transcriber;
+      try {
+        transcriber = await pipeline('automatic-speech-recognition', modelId, {
+          device: 'wasm',
+          progress_callback: (p) => {
+            if (p && typeof p.progress === 'number') modelDownloadRatio = Math.min(1, p.progress / 100);
+          },
+        });
+      } finally { clearInterval(dlTimer); }
+      log(`モデル読み込み完了: ${((performance.now()-t0)/1000).toFixed(1)}秒`);
+
+      log('文字起こし中(繰り返し防止の設定つき)...');
+      t0 = performance.now();
+      // 文字起こし自体の進捗は取得できないため、音声の長さから大まかな残り時間を見積もる(目安)
+      const speedFactor = modelId.includes('small') ? 2.2 : 1.1;
+      const estimateTotal = Math.max(3, clip.lenSec * speedFactor);
+      const inferTimer = setInterval(() => {
+        const elapsed = (performance.now() - t0) / 1000;
+        const remaining = Math.max(0, estimateTotal - elapsed);
+        transcribeBtn.textContent = remaining > 0.5
+          ? `文字起こし中…残り約${formatDuration(remaining)}(目安)`
+          : `文字起こし中…もうすぐ完了`;
+      }, 500);
+      let result;
+      try {
+        result = await transcriber(audioData, {
+          language: 'japanese',
+          return_timestamps: true,
+          chunk_length_s: 30,
+          no_repeat_ngram_size: 3,
+          condition_on_previous_text: false,
+          temperature: [0.0, 0.2, 0.4, 0.6],
+        });
+      } catch (e) {
+        if (typeof e === 'number' || /^\d+$/.test(String(e?.message ?? e))) {
+          throw new Error(`このモデル(${modelId})はブラウザのメモリが足りず動かせなかった可能性が高いです。もう一段階軽いモデルを試してください(コード: ${e})`);
+        }
+        throw e;
+      } finally { clearInterval(inferTimer); }
+      log(`文字起こし完了: ${((performance.now()-t0)/1000).toFixed(1)}秒`, true);
+
+      const chunks = result.chunks || [{ text: result.text, timestamp: [0, clip.lenSec] }];
+      clip.chunks = chunks;
+      renderCaptionEditor(chunks, clip.lenSec);
+      log(`--- クリップ${currentClipIndex+1} 字幕検出ここまで: ${((performance.now()-overallStart)/1000).toFixed(1)}秒 ---`);
+    } finally {
+      transcribeBtn.textContent = origBtnText;
+    }
+  }
+
+  function renderCaptionEditor(chunks, clipSec){
+    capRows.innerHTML = '';
+    if (!chunks.length){
+      capRows.innerHTML = '<div class="result-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>字幕はまだ検出していません。上のボタンで検出するか、字幕なしのまま進められます。</div>';
+      return;
+    }
+    chunks.forEach((c) => {
+      let [start, end] = c.timestamp || [0, 0];
+      if (start == null) start = 0;
+      if (end == null || end > clipSec) end = Math.min(clipSec, start + 2);
+      if (start >= clipSec) return;
+      const text = (c.text || '').trim();
+      const row = document.createElement('div');
+      row.className = 'cap-row';
+      row.innerHTML = `<span class="cap-time">${formatTime(start)}〜${formatTime(end)}</span><input type="text" data-start="${start}" data-end="${end}">`;
+      row.querySelector('input').value = text;
+      capRows.appendChild(row);
+    });
+    const first = chunks.find(c => (c.text || '').trim());
+    if (first){
+      capPreviewText.textContent = (first.text || '').trim();
+      if (selectedVal('styleSegmented') === 'style1'){
+        document.getElementById('capPreviewMini').textContent = (first.text || '').trim();
+      }
+    }
+  }
+  renderCaptionEditor([], 0);
+
+  // ---- STEP4: 焼き込み・書き出し(全クリップぶん) ----
+  const burnErrorBanner = document.getElementById('burnErrorBanner');
+  const burnErrorDesc = document.getElementById('burnErrorDesc');
+  const burnRetryBtn = document.getElementById('burnRetryBtn');
+  let burnInProgress = false; // 「もう一度試す」連打などでrunBurnAllが二重に走るのを防ぐ
+  async function startBurn(){
+    if (burnInProgress) return;
+    burnInProgress = true;
+    burnErrorBanner.style.display = 'none';
+    burnProgressTrack.style.display = 'block';
+    burnProgressFill.classList.remove('error');
+    burnProgressFill.style.width = '0%';
+    burnToStep4Btn.disabled = true;
+    burnRetryBtn.disabled = true;
+    try { await runBurnAll(); }
+    catch (err) {
+      log('エラー: ' + (err?.message || err)); console.error(err);
+      burnProgressFill.classList.remove('indeterminate');
+      burnProgressFill.classList.add('error');
+      burnProgressFill.style.width = '100%';
+      burnErrorDesc.textContent = (err?.message || String(err)) + ' — もう一度お試しください。';
+      burnErrorBanner.style.display = 'flex';
+    }
+    burnToStep4Btn.disabled = false;
+    burnRetryBtn.disabled = false;
+    burnInProgress = false;
+  }
+  burnToStep4Btn.addEventListener('click', () => {
+    saveCurrentCaptionsToClip();
+    goStep(4);
+    showAdGate(startBurn);
+  });
+  burnRetryBtn.addEventListener('click', startBurn);
+
+  async function runBurnAll(){
+    exportResults.innerHTML = '';
+    document.querySelector('.export-done-banner')?.remove();
+    downloadAllBtn.disabled = true;
+    finalClips.forEach(fc => { if (fc.url) URL.revokeObjectURL(fc.url); });
+    finalClips = [];
+    await ensureFfmpegLoaded(activePreset || getSelectedPreset());
+
+    log('字幕用フォントを読み込み中(NotoSansJP-Regular.ttf)...');
+    const fontResp = await fetch('./NotoSansJP-Regular.ttf');
+    if (!fontResp.ok) throw new Error(`フォントファイルが見つかりません(HTTP ${fontResp.status})。Google FontsのNoto Sans JPからstaticフォルダ内のNotoSansJP-Regular.ttfを取得し、このHTMLと同じフォルダに置いてください`);
+    const fontBuf = await fontResp.arrayBuffer();
+    ffmpeg.FS('writeFile', 'NotoSansJP.ttf', new Uint8Array(fontBuf));
+    log('フォント読み込み完了', true);
+    await ensureCaptionFontLoaded(fontBuf.slice(0));
+
+    const styleVal = selectedVal('styleSegmented');
+    const style = getCaptionStyle(styleVal);
+    const preset = activePreset || getSelectedPreset();
+    const videoWidthPx = Number((preset.scale || '').split(':')[0]) || 1080;
+
+    for (let i = 0; i < clips.length; i++){
+      const clip = clips[i];
+      const drawtextParts = [];
+
+      if (styleVal === 'style2' && highlightBoxCheck.checked){
+        const boxText = escapeForDrawtext((highlightBoxText.value || '').trim());
+        if (boxText){
+          drawtextParts.push(`drawtext=fontfile=NotoSansJP.ttf:text='${boxText}':fontsize=${HIGHLIGHT_BOX.fontsize}:fontcolor=black:box=1:boxcolor=yellow@0.9:boxborderw=${HIGHLIGHT_BOX.boxborderw}:x=(w-text_w)/2:y=${HIGHLIGHT_BOX.y}`);
+        }
+      }
+      if (subtitleBurnCheck.checked){
+        (clip.chunks || []).forEach(c => {
+          let [start, end] = c.timestamp || [];
+          if (start == null || end == null || isNaN(start) || isNaN(end)) return;
+          if (end > clip.lenSec) end = clip.lenSec;
+          if (end <= start) end = start + 0.5;
+          if (start >= clip.lenSec) return;
+          const text = (c.text || '').trim();
+          if (!text) return;
+          const wrapped = wrapCaptionText(text, style.fontsize, videoWidthPx);
+          const t = escapeForDrawtext(wrapped);
+          const boxPart = (capBgBoxCheck && capBgBoxCheck.checked)
+            ? `:box=1:boxcolor=black@0.45:boxborderw=${Math.round(style.fontsize * 0.35)}`
+            : '';
+          drawtextParts.push(`drawtext=fontfile=NotoSansJP.ttf:text='${t}':fontsize=${style.fontsize}:fontcolor=${style.fontcolor}:borderw=${style.borderw}:bordercolor=${style.bordercolor}${boxPart}:x=(w-text_w)/2:y=${style.y}:enable='between(t\\,${start.toFixed(2)}\\,${end.toFixed(2)})'`);
+        });
+      }
+
+      const vfArg = drawtextParts.length ? drawtextParts.join(',') : null;
+      log(`クリップ${i+1}: 字幕を焼き込み中...(preset:${preset.preset}, crf:${preset.crf})`);
+      let t0 = performance.now();
+      ffmpegRatio = 0;
+      startProgress(`クリップ${i+1}/${clips.length}焼き込み`, burnStatus, () => ffmpegRatio, burnProgressFill);
+      const outName = `final_${i}.mp4`;
+      try {
+        const args = ['-i', clip.croppedFile];
+        if (vfArg) args.push('-vf', vfArg);
+        args.push('-c:v', 'libx264', '-preset', preset.preset, '-crf', String(preset.crf));
+        if (preset.coreType === 'multi') args.push('-threads', String(preset.threads));
+        args.push('-c:a', 'copy', outName);
+        await runFfmpegSafe(preset, args, outName, [{ name: clip.croppedFile, data: clip.croppedData }]);
+      } finally { stopProgress(burnProgressFill); }
+      log(`クリップ${i+1}焼き込み完了: ${((performance.now()-t0)/1000).toFixed(1)}秒`, true);
+
+      const data = ffmpeg.FS('readFile', outName);
+      const blob = new Blob([data.buffer], { type: 'video/mp4' });
+      const url = URL.createObjectURL(blob);
+      finalClips.push({ url });
+
+      const card = document.createElement('div');
+      card.className = 'export-card';
+      card.innerHTML = `
+        <div class="export-video-sm"><video src="${url}" controls></video></div>
+        <div class="export-meta2">
+          <div class="et">クリップ${i+1}: ${formatTime(clip.startSec)}〜${formatTime(clip.endSec)}</div>
+          <div class="tag-row">
+            <span class="style-tag">${clip.lenSec.toFixed(1)}秒</span>
+            <span class="style-tag">${styleVal === 'style1' ? '顔出しカメラ型' : 'イラスト+テロップ型'}</span>
+            <span class="style-tag">${preset.coreType === 'multi' ? '本番相当' : 'テスト画質'}</span>
+          </div>
+          <button class="btn btn-ghost dl-btn" data-index="${i}">ダウンロード</button>
+        </div>`;
+      exportResults.appendChild(card);
+    }
+
+    exportResults.querySelectorAll('.dl-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.index, 10);
+        const fc = finalClips[idx];
+        if (!fc) return;
+        showAdGate(() => {
+          const a = document.createElement('a');
+          a.href = fc.url; a.download = `highlight-studio-clip${idx+1}.mp4`; a.click();
+          btn.textContent = 'ダウンロード済み ✓';
+          btn.classList.add('done');
+        });
+      });
+    });
+
+    downloadAllBtn.disabled = false;
+    document.getElementById('panel-4').dataset.reachable = '1';
+    burnStatus.textContent = '';
+    burnProgressTrack.style.display = 'none';
+    const banner = document.createElement('div');
+    banner.className = 'export-done-banner';
+    banner.innerHTML = `<span class="title-check">✓</span> 全${clips.length}件の書き出しが完了しました。内容を確認してダウンロードしてください。`;
+    exportResults.parentElement.insertBefore(banner, exportResults);
+    log(`→ 全${clips.length}件の書き出しが完了しました。内容を確認してダウンロードしてください`, true);
+  }
+
+  downloadAllBtn.addEventListener('click', () => {
+    showAdGate(() => {
+      finalClips.forEach((fc, idx) => {
+        setTimeout(() => {
+          const a = document.createElement('a');
+          a.href = fc.url; a.download = `highlight-studio-clip${idx+1}.mp4`; a.click();
+        }, idx * 300);
+      });
+    });
+  });
+</script>
+<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+</body>
+</html>

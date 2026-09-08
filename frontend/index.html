@@ -199,13 +199,13 @@
   }
   @keyframes scrub{0%{left:2%;}100%{left:96%;}}
   .float-chip{
-    position:absolute;background:var(--surface2);border:1px solid var(--line);border-radius:9px;
+    position:absolute;z-index:5;background:var(--surface2);border:1px solid var(--line);border-radius:9px;
     padding:9px 12px;font-size:0.74rem;color:var(--text-dim);box-shadow:var(--shadow-md);
-    display:flex;align-items:center;gap:7px;
+    display:flex;align-items:center;gap:7px;white-space:nowrap;
   }
   .float-chip b{color:var(--text);font-weight:600;}
-  .float-chip.chip-detect{top:8%;right:-14px;}
-  .float-chip.chip-caption{bottom:14%;left:-30px;}
+  .float-chip.chip-detect{top:8%;right:-38px;}
+  .float-chip.chip-caption{bottom:14%;left:-54px;}
   .float-chip svg{width:13px;height:13px;color:var(--accent);flex-shrink:0;}
 
   /* ---------- trust bar ---------- */
@@ -420,7 +420,7 @@
 </div>
 
 <header>
-  <div class="brand">
+  <a class="brand" href="./highlight-studio-01-landing.html" style="text-decoration:none;color:inherit;">
     <svg class="brand-mark" viewBox="0 0 26 26" fill="none">
       <rect x="2" y="11" width="3" height="6" rx="1" fill="#5A6373"/>
       <rect x="7" y="6" width="3" height="16" rx="1" fill="#8891A0"/>
@@ -429,7 +429,7 @@
       <rect x="22" y="12" width="2" height="4" rx="1" fill="#5A6373"/>
     </svg>
     <div class="brand-name">Highlight <b>Studio</b></div>
-  </div>
+  </a>
   <div class="nav-right">
     <nav class="nav-links">
       <a href="#steps" data-i18n="common.navSteps">使い方</a>
@@ -733,6 +733,10 @@
   const goSignup = () => { window.location.href = './highlight-studio-02-auth.html?tab=signup'; };
   const goLogin = () => { window.location.href = './highlight-studio-02-auth.html?tab=login'; };
   const goApp = () => { window.location.href = './highlight-studio-03-app.html'; };
+
+  // ロゴ(左上のタイトル)クリック時の遷移先: 未ログインならトップ、ログイン済みならアプリ本体
+  const brandLink = document.querySelector('.brand');
+  if (brandLink) brandLink.href = isLoggedIn ? './highlight-studio-03-app.html' : './highlight-studio-01-landing.html';
 
   if(isLoggedIn){
     document.getElementById('loginBtn').style.display = 'none';

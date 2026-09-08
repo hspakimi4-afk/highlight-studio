@@ -350,5 +350,12 @@ window.HS_I18N_DICT = {
 };
 </script>
 <script src="./i18n.js"></script>
+<script>
+  // ロゴ(左上のタイトル)クリック時の遷移先: 未ログインならトップ、ログイン済みならアプリ本体
+  (function(){
+    var brandLink = document.querySelector("header .brand");
+    if (brandLink) brandLink.href = (localStorage.getItem("hs_loggedIn") === "1") ? "./highlight-studio-03-app.html" : "./highlight-studio-01-landing.html";
+  })();
+</script>
 </body>
 </html>

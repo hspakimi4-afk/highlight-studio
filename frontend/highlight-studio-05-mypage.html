@@ -397,7 +397,7 @@
     <div class="brand-name">Highlight <b>Studio</b></div>
   </a>
   <div class="header-right">
-    <a class="plan-pill" href="./highlight-studio-06-pricing.html" style="text-decoration:none;" id="headerPlanPill">無料</a>
+    <span class="plan-pill" id="headerPlanPill">無料</span>
     <div class="avatar-menu">
       <button id="avatarBtn" class="avatar" aria-haspopup="true" aria-expanded="false" data-i18n-aria-label="mypage.avatarMenu" aria-label="アカウントメニュー"></button>
       <div id="avatarDropdown" class="avatar-dropdown">
@@ -560,6 +560,9 @@ window.HS_I18N_DICT = {
   "mypage.planProName": { ja: "プロ", en: "Pro" },
   "mypage.planProPrice": { ja: "¥2,480/月", en: "¥2,480/mo" },
   "mypage.planProDesc": { ja: "本番画質・高精度な音声認識モデル・書き出し本数の上限なし。", en: "Production quality, high-accuracy speech recognition, unlimited exports." },
+  "mypage.planAdfreeName": { ja: "無料", en: "Free" },
+  "mypage.planAdfreePrice": { ja: "無料(広告表示あり)", en: "Free (ad-supported)" },
+  "mypage.planAdfreeDesc": { ja: "本番画質・書き出し本数の上限なしでご利用いただけます。運営は広告収益で行っています。", en: "Full quality, unlimited exports. The service is supported by ads." },
   "mypage.planAdminName": { ja: "管理者(デバッグ用)", en: "Admin (debug)" },
   "mypage.planAdminPrice": { ja: "無料・無制限", en: "Free & unlimited" },
   "mypage.planAdminDesc": { ja: "社内の動作確認用アカウントです。書き出し本数の上限はなく、課金は発生しません。", en: "An internal testing account. No export limit and no billing." }
@@ -612,7 +615,7 @@ window.HS_I18N_DICT = {
   }
 
   // ---- 利用状況・プラン ----
-  const PLAN_LIMITS = { free: 3, standard: 30, pro: Infinity, admin: Infinity };
+  const PLAN_LIMITS = { free: 3, standard: 30, pro: Infinity, admin: Infinity, adfree: Infinity };
   function getPlan(key){
     return {
       name: T('mypage.plan' + key.charAt(0).toUpperCase() + key.slice(1) + 'Name'),
@@ -621,7 +624,10 @@ window.HS_I18N_DICT = {
       limit: PLAN_LIMITS[key],
     };
   }
-  const currentPlanKey = (localStorage.getItem('hs_plan') || 'free') in PLAN_LIMITS ? (localStorage.getItem('hs_plan') || 'free') : 'free';
+  const currentPlanKey = 'adfree';
+  // 広告収益モデルへの移行に伴い、全ユーザーを無制限プラン扱いにしています。
+  // 有料プランを将来復活させる場合は、上の1行を消して下のコメントを解除してください。
+  // const currentPlanKey = (localStorage.getItem('hs_plan') || 'free') in PLAN_LIMITS ? (localStorage.getItem('hs_plan') || 'free') : 'free';
   let plan = getPlan(currentPlanKey);
   function renderPlanCard(){
     plan = getPlan(currentPlanKey);
@@ -637,8 +643,8 @@ window.HS_I18N_DICT = {
   document.getElementById('planDesc').textContent = plan.desc;
   document.getElementById('headerPlanPill').textContent = currentPlanKey === 'free' ? T('mypage.headerPlanFree') : plan.name;
   document.getElementById('accountPlanPill').textContent = plan.name;
-  if (currentPlanKey === 'admin'){
-    // 管理者アカウントには課金導線を表示しない
+  if (currentPlanKey === 'admin' || currentPlanKey === 'adfree'){
+    // 管理者アカウント・広告収益モデルでは課金導線を表示しない
     const upgradeBtnEl = document.getElementById('upgradeBtn');
     const billingBtnEl = document.getElementById('billingBtn');
     if (upgradeBtnEl) upgradeBtnEl.style.display = 'none';

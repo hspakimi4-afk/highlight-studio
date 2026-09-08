@@ -530,7 +530,6 @@
     <div class="brand-name">Highlight <b>Studio</b></div>
   </a>
   <div class="header-right">
-    <a class="plan-pill" href="./highlight-studio-06-pricing.html" style="text-decoration:none;">早期アクセス</a>
     <div class="avatar-menu" style="position:relative;">
       <button id="avatarBtn" class="avatar" style="cursor:pointer;padding:0;border:1px solid var(--line);" aria-haspopup="true" aria-expanded="false" aria-label="アカウントメニュー"></button>
       <div id="avatarDropdown" style="display:none;position:absolute;right:0;top:38px;background:var(--surface2);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow-md);min-width:160px;overflow:hidden;z-index:30;">
@@ -809,6 +808,11 @@
       <button class="btn btn-ghost" onclick="goStep(3)">字幕を直す</button>
       <button class="btn btn-primary" id="downloadAllBtn" disabled>すべてダウンロード</button>
     </div>
+
+    <div id="ad-slot-export" style="margin-top:20px;border:1px dashed var(--line-strong);border-radius:10px;padding:16px;text-align:center;color:var(--text-faint);font-size:0.76rem;font-family:var(--mono);">
+      AD PLACEHOLDER — 728x90 / responsive<br>
+      <span style="font-size:0.7rem;">広告ネットワーク導入後、ここに広告タグを差し込んでください</span>
+    </div>
   </section>
 
 </main>
@@ -952,7 +956,10 @@
   // ---------- プランごとの制限 ----------
   // 'admin' はデバッグ用の管理者アカウント専用プラン(無制限・無料)。
   const PLAN_LIMITS = { free: 3, standard: 30, pro: Infinity, admin: Infinity };
-  const currentPlan = localStorage.getItem('hs_plan') || 'free';
+  // 広告収益モデルへの移行に伴い、全ユーザーを無制限プラン扱いにしています。
+  // 有料プランを将来復活させる場合は、下の1行を消して元の判定に戻してください。
+  // const currentPlan = localStorage.getItem('hs_plan') || 'free';
+  const currentPlan = 'pro';
   const monthlyLimit = PLAN_LIMITS[currentPlan] ?? PLAN_LIMITS.free;
 
   function currentMonthKey(){

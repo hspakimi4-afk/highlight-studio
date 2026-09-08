@@ -1,5 +1,0 @@
-{
-  "routes": [
-    { "src": "/", "dest": "/highlight-studio-01-landing.html" }
-  ]
-}

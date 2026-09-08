@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Highlight Studio — 会社概要</title>
+<meta name="description" content="Highlight Studioを運営する事業者の情報と、私たちが目指しているものについてご紹介します。">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Highlight Studio">
+<meta property="og:title" content="Highlight Studio — 会社概要">
+<meta property="og:description" content="Highlight Studioを運営する事業者の情報と、私たちが目指しているものについてご紹介します。">
+<meta property="og:image" content="https://highlight-studio.vercel.app/ogp.png">
+<meta property="og:url" content="https://highlight-studio.vercel.app/highlight-studio-11-about.html">
+<link rel="canonical" href="https://highlight-studio.vercel.app/highlight-studio-11-about.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Highlight Studio — 会社概要">
+<meta name="twitter:description" content="Highlight Studioを運営する事業者の情報と、私たちが目指しているものについてご紹介します。">
+<meta name="theme-color" content="#07080C">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'%3E%3Crect x='2' y='11' width='3' height='6' rx='1' fill='%235A6373'/%3E%3Crect x='7' y='6' width='3' height='16' rx='1' fill='%238891A0'/%3E%3Crect x='12' y='9' width='3' height='10' rx='1' fill='%23E8B84B'/%3E%3Crect x='17' y='4' width='3' height='20' rx='1' fill='%238891A0'/%3E%3Crect x='22' y='12' width='2' height='4' rx='1' fill='%235A6373'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+<link rel="manifest" href="./site.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Highlight Studio">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:locale:alternate" content="en_US">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#07080C;--surface:#0E1119;--surface2:#161A24;--surface3:#1D2230;
+    --line:rgba(255,255,255,.08);--line-soft:rgba(255,255,255,.05);--line-strong:rgba(255,255,255,.14);
+    --text:#EDEFF2;--text-dim:#8891A0;--text-faint:#7E88A0;
+    --accent:#E8B84B;--accent-hi:#F3CA6C;--accent-soft:#3A331F;--accent-line:#5C4E28;
+    --live:#4FD1C5;--live-soft:#152B2A;--danger:#E2685A;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+    --shadow-lg:0 2px 4px rgba(0,0,0,.5), 0 28px 56px -20px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);
+    --shadow-card:0 1px 0 rgba(255,255,255,.02) inset, 0 20px 40px -24px rgba(0,0,0,.85);
+    --card-border:linear-gradient(160deg, rgba(255,255,255,.10), rgba(255,255,255,.02) 40%, rgba(255,255,255,.02) 60%, rgba(255,255,255,.06));
+    --ease:cubic-bezier(.25,.8,.4,1);
+    --sans:'Noto Sans JP',-apple-system,'Hiragino Sans',sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;}
+  @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+  html,body{margin:0;padding:0;}
+  body{color-scheme:dark;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.7;-webkit-font-smoothing:antialiased;}
+  body::before{
+    content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse 900px 500px at 50% -10%, rgba(232,184,75,0.05), transparent 60%),
+      radial-gradient(ellipse 700px 400px at 100% 0%, rgba(79,209,197,0.03), transparent 60%);
+    pointer-events:none;
+  }
+  body::after{
+    content:'';position:fixed;inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+    opacity:.025;mix-blend-mode:overlay;pointer-events:none;
+  }
+  a{color:var(--accent);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px;}
+
+  header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 28px;border-bottom:1px solid var(--line-soft);position:sticky;top:0;z-index:20;
+    background:rgba(7,8,12,.85);backdrop-filter:blur(10px);
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{width:26px;height:26px;flex-shrink:0;filter:drop-shadow(0 2px 6px rgba(232,184,75,.25));}
+  .brand-name{font-size:1.02rem;font-weight:700;letter-spacing:0.01em;}
+  .brand-name b{color:var(--accent);font-weight:700;}
+  .back-link{display:flex;align-items:center;gap:6px;color:var(--text-dim);font-size:0.85rem;transition:color .15s ease;}
+  .back-link:hover{color:var(--text);text-decoration:none;}
+  .back-link svg{width:15px;height:15px;}
+  .lang-toggle{
+    margin-left:16px;background:none;border:1px solid var(--line);color:var(--text-dim);
+    font-family:var(--sans);font-size:0.8rem;border-radius:6px;padding:6px 12px;cursor:pointer;
+  }
+  .lang-toggle:hover{color:var(--text);border-color:var(--line-strong);}
+
+  .wrap{max-width:760px;margin:0 auto;padding:56px 24px 90px;position:relative;z-index:1;}
+  .doc-eyebrow{font-family:var(--mono);font-size:0.76rem;color:var(--accent);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;}
+  h1.doc-title{font-size:1.9rem;font-weight:800;letter-spacing:-.01em;margin:0 0 10px;}
+  .doc-updated{font-size:0.82rem;color:var(--text-faint);margin:0 0 40px;}
+
+  .lead{font-size:1.0rem;color:var(--text-dim);max-width:56ch;margin:0 0 44px;}
+
+  section.doc-section{margin-bottom:38px;scroll-margin-top:80px;}
+  h2{font-size:1.12rem;font-weight:700;margin:0 0 14px;letter-spacing:-.005em;display:flex;align-items:center;gap:10px;}
+  h2 .num{
+    font-family:var(--mono);font-size:0.78rem;color:var(--accent);
+    border:1px solid var(--accent-line);background:var(--accent-soft);
+    border-radius:6px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  p{color:var(--text-dim);font-size:0.92rem;margin:0 0 14px;}
+  ul{color:var(--text-dim);font-size:0.92rem;margin:0 0 14px;padding-left:1.3em;}
+  li{margin-bottom:6px;}
+  strong{color:var(--text);font-weight:600;}
+  .note-box{
+    display:flex;gap:12px;background:var(--surface2);border:1px solid var(--line);border-radius:10px;
+    padding:14px 16px;font-size:0.85rem;color:var(--text-dim);margin:16px 0;
+  }
+  .note-box svg{width:18px;height:18px;color:var(--live);flex-shrink:0;margin-top:1px;}
+
+  .value-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:0 0 8px;}
+  .value-card{
+    background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:18px;
+    box-shadow:var(--shadow-card);position:relative;
+  }
+  .value-card::before{
+    content:'';position:absolute;inset:0;border-radius:12px;padding:1px;pointer-events:none;
+    background:var(--card-border);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;
+  }
+  .value-card .icon{width:30px;height:30px;color:var(--accent);margin-bottom:12px;}
+  .value-card h3{font-size:0.92rem;font-weight:700;margin:0 0 6px;color:var(--text);}
+  .value-card p{font-size:0.82rem;margin:0;}
+  @media(max-width:640px){.value-grid{grid-template-columns:1fr;}}
+
+  .spec-table{width:100%;border-collapse:collapse;font-size:0.88rem;margin:0 0 8px;}
+  .spec-table tr{border-bottom:1px solid var(--line-soft);}
+  .spec-table tr:last-child{border-bottom:none;}
+  .spec-table th{
+    width:11em;text-align:left;vertical-align:top;color:var(--text-dim);font-weight:600;
+    padding:13px 16px 13px 0;white-space:nowrap;
+  }
+  .spec-table td{padding:13px 0;color:var(--text);line-height:1.7;}
+  .spec-table td a{color:var(--accent);}
+  @media(max-width:560px){
+    .spec-table, .spec-table tbody, .spec-table tr, .spec-table th, .spec-table td{display:block;width:auto;}
+    .spec-table th{padding:14px 0 2px;white-space:normal;}
+    .spec-table td{padding:0 0 14px;}
+  }
+
+  .cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:9px;
+    font-size:0.86rem;font-weight:600;transition:all .15s ease;
+  }
+  .btn-primary{background:var(--accent);color:#241C08;box-shadow:0 1px 0 rgba(255,255,255,.2) inset,0 10px 22px -10px rgba(232,184,75,.55);}
+  .btn-primary:hover{background:var(--accent-hi);text-decoration:none;}
+  .btn-ghost{background:var(--surface2);border:1px solid var(--line);color:var(--text);}
+  .btn-ghost:hover{background:var(--surface3);text-decoration:none;}
+
+  footer{border-top:1px solid var(--line-soft);padding:26px 28px;}
+  .footer-row{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;}
+  .footer-brand{display:flex;align-items:center;gap:8px;color:var(--text-faint);font-size:0.82rem;}
+  .footer-links{display:flex;gap:20px;font-size:0.82rem;flex-wrap:wrap;}
+  .footer-links a{color:var(--text-dim);}
+  .footer-links a:hover{color:var(--text);}
+  .footer-links a.current{color:var(--accent);}
+
+  @media(max-width:640px){
+    .wrap{padding:36px 18px 70px;}
+    h1.doc-title{font-size:1.5rem;}
+  }
+  @media print{
+    body::before,body::after{display:none;}
+    header,footer{display:none;}
+    body{background:#fff;color:#000;}
+    h1,h2,h3{color:#000;}
+    section{border-color:#ccc;}
+    a{color:#000;text-decoration:underline;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="./index.html" style="text-decoration:none;">
+    <svg class="brand-mark" viewBox="0 0 26 26" fill="none">
+      <rect x="2" y="11" width="3" height="6" rx="1" fill="#5A6373"/>
+      <rect x="7" y="6" width="3" height="16" rx="1" fill="#8891A0"/>
+      <rect x="12" y="9" width="3" height="10" rx="1" fill="var(--accent)"/>
+      <rect x="17" y="4" width="3" height="20" rx="1" fill="#8891A0"/>
+      <rect x="22" y="12" width="2" height="4" rx="1" fill="#5A6373"/>
+    </svg>
+    <div class="brand-name">Highlight <b>Studio</b></div>
+  </a>
+  <a class="back-link" href="./index.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    <span data-i18n="common.backToTop">トップに戻る</span>
+  </a>
+  <button type="button" class="lang-toggle" data-i18n-lang-toggle>English</button>
+</header>
+
+<div class="wrap">
+  <div class="doc-eyebrow">About Us</div>
+  <h1 class="doc-title" data-i18n="about.title">会社概要</h1>
+  <p class="doc-updated"><span data-i18n="about.updatedLabel">最終更新日:</span> <span data-i18n="about.updatedDate">2026年9月7日</span></p>
+
+  <p class="lead" data-i18n="about.lead">Highlight Studioは、配信アーカイブに眠っている「盛り上がった瞬間」を、誰でも数クリックで切り抜きにできるようにするための、ブラウザ完結型の映像編集サービスです。動画をサーバーに送らずにお使いいただける仕組みを軸に、これからも機能を育てていきます。</p>
+
+  <section class="doc-section" id="mission">
+    <h2><span class="num">1</span><span data-i18n="about.missionTitle">私たちが目指しているもの</span></h2>
+    <p data-i18n="about.missionP1">配信の切り抜きは、面白い瞬間を見つける手間・書き出しの待ち時間・字幕付けの手作業など、地味に時間のかかる作業の積み重ねです。Highlight Studioは、この一連の作業を自動化し、配信者やクリップ制作に関わる方が「編集」よりも「配信そのもの」に時間を使えるようにすることを目指しています。</p>
+    <p data-i18n="about.missionP2">動画ファイルを外部のサーバーに送信しない設計にこだわっているのも同じ理由からで、プライバシーへの不安なく、気軽に試していただけることを大切にしています。</p>
+  </section>
+
+  <section class="doc-section" id="values">
+    <h2><span class="num">2</span><span data-i18n="about.valuesTitle">大事にしていること</span></h2>
+    <div class="value-grid">
+      <div class="value-card">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.5 8 10 4.6-1.5 8-5 8-10V5l-8-3Z"/></svg>
+        <h3 data-i18n="about.value1Title">動画を預からない</h3>
+        <p data-i18n="about.value1Desc">処理はすべてブラウザの中で完結し、動画ファイル自体をサーバーへアップロードすることはありません。</p>
+      </div>
+      <div class="value-card">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+        <h3 data-i18n="about.value2Title">待たせない</h3>
+        <p data-i18n="about.value2Desc">盛り上がり検出から書き出しまでの処理時間を、日々の改善の中で少しずつ短くしています。</p>
+      </div>
+      <div class="value-card">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 0 1 2-2h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M14 3v5h5"/></svg>
+        <h3 data-i18n="about.value3Title">迷わない画面にする</h3>
+        <p data-i18n="about.value3Desc">専門用語や複雑な設定をできるだけ減らし、はじめて触る方でも迷わず使える画面づくりを続けています。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="doc-section" id="contact">
+    <h2><span class="num">3</span><span data-i18n="about.contactTitle">お問い合わせ</span></h2>
+    <p data-i18n="about.contactDesc">サービスに関するご質問・取材のご依頼などは、お問い合わせフォームよりお気軽にご連絡ください。</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="./highlight-studio-10-contact.html" data-i18n="about.contactCta">お問い合わせページへ</a>
+      <a class="btn btn-ghost" href="./index.html" data-i18n="about.backHome">トップページに戻る</a>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="footer-row">
+    <div class="footer-brand">
+      <svg class="brand-mark" style="width:18px;height:18px;" viewBox="0 0 26 26" fill="none">
+        <rect x="2" y="11" width="3" height="6" rx="1" fill="#5A6373"/>
+        <rect x="7" y="6" width="3" height="16" rx="1" fill="#8891A0"/>
+        <rect x="12" y="9" width="3" height="10" rx="1" fill="var(--accent)"/>
+        <rect x="17" y="4" width="3" height="20" rx="1" fill="#8891A0"/>
+        <rect x="22" y="12" width="2" height="4" rx="1" fill="#5A6373"/>
+      </svg>
+      Highlight Studio
+    </div>
+    <div class="footer-links">
+      <a href="./highlight-studio-07-terms.html" data-i18n="common.footerTerms">利用規約</a>
+      <a href="./highlight-studio-08-privacy.html" data-i18n="common.footerPrivacyFull">プライバシーポリシー</a>
+      <a href="./highlight-studio-10-contact.html" data-i18n="common.footerContact">お問い合わせ</a>
+    </div>
+  </div>
+</footer>
+
+<script src="./i18n-common.js"></script>
+<script>
+window.HS_I18N_DICT = {
+  "about.title": { ja: "会社概要", en: "About Us" },
+  "about.updatedLabel": { ja: "最終更新日:", en: "Last updated:" },
+  "about.updatedDate": { ja: "2026年9月7日", en: "September 7, 2026" },
+  "about.lead": { ja: "Highlight Studioは、配信アーカイブに眠っている「盛り上がった瞬間」を、誰でも数クリックで切り抜きにできるようにするための、ブラウザ完結型の映像編集サービスです。動画をサーバーに送らずにお使いいただける仕組みを軸に、これからも機能を育てていきます。", en: "Highlight Studio is a browser-only video editing service that lets anyone turn the best moments buried in a stream archive into clips in just a few clicks. We keep building on a design where your video is never sent to a server." },
+  "about.missionTitle": { ja: "私たちが目指しているもの", en: "What we're aiming for" },
+  "about.missionP1": { ja: "配信の切り抜きは、面白い瞬間を見つける手間・書き出しの待ち時間・字幕付けの手作業など、地味に時間のかかる作業の積み重ねです。Highlight Studioは、この一連の作業を自動化し、配信者やクリップ制作に関わる方が「編集」よりも「配信そのもの」に時間を使えるようにすることを目指しています。", en: "Clipping a stream is a pile of small, time-consuming tasks: finding the fun moments, waiting for exports, adding captions by hand. Highlight Studio automates this whole chain so streamers and clip creators can spend more time on the stream itself, not on editing it." },
+  "about.missionP2": { ja: "動画ファイルを外部のサーバーに送信しない設計にこだわっているのも同じ理由からで、プライバシーへの不安なく、気軽に試していただけることを大切にしています。", en: "That's also why we insist on a design that never sends your video files to an external server — so you can try it freely, without worrying about privacy." },
+  "about.valuesTitle": { ja: "大事にしていること", en: "What we care about" },
+  "about.value1Title": { ja: "動画を預からない", en: "We never hold your video" },
+  "about.value1Desc": { ja: "処理はすべてブラウザの中で完結し、動画ファイル自体をサーバーへアップロードすることはありません。", en: "All processing happens entirely inside your browser. Your video file itself is never uploaded to a server." },
+  "about.value2Title": { ja: "待たせない", en: "We don't make you wait" },
+  "about.value2Desc": { ja: "盛り上がり検出から書き出しまでの処理時間を、日々の改善の中で少しずつ短くしています。", en: "We keep shortening the time from highlight detection to export, a little more with every improvement." },
+  "about.value3Title": { ja: "迷わない画面にする", en: "We keep the screen simple" },
+  "about.value3Desc": { ja: "専門用語や複雑な設定をできるだけ減らし、はじめて触る方でも迷わず使える画面づくりを続けています。", en: "We keep cutting jargon and complex settings so that even first-time users can find their way around without confusion." },
+  "about.contactTitle": { ja: "お問い合わせ", en: "Contact us" },
+  "about.contactDesc": { ja: "サービスに関するご質問・取材のご依頼などは、お問い合わせフォームよりお気軽にご連絡ください。", en: "For questions about the service, press inquiries, or anything else, feel free to reach out through our contact form." },
+  "about.contactCta": { ja: "お問い合わせページへ", en: "Go to contact page" },
+  "about.backHome": { ja: "トップページに戻る", en: "Back to homepage" }
+};
+</script>
+<script src="./i18n.js"></script>
+<script>
+  // ロゴ(左上のタイトル)クリック時の遷移先: 未ログインならトップ、ログイン済みならアプリ本体
+  (function(){
+    var brandLink = document.querySelector("header .brand");
+    if (brandLink) brandLink.href = (localStorage.getItem("hs_loggedIn") === "1") ? "./highlight-studio-03-app.html" : "./index.html";
+  })();
+</script>
+</body>
+</html>

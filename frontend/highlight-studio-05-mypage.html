@@ -1,0 +1,990 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Highlight Studio — マイページ</title>
+<meta name="description" content="Highlight Studioのアカウント情報、プラン、書き出し履歴を確認・管理できます。">
+<meta name="theme-color" content="#07080C">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'%3E%3Crect x='2' y='11' width='3' height='6' rx='1' fill='%235A6373'/%3E%3Crect x='7' y='6' width='3' height='16' rx='1' fill='%238891A0'/%3E%3Crect x='12' y='9' width='3' height='10' rx='1' fill='%23E8B84B'/%3E%3Crect x='17' y='4' width='3' height='20' rx='1' fill='%238891A0'/%3E%3Crect x='22' y='12' width='2' height='4' rx='1' fill='%235A6373'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+<link rel="manifest" href="./site.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Highlight Studio">
+<meta property="og:locale" content="ja_JP">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#07080C;--surface:#0E1119;--surface2:#161A24;--surface3:#1D2230;
+    --line:rgba(255,255,255,.08);--line-soft:rgba(255,255,255,.05);--line-strong:rgba(255,255,255,.14);
+    --text:#EDEFF2;--text-dim:#8891A0;--text-faint:#7E88A0;
+    --accent:#E8B84B;--accent-hi:#F3CA6C;--accent-soft:#3A331F;--accent-line:#5C4E28;
+    --live:#4FD1C5;--live-soft:#152B2A;--danger:#E2685A;--danger-soft:#2A1815;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+    --shadow-md:0 1px 1px rgba(0,0,0,.5), 0 16px 32px -16px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.03);
+    --shadow-card:0 1px 0 rgba(255,255,255,.02) inset, 0 20px 40px -24px rgba(0,0,0,.85);
+    --card-border:linear-gradient(160deg, rgba(255,255,255,.10), rgba(255,255,255,.02) 40%, rgba(255,255,255,.02) 60%, rgba(255,255,255,.06));
+    --ease:cubic-bezier(.25,.8,.4,1);
+    --sans:'Noto Sans JP',-apple-system,'Hiragino Sans',sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;}
+  @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+  html,body{margin:0;padding:0;}
+  body{color-scheme:dark;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased;}
+  body::before{
+    content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse 900px 500px at 50% -10%, rgba(232,184,75,0.05), transparent 60%),
+      radial-gradient(ellipse 700px 400px at 100% 0%, rgba(79,209,197,0.03), transparent 60%);
+    pointer-events:none;
+  }
+  body::after{
+    content:'';position:fixed;inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+    opacity:.025;mix-blend-mode:overlay;pointer-events:none;
+  }
+  a{color:var(--accent);}
+  button{font:inherit;}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px;}
+
+  header{
+    display:flex;align-items:center;justify-content:space-between;padding:18px 28px;
+    border-bottom:1px solid var(--line-soft);background:linear-gradient(180deg, rgba(18,22,31,.6), transparent);
+    position:sticky;top:0;z-index:20;backdrop-filter:blur(10px);
+  }
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;}
+  .brand-mark{width:26px;height:26px;flex-shrink:0;filter:drop-shadow(0 2px 6px rgba(232,184,75,.25));}
+  .brand-name{font-size:1.02rem;font-weight:700;letter-spacing:0.01em;}
+  .brand-name b{color:var(--accent);font-weight:700;}
+  .header-right{display:flex;align-items:center;gap:14px;}
+  .lang-toggle{
+    background:none;border:1px solid var(--line);color:var(--text-dim);
+    font-family:var(--sans);font-size:0.8rem;border-radius:6px;padding:6px 12px;cursor:pointer;
+  }
+  .lang-toggle:hover{color:var(--text);border-color:var(--line-strong);}
+  .plan-pill{font-family:var(--mono);font-size:0.7rem;letter-spacing:.04em;color:var(--accent);border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:20px;padding:4px 11px;}
+  .avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(160deg,var(--surface3),var(--surface2));border:1px solid var(--line);box-shadow:inset 0 1px 0 rgba(255,255,255,.04);cursor:pointer;padding:0;}
+  .avatar-menu{position:relative;}
+  .avatar-dropdown{display:none;position:absolute;right:0;top:38px;background:var(--surface2);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow-md);min-width:160px;overflow:hidden;z-index:30;}
+  .avatar-dropdown .uname{padding:10px 14px;font-size:0.78rem;color:var(--text-dim);border-bottom:1px solid var(--line-soft);}
+  .avatar-dropdown button, .avatar-dropdown a{
+    display:block;width:100%;text-align:left;background:transparent;border:none;color:var(--text);
+    font-family:var(--sans);font-size:0.85rem;padding:10px 14px;cursor:pointer;text-decoration:none;
+    transition:background .12s ease;
+  }
+  .avatar-dropdown button:hover, .avatar-dropdown a:hover{background:var(--surface3);}
+
+  main{max-width:840px;margin:0 auto;padding:36px 28px 60px;}
+  .page-title{font-size:1.3rem;font-weight:700;margin:0 0 6px;}
+  .page-sub{color:var(--text-dim);font-size:0.88rem;margin:0 0 30px;}
+
+  .account-card{
+    display:flex;align-items:center;gap:18px;
+    background:linear-gradient(180deg,var(--surface),var(--surface2));
+    border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-bottom:34px;box-shadow:var(--shadow-card);
+    position:relative;
+  }
+  .account-card-actions{display:flex;gap:10px;flex-shrink:0;}
+  @media(max-width:520px){.account-card-actions{flex-direction:column;width:100%;}}
+  .account-card::before,.plan-card::before{
+    content:'';position:absolute;inset:0;border-radius:14px;padding:1px;pointer-events:none;
+    background:var(--card-border);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;
+  }
+  .account-avatar{width:56px;height:56px;border-radius:50%;flex-shrink:0;background:linear-gradient(160deg,var(--surface3),var(--surface2));border:1px solid var(--line-strong);display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:700;color:var(--accent);}
+  .account-info{flex:1;min-width:0;}
+  .account-name{font-size:1.05rem;font-weight:700;margin:0 0 3px;}
+  .account-email{font-size:0.83rem;color:var(--text-dim);margin:0;}
+  .account-meta{display:flex;gap:10px;margin-top:9px;flex-wrap:wrap;}
+  .meta-pill{font-family:var(--mono);font-size:0.72rem;color:var(--text-dim);border:1px solid var(--line);background:var(--surface2);border-radius:20px;padding:3px 10px;}
+  .btn{font-family:var(--sans);font-size:0.85rem;font-weight:600;border:none;border-radius:8px;padding:9px 16px;cursor:pointer;transition:background .15s ease,border-color .15s ease,transform .12s ease;white-space:nowrap;}
+  .btn-ghost{background:var(--surface2);color:var(--text-dim);border:1px solid var(--line);}
+  .btn-ghost:hover{background:var(--surface3);color:var(--text);border-color:var(--text-faint);}
+
+  .section-label{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .section-label h2{font-size:0.98rem;font-weight:700;margin:0;}
+  .section-label .count{font-family:var(--mono);font-size:0.76rem;color:var(--text-faint);}
+
+  .history-grid{display:flex;flex-direction:column;gap:12px;margin-bottom:40px;}
+  .history-card{
+    display:flex;gap:16px;border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--surface2);
+    box-shadow:var(--shadow-sm);transition:border-color .15s ease;
+  }
+  .history-card:hover{border-color:var(--text-faint);}
+  .history-thumb{
+    width:78px;height:122px;border-radius:7px;flex-shrink:0;
+    background:linear-gradient(160deg,#22293580,#12161F);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;color:var(--text-faint);
+  }
+  .history-thumb svg{width:22px;height:22px;}
+  .history-meta{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:6px;}
+  .history-title{font-size:0.92rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .history-sub{font-size:0.78rem;color:var(--text-faint);font-family:var(--mono);}
+  .history-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px;}
+  .history-tag{font-size:0.7rem;color:var(--text-dim);background:var(--surface3);border-radius:5px;padding:2px 7px;}
+  .history-actions{display:flex;align-items:center;gap:8px;}
+  .icon-btn{
+    width:34px;height:34px;border-radius:8px;background:var(--surface3);border:1px solid var(--line);color:var(--text-dim);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s ease;flex-shrink:0;
+  }
+  .icon-btn:hover{color:var(--text);border-color:var(--text-faint);}
+  .icon-btn.danger:hover{color:var(--danger);border-color:var(--danger);background:var(--danger-soft);}
+  .icon-btn svg{width:16px;height:16px;}
+
+  .empty-state{
+    text-align:center;padding:50px 20px;color:var(--text-faint);border:1px dashed var(--line-strong);border-radius:12px;
+    display:flex;flex-direction:column;align-items:center;gap:12px;
+  }
+  .empty-state svg{width:30px;height:30px;opacity:.5;}
+  .empty-state p{margin:0;font-size:0.88rem;}
+
+  /* 利用状況・プラン */
+  .plan-card{
+    background:linear-gradient(180deg,var(--surface),var(--surface2));
+    border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-bottom:34px;box-shadow:var(--shadow-card);
+    position:relative;
+  }
+  .plan-card-top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px;}
+  .plan-card-name{display:flex;align-items:center;gap:10px;}
+  .plan-card-name .pn{font-size:1.02rem;font-weight:700;}
+  .plan-card-desc{font-size:0.82rem;color:var(--text-dim);margin:2px 0 0;}
+  .usage-row{margin-bottom:14px;}
+  .usage-row:last-child{margin-bottom:0;}
+  .usage-row-top{display:flex;justify-content:space-between;font-size:0.82rem;color:var(--text-dim);margin-bottom:7px;}
+  .usage-row-top b{color:var(--text);font-weight:600;}
+  .usage-track{height:6px;border-radius:4px;background:var(--surface3);overflow:hidden;}
+  .usage-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent-hi));}
+  .usage-fill.near-limit{background:linear-gradient(90deg,var(--danger),#F0897C);}
+  .usage-note{font-size:0.76rem;color:var(--text-faint);margin-top:6px;}
+  .plan-card-actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;}
+
+  /* billing modal */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(4,5,8,.72);backdrop-filter:blur(3px);
+    display:none;align-items:center;justify-content:center;z-index:100;padding:20px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal-card{
+    width:100%;max-width:440px;background:linear-gradient(180deg,var(--surface),var(--surface) 60%,var(--surface2));
+    border:1px solid var(--line);border-radius:16px;padding:28px 26px 24px;box-shadow:var(--shadow-md);
+    animation:modalIn .2s var(--ease);
+  }
+  @keyframes modalIn{from{opacity:0;transform:translateY(8px) scale(.98);}to{opacity:1;transform:translateY(0) scale(1);}}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+  .modal-title{font-size:1.08rem;font-weight:700;margin:0;}
+  .modal-close{background:transparent;border:none;color:var(--text-faint);cursor:pointer;padding:4px;border-radius:6px;}
+  .modal-close:hover{color:var(--text);background:var(--surface2);}
+  .modal-close svg{width:18px;height:18px;}
+  .modal-sub{color:var(--text-dim);font-size:0.84rem;margin:0 0 20px;line-height:1.6;}
+  .card-row-empty{
+    display:flex;align-items:center;gap:12px;border:1px dashed var(--line-strong);border-radius:10px;
+    padding:16px;color:var(--text-faint);font-size:0.85rem;margin-bottom:18px;
+  }
+  .card-row-empty svg{width:20px;height:20px;flex-shrink:0;}
+  .modal-field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+  .modal-field label{font-size:0.78rem;color:var(--text-dim);}
+  .modal-field input{
+    background:var(--surface2);border:1px solid var(--line);color:var(--text);
+    border-radius:8px;padding:10px 12px;font-family:var(--sans);font-size:0.88rem;
+  }
+  .modal-field input:focus{border-color:var(--accent-line);background:var(--surface3);outline:none;}
+  .modal-row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .modal-demo-note{
+    margin-top:16px;padding:11px 13px;background:var(--surface2);border:1px dashed var(--line-strong);
+    border-radius:8px;font-size:0.76rem;color:var(--text-faint);line-height:1.6;
+  }
+  .modal-actions{display:flex;gap:10px;margin-top:18px;}
+  .modal-actions .btn{flex:1;}
+  .btn-danger{background:linear-gradient(180deg,#EA7A6C,var(--danger));color:#2A0E0A;}
+  .btn-danger:hover{filter:brightness(1.06);}
+  .btn-danger:disabled{background:var(--surface3);color:var(--text-faint);cursor:not-allowed;filter:none;}
+  .btn-ghost-danger{background:transparent;color:var(--danger);border:1px solid var(--danger-soft);}
+  .btn-ghost-danger:hover{background:var(--danger-soft);border-color:var(--danger);}
+
+  /* danger zone */
+  .danger-zone{
+    display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+    border:1px solid var(--danger-soft);background:rgba(226,104,90,.05);border-radius:14px;
+    padding:20px 22px;margin-bottom:40px;
+  }
+  .danger-zone-title{font-size:0.94rem;font-weight:700;margin:0 0 5px;color:var(--text);}
+  .danger-zone-desc{font-size:0.8rem;color:var(--text-dim);margin:0;max-width:520px;line-height:1.6;}
+  .checkbox-row{display:flex;align-items:flex-start;gap:10px;margin:18px 0 4px;padding:12px 13px;background:var(--surface2);border:1px solid var(--line);border-radius:8px;}
+  .checkbox-row input{margin-top:2px;flex-shrink:0;accent-color:var(--danger);width:16px;height:16px;}
+  .checkbox-row label{font-size:0.82rem;color:var(--text-dim);line-height:1.55;cursor:pointer;}
+  .delete-recap{list-style:none;margin:0 0 4px;padding:0;font-size:0.82rem;color:var(--text-dim);}
+  .delete-recap li{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line-soft);}
+  .delete-recap li:last-child{border-bottom:none;}
+  .delete-recap b{color:var(--text);font-weight:600;}
+
+  /* toast */
+  .toast{
+    position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(14px);
+    background:var(--surface3);border:1px solid var(--line-strong);color:var(--text);
+    padding:12px 18px;border-radius:10px;font-size:0.84rem;box-shadow:var(--shadow-md);
+    display:flex;align-items:center;gap:10px;z-index:200;opacity:0;pointer-events:none;
+    transition:opacity .2s var(--ease), transform .2s var(--ease);max-width:calc(100vw - 40px);
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast svg{width:16px;height:16px;flex-shrink:0;color:var(--live);}
+  .toast.toast-danger svg{color:var(--danger);}
+
+  @media(max-width:640px){
+    header{padding:14px 18px;}
+    main{padding:24px 18px 44px;}
+    .account-card{flex-wrap:wrap;}
+    .history-card{flex-direction:column;}
+    .history-thumb{width:100%;height:150px;}
+    .plan-card{padding:20px 18px;}
+    .plan-card-actions .btn{flex:1;min-width:140px;}
+    .modal-row-2{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="modal-overlay" id="billingModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 class="modal-title" data-i18n="mypage.billingTitle">お支払い方法を管理</h2>
+      <button class="modal-close" id="billingModalClose" data-i18n-aria-label="mypage.close" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <p class="modal-sub" data-i18n="mypage.billingSub">登録済みのクレジットカードはありません。カードを登録すると、有料プランへのアップグレードができます。</p>
+
+    <div class="card-row-empty" id="cardRowEmpty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+      <span data-i18n="mypage.billingNoCard">カード情報は登録されていません</span>
+    </div>
+
+    <div id="cardForm">
+      <div class="modal-field">
+        <label for="cardNumber" data-i18n="mypage.cardNumber">カード番号</label>
+        <input type="text" id="cardNumber" inputmode="numeric" placeholder="4242 4242 4242 4242" maxlength="19">
+      </div>
+      <div class="modal-row-2">
+        <div class="modal-field">
+          <label for="cardExpiry" data-i18n="mypage.cardExpiry">有効期限</label>
+          <input type="text" id="cardExpiry" placeholder="MM / YY" maxlength="7">
+        </div>
+        <div class="modal-field">
+          <label for="cardCvc" data-i18n="mypage.cardCvc">セキュリティコード</label>
+          <input type="text" id="cardCvc" inputmode="numeric" placeholder="CVC" maxlength="4">
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-demo-note" data-i18n="mypage.billingDemoNote">
+      デモ用のプロトタイプのため、実際の決済処理には接続されていません。入力内容はどこにも送信・保存されません。
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="billingCancelBtn" data-i18n="mypage.cancel">キャンセル</button>
+      <button class="btn btn-primary" id="billingSaveBtn" style="background:linear-gradient(180deg,var(--accent-hi),var(--accent));color:#1A1400;" data-i18n="mypage.billingSave">カードを登録する</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="profileModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 class="modal-title" data-i18n="mypage.profileTitle">プロフィールを編集</h2>
+      <button class="modal-close" id="profileModalClose" data-i18n-aria-label="mypage.close" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <p class="modal-sub" data-i18n="mypage.profileSub">表示名・メールアドレス・パスワードを変更できます。</p>
+
+    <div class="modal-field">
+      <label for="profileNameInput" data-i18n="mypage.displayName">表示名</label>
+      <input type="text" id="profileNameInput" autocomplete="nickname">
+    </div>
+    <div class="modal-field">
+      <label for="profileEmailInput" data-i18n="mypage.emailLabel">メールアドレス</label>
+      <input type="email" id="profileEmailInput" autocomplete="email">
+      <p class="field-note" style="font-size:0.74rem;color:var(--text-faint);margin:2px 0 0;" data-i18n="mypage.emailChangeNote">変更すると、確認のためのメールが新しいアドレス宛に送信されます(デモ環境では送信されません)。</p>
+    </div>
+    <div class="modal-row-2">
+      <div class="modal-field">
+        <label for="profileNewPw" data-i18n="mypage.newPassword">新しいパスワード</label>
+        <input type="password" id="profileNewPw" placeholder="変更しない場合は空欄" autocomplete="new-password" data-i18n-placeholder="mypage.newPasswordPlaceholder">
+      </div>
+      <div class="modal-field">
+        <label for="profileNewPwConfirm" data-i18n="mypage.newPasswordConfirm">新しいパスワード(確認)</label>
+        <input type="password" id="profileNewPwConfirm" placeholder="もう一度入力" autocomplete="new-password" data-i18n-placeholder="mypage.newPasswordConfirmPlaceholder">
+      </div>
+    </div>
+    <p class="field-error" id="profileError" style="display:none;color:var(--danger);font-size:0.78rem;margin:-6px 0 12px;"></p>
+
+    <div class="modal-demo-note" data-i18n="mypage.profileDemoNote">
+      デモ用のプロトタイプのため、この内容はお使いのブラウザ内にのみ保存されます。
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="profileCancelBtn" data-i18n="mypage.cancel">キャンセル</button>
+      <button class="btn btn-primary" id="profileSaveBtn" style="background:linear-gradient(180deg,var(--accent-hi),var(--accent));color:#1A1400;" data-i18n="mypage.save">保存する</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 class="modal-title" data-i18n="mypage.deleteClipTitle">書き出しを削除しますか?</h2>
+      <button class="modal-close" id="deleteModalClose" data-i18n-aria-label="mypage.close" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <p class="modal-sub" id="deleteModalSub">この操作は取り消せません。</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="deleteCancelBtn" data-i18n="mypage.cancel">キャンセル</button>
+      <button class="btn btn-danger" id="deleteConfirmBtn" data-i18n="mypage.deleteClipConfirm">削除する</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="deleteAccountModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 class="modal-title" data-i18n="mypage.deleteAccountTitle">アカウントを削除しますか?</h2>
+      <button class="modal-close" id="deleteAccountModalClose" data-i18n-aria-label="mypage.close" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <p class="modal-sub" data-i18n="mypage.deleteAccountSub">以下のデータが完全に削除され、元に戻すことはできません。</p>
+
+    <ul class="delete-recap">
+      <li><span data-i18n="mypage.recapLogin">ログイン情報</span><b id="recapAccount">-</b></li>
+      <li><span data-i18n="mypage.recapPlan">現在のプラン</span><b id="recapPlan">-</b></li>
+      <li><span data-i18n="mypage.recapHistory">書き出し履歴</span><b id="recapHistory">-</b></li>
+    </ul>
+
+    <div class="checkbox-row">
+      <input type="checkbox" id="deleteAccountAgree">
+      <label for="deleteAccountAgree" data-i18n="mypage.deleteAgree">上記の内容を理解し、このアカウントを完全に削除することに同意します。</label>
+    </div>
+
+    <div class="modal-demo-note" data-i18n="mypage.deleteAccountDemoNote">
+      デモ用のプロトタイプのため、実際にはこのブラウザに保存されたローカルデータ(ログイン状態・プラン設定)のみが削除されます。
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="deleteAccountCancelBtn" data-i18n="mypage.cancel">キャンセル</button>
+      <button class="btn btn-danger" id="deleteAccountConfirmBtn" disabled data-i18n="mypage.deleteAccountConfirm">完全に削除する</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+  <span id="toastMsg"></span>
+</div>
+
+<header>
+  <a class="brand" href="./highlight-studio-03-app.html">
+    <svg class="brand-mark" viewBox="0 0 26 26" fill="none">
+      <rect x="2" y="11" width="3" height="6" rx="1" fill="#5A6373"/>
+      <rect x="7" y="6" width="3" height="16" rx="1" fill="#8891A0"/>
+      <rect x="12" y="9" width="3" height="10" rx="1" fill="var(--accent)"/>
+      <rect x="17" y="4" width="3" height="20" rx="1" fill="#8891A0"/>
+      <rect x="22" y="12" width="2" height="4" rx="1" fill="#5A6373"/>
+    </svg>
+    <div class="brand-name">Highlight <b>Studio</b></div>
+  </a>
+  <div class="header-right">
+    <span class="plan-pill" id="headerPlanPill">無料</span>
+    <div class="avatar-menu">
+      <button id="avatarBtn" class="avatar" aria-haspopup="true" aria-expanded="false" data-i18n-aria-label="mypage.avatarMenu" aria-label="アカウントメニュー"></button>
+      <div id="avatarDropdown" class="avatar-dropdown">
+        <div class="uname" id="userNameLabel"></div>
+        <a href="./highlight-studio-03-app.html" data-i18n="mypage.backToApp">アプリに戻る</a>
+        <button id="logoutBtn" data-i18n="mypage.logout">ログアウト</button>
+      </div>
+    </div>
+    <button class="lang-toggle" data-i18n-lang-toggle aria-label="Switch to English">English</button>
+  </div>
+</header>
+
+<main>
+  <h1 class="page-title" data-i18n="mypage.title">マイページ</h1>
+  <p class="page-sub" data-i18n="mypage.subtitle">アカウント情報と、これまでに書き出したクリップを確認できます。</p>
+
+  <div class="account-card">
+    <div class="account-avatar" id="accountInitial">G</div>
+    <div class="account-info">
+      <p class="account-name" id="accountName">ゲスト</p>
+      <p class="account-email" id="accountEmail">未設定</p>
+      <div class="account-meta">
+        <span class="meta-pill" id="accountPlanPill">無料プラン</span>
+        <span class="meta-pill" id="accountCount">書き出し 0件</span>
+      </div>
+    </div>
+    <div class="account-card-actions">
+      <button class="btn btn-ghost" id="editProfileBtn" data-i18n="mypage.editProfile">プロフィールを編集</button>
+      <button class="btn btn-ghost" id="newProjectBtn" data-i18n="mypage.newClip">新しいクリップを作る</button>
+    </div>
+  </div>
+
+  <div class="plan-card">
+    <div class="plan-card-top">
+      <div class="plan-card-name">
+        <span class="pn" id="planName">無料プラン</span>
+        <span class="meta-pill" id="planPricePill">無料</span>
+      </div>
+      <div class="plan-card-desc" id="planDesc">テスト画質・月3本までの書き出しに対応しています。</div>
+    </div>
+
+    <div class="usage-row">
+      <div class="usage-row-top"><span data-i18n="mypage.usageLabel">今月の書き出し本数</span><b id="usageText">0 / 3本</b></div>
+      <div class="usage-track"><div class="usage-fill" id="usageFill" style="width:0%"></div></div>
+      <div class="usage-note" id="usageNote">毎月1日にリセットされます。</div>
+    </div>
+
+    <div class="plan-card-actions">
+      <button class="btn btn-primary" id="upgradeBtn" style="background:linear-gradient(180deg,var(--accent-hi),var(--accent));color:#1A1400;" data-i18n="mypage.viewPlans">プランを見る・変更する</button>
+      <button class="btn btn-ghost" id="billingBtn" data-i18n="mypage.manageBilling">お支払い方法を管理</button>
+    </div>
+  </div>
+
+  <div class="section-label">
+    <h2 data-i18n="mypage.historyTitle">書き出し履歴</h2>
+    <span class="count" id="historyCount">0件</span>
+  </div>
+
+  <div class="history-grid" id="historyGrid"></div>
+
+  <div class="empty-state" id="emptyState" style="display:none;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M10 18h4"/></svg>
+    <p data-i18n="mypage.emptyDesc">まだ書き出したクリップがありません。動画をアップロードして、最初のハイライトを作ってみましょう。</p>
+    <button class="btn btn-ghost" id="emptyStartBtn" data-i18n="mypage.emptyStart">アプリを開く</button>
+  </div>
+
+  <div class="section-label">
+    <h2 data-i18n="mypage.accountSettingsTitle">アカウント設定</h2>
+  </div>
+  <div class="danger-zone">
+    <div>
+      <p class="danger-zone-title" data-i18n="mypage.dangerTitle">アカウントを削除する</p>
+      <p class="danger-zone-desc" data-i18n="mypage.dangerDesc">退会すると、書き出し履歴・プラン情報を含むすべてのアカウントデータが削除されます。この操作は取り消せません。</p>
+    </div>
+    <button class="btn btn-ghost-danger" id="openDeleteAccountBtn" data-i18n="mypage.dangerBtn">アカウントを削除する</button>
+  </div>
+</main>
+
+<script src="./i18n-common.js"></script>
+<script>
+window.HS_I18N_DICT = {
+  "mypage.title": { ja: "マイページ", en: "My Page" },
+  "mypage.subtitle": { ja: "アカウント情報と、これまでに書き出したクリップを確認できます。", en: "Review your account details and the clips you've exported so far." },
+  "mypage.editProfile": { ja: "プロフィールを編集", en: "Edit profile" },
+  "mypage.newClip": { ja: "新しいクリップを作る", en: "Create a new clip" },
+  "mypage.usageLabel": { ja: "今月の書き出し本数", en: "Exports this month" },
+  "mypage.viewPlans": { ja: "プランを見る・変更する", en: "View or change plan" },
+  "mypage.manageBilling": { ja: "お支払い方法を管理", en: "Manage payment method" },
+  "mypage.historyTitle": { ja: "書き出し履歴", en: "Export history" },
+  "mypage.emptyDesc": { ja: "まだ書き出したクリップがありません。動画をアップロードして、最初のハイライトを作ってみましょう。", en: "You haven't exported any clips yet. Upload a video and create your first highlight." },
+  "mypage.emptyStart": { ja: "アプリを開く", en: "Open the app" },
+  "mypage.accountSettingsTitle": { ja: "アカウント設定", en: "Account settings" },
+  "mypage.dangerTitle": { ja: "アカウントを削除する", en: "Delete account" },
+  "mypage.dangerDesc": { ja: "退会すると、書き出し履歴・プラン情報を含むすべてのアカウントデータが削除されます。この操作は取り消せません。", en: "Closing your account permanently deletes all account data, including export history and plan information. This can't be undone." },
+  "mypage.dangerBtn": { ja: "アカウントを削除する", en: "Delete account" },
+  "mypage.billingTitle": { ja: "お支払い方法を管理", en: "Manage payment method" },
+  "mypage.close": { ja: "閉じる", en: "Close" },
+  "mypage.billingSub": { ja: "登録済みのクレジットカードはありません。カードを登録すると、有料プランへのアップグレードができます。", en: "No credit card on file yet. Add one to upgrade to a paid plan." },
+  "mypage.billingUpdateSub": { ja: "カードを更新すると、次回のお支払いから新しいカードが使用されます。", en: "Updating your card will apply it starting from your next payment." },
+  "mypage.billingNoCard": { ja: "カード情報は登録されていません", en: "No card on file" },
+  "mypage.billingCardRegistered": { ja: "登録済み: •••• •••• •••• {last4}", en: "On file: •••• •••• •••• {last4}" },
+  "mypage.cardNumber": { ja: "カード番号", en: "Card number" },
+  "mypage.cardExpiry": { ja: "有効期限", en: "Expiry date" },
+  "mypage.cardCvc": { ja: "セキュリティコード", en: "Security code" },
+  "mypage.billingDemoNote": { ja: "デモ用のプロトタイプのため、実際の決済処理には接続されていません。入力内容はどこにも送信・保存されません。", en: "This is a demo prototype and isn't connected to real payment processing. Nothing you enter is sent or stored anywhere." },
+  "mypage.cancel": { ja: "キャンセル", en: "Cancel" },
+  "mypage.billingSave": { ja: "カードを登録する", en: "Add card" },
+  "mypage.billingUpdate": { ja: "更新する", en: "Update" },
+  "mypage.profileTitle": { ja: "プロフィールを編集", en: "Edit profile" },
+  "mypage.profileSub": { ja: "表示名・メールアドレス・パスワードを変更できます。", en: "Change your display name, email address, or password." },
+  "mypage.displayName": { ja: "表示名", en: "Display name" },
+  "mypage.emailLabel": { ja: "メールアドレス", en: "Email address" },
+  "mypage.emailChangeNote": { ja: "変更すると、確認のためのメールが新しいアドレス宛に送信されます(デモ環境では送信されません)。", en: "Changing this sends a confirmation email to the new address (not actually sent in this demo)." },
+  "mypage.newPassword": { ja: "新しいパスワード", en: "New password" },
+  "mypage.newPasswordPlaceholder": { ja: "変更しない場合は空欄", en: "Leave blank to keep current" },
+  "mypage.newPasswordConfirm": { ja: "新しいパスワード(確認)", en: "Confirm new password" },
+  "mypage.newPasswordConfirmPlaceholder": { ja: "もう一度入力", en: "Re-enter password" },
+  "mypage.profileDemoNote": { ja: "デモ用のプロトタイプのため、この内容はお使いのブラウザ内にのみ保存されます。", en: "This is a demo prototype, so this information is only stored in your browser." },
+  "mypage.save": { ja: "保存する", en: "Save" },
+  "mypage.profileErrName": { ja: "表示名を入力してください。", en: "Please enter a display name." },
+  "mypage.profileErrEmail": { ja: "メールアドレスの形式が正しくありません。", en: "That email address doesn't look valid." },
+  "mypage.profileErrPwLen": { ja: "新しいパスワードは8文字以上で入力してください。", en: "New password must be at least 8 characters." },
+  "mypage.profileErrPwMatch": { ja: "新しいパスワードが一致しません。", en: "New passwords don't match." },
+  "mypage.profileUpdated": { ja: "プロフィールを更新しました。", en: "Profile updated." },
+  "mypage.profileUpdatedEmailChanged": { ja: "プロフィールを更新しました。新しいメールアドレス宛に確認メールを送信しました(デモ)。", en: "Profile updated. A confirmation email was sent to your new address (demo)." },
+  "mypage.deleteClipTitle": { ja: "書き出しを削除しますか?", en: "Delete this export?" },
+  "mypage.deleteClipConfirm": { ja: "削除する", en: "Delete" },
+  "mypage.deleteClipSub": { ja: "「{title}」を削除します。この操作は取り消せません。", en: "This will delete \u201c{title}\u201d. This can't be undone." },
+  "mypage.deleteClipToast": { ja: "書き出しを削除しました", en: "Export deleted" },
+  "mypage.deleteAccountTitle": { ja: "アカウントを削除しますか?", en: "Delete your account?" },
+  "mypage.deleteAccountSub": { ja: "以下のデータが完全に削除され、元に戻すことはできません。", en: "The data below will be permanently deleted and can't be recovered." },
+  "mypage.recapLogin": { ja: "ログイン情報", en: "Login info" },
+  "mypage.recapPlan": { ja: "現在のプラン", en: "Current plan" },
+  "mypage.recapHistory": { ja: "書き出し履歴", en: "Export history" },
+  "mypage.deleteAgree": { ja: "上記の内容を理解し、このアカウントを完全に削除することに同意します。", en: "I understand the above and agree to permanently delete this account." },
+  "mypage.deleteAccountDemoNote": { ja: "デモ用のプロトタイプのため、実際にはこのブラウザに保存されたローカルデータ(ログイン状態・プラン設定)のみが削除されます。", en: "This is a demo prototype, so only local data saved in this browser (login state, plan settings) is actually deleted." },
+  "mypage.deleteAccountConfirm": { ja: "完全に削除する", en: "Delete permanently" },
+  "mypage.avatarMenu": { ja: "アカウントメニュー", en: "Account menu" },
+  "mypage.backToApp": { ja: "アプリに戻る", en: "Back to app" },
+  "mypage.logout": { ja: "ログアウト", en: "Log out" },
+  "mypage.guestName": { ja: "ゲスト", en: "Guest" },
+  "mypage.emailUnset": { ja: "未設定", en: "Not set" },
+  "mypage.exportCountLabel": { ja: "書き出し {n}件", en: "{n} exports" },
+  "mypage.historyCountLabel": { ja: "{n}件", en: "{n}" },
+  "mypage.headerPlanFree": { ja: "無料", en: "Free" },
+  "mypage.usageResetNote": { ja: "毎月1日にリセットされます。", en: "Resets on the 1st of each month." },
+  "mypage.usageNearLimit": { ja: "もうすぐ上限です。", en: "You're near your monthly limit." },
+  "mypage.usageAtLimit": { ja: "上限に達しました。来月まで待つか、プランをアップグレードしてください。", en: "You've reached your limit. Wait until next month or upgrade your plan." },
+  "mypage.usageUnlimitedText": { ja: "{n}本(無制限プラン)", en: "{n} (unlimited plan)" },
+  "mypage.usageLimitedText": { ja: "{n} / {limit}本", en: "{n} / {limit}" },
+  "mypage.downloadToast": { ja: "ダウンロードを開始しました(デモ用のプレースホルダーファイル)", en: "Download started (demo placeholder file)" },
+  "mypage.downloadLabel": { ja: "ダウンロード", en: "Download" },
+  "mypage.deleteLabel": { ja: "削除", en: "Delete" },
+  "mypage.planFreeName": { ja: "無料プラン", en: "Free plan" },
+  "mypage.planFreePrice": { ja: "無料", en: "Free" },
+  "mypage.planFreeDesc": { ja: "テスト画質・月3本までの書き出しに対応しています。", en: "Test-quality exports, up to 3 per month." },
+  "mypage.planStandardName": { ja: "スタンダード", en: "Standard" },
+  "mypage.planStandardPrice": { ja: "¥980/月", en: "¥980/mo" },
+  "mypage.planStandardDesc": { ja: "本番画質・字幕スタイル全種・月30本まで書き出せます。", en: "Production quality, every caption style, up to 30 exports a month." },
+  "mypage.planProName": { ja: "プロ", en: "Pro" },
+  "mypage.planProPrice": { ja: "¥2,480/月", en: "¥2,480/mo" },
+  "mypage.planProDesc": { ja: "本番画質・高精度な音声認識モデル・書き出し本数の上限なし。", en: "Production quality, high-accuracy speech recognition, unlimited exports." },
+  "mypage.planAdfreeName": { ja: "無料", en: "Free" },
+  "mypage.planAdfreePrice": { ja: "無料(広告表示あり)", en: "Free (ad-supported)" },
+  "mypage.planAdfreeDesc": { ja: "本番画質・書き出し本数の上限なしでご利用いただけます。運営は広告収益で行っています。", en: "Full quality, unlimited exports. The service is supported by ads." },
+  "mypage.planAdminName": { ja: "管理者(デバッグ用)", en: "Admin (debug)" },
+  "mypage.planAdminPrice": { ja: "無料・無制限", en: "Free & unlimited" },
+  "mypage.planAdminDesc": { ja: "社内の動作確認用アカウントです。書き出し本数の上限はなく、課金は発生しません。", en: "An internal testing account. No export limit and no billing." }
+};
+</script>
+<script src="./i18n.js"></script>
+<!-- window.HS_API_BASEを設定した場合のみ実バックエンドに接続する(未設定時は従来のデモ動作)。 -->
+<script src="./api-client.js"></script>
+<script>
+  if(localStorage.getItem('hs_loggedIn') !== '1'){
+    window.location.href = './highlight-studio-02-auth.html';
+  }
+
+  const T = (key, vars) => {
+    let s = HS_I18N.t(key, HS_I18N.getLang()) || key;
+    if (vars) { Object.keys(vars).forEach(k => { s = s.replace('{' + k + '}', vars[k]); }); }
+    return s;
+  };
+
+  function refreshAccountDisplay(){
+    const name = localStorage.getItem('hs_userName') || T('mypage.guestName');
+    const email = localStorage.getItem('hs_userEmail') || T('mypage.emailUnset');
+    document.getElementById('userNameLabel').textContent = name;
+    document.getElementById('accountName').textContent = name;
+    document.getElementById('accountInitial').textContent = name.charAt(0).toUpperCase();
+    document.getElementById('accountEmail').textContent = email;
+  }
+  refreshAccountDisplay();
+
+  // デモ用の書き出し履歴データ(バックエンド未接続のためサンプル)
+  let historyItems = [
+    { id: 3, title: 'ラスト1体まで削り切ったクラッチ場面', date: '2026/09/04', len: '18秒', style: '顔出しカメラ型' },
+    { id: 2, title: 'ボス初見殺しに気づいた瞬間', date: '2026/09/02', len: '22秒', style: 'イラスト+テロップ型' },
+    { id: 1, title: '視聴者コメントに反応する場面', date: '2026/08/29', len: '15秒', style: '顔出しカメラ型' },
+  ];
+
+  const grid = document.getElementById('historyGrid');
+  const emptyState = document.getElementById('emptyState');
+
+  // ---- トースト通知 ----
+  const toastEl = document.getElementById('toast');
+  const toastMsg = document.getElementById('toastMsg');
+  let toastTimer = null;
+  function showToast(message, variant){
+    toastMsg.textContent = message;
+    toastEl.classList.toggle('toast-danger', variant === 'danger');
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toastEl.classList.remove('show'); }, 3200);
+  }
+
+  // ---- 利用状況・プラン ----
+  const PLAN_LIMITS = { free: 3, standard: 30, pro: Infinity, admin: Infinity, adfree: Infinity };
+  function getPlan(key){
+    return {
+      name: T('mypage.plan' + key.charAt(0).toUpperCase() + key.slice(1) + 'Name'),
+      price: T('mypage.plan' + key.charAt(0).toUpperCase() + key.slice(1) + 'Price'),
+      desc: T('mypage.plan' + key.charAt(0).toUpperCase() + key.slice(1) + 'Desc'),
+      limit: PLAN_LIMITS[key],
+    };
+  }
+  const currentPlanKey = 'adfree';
+  // 広告収益モデルへの移行に伴い、全ユーザーを無制限プラン扱いにしています。
+  // 有料プランを将来復活させる場合は、上の1行を消して下のコメントを解除してください。
+  // const currentPlanKey = (localStorage.getItem('hs_plan') || 'free') in PLAN_LIMITS ? (localStorage.getItem('hs_plan') || 'free') : 'free';
+  let plan = getPlan(currentPlanKey);
+  function renderPlanCard(){
+    plan = getPlan(currentPlanKey);
+    document.getElementById('planName').textContent = plan.name;
+    document.getElementById('planPricePill').textContent = plan.price;
+    document.getElementById('planDesc').textContent = plan.desc;
+    document.getElementById('headerPlanPill').textContent = currentPlanKey === 'free' ? T('mypage.headerPlanFree') : plan.name;
+    document.getElementById('accountPlanPill').textContent = plan.name;
+    updateUsageUI();
+  }
+  document.getElementById('planName').textContent = plan.name;
+  document.getElementById('planPricePill').textContent = plan.price;
+  document.getElementById('planDesc').textContent = plan.desc;
+  document.getElementById('headerPlanPill').textContent = currentPlanKey === 'free' ? T('mypage.headerPlanFree') : plan.name;
+  document.getElementById('accountPlanPill').textContent = plan.name;
+  if (currentPlanKey === 'admin' || currentPlanKey === 'adfree'){
+    // 管理者アカウント・広告収益モデルでは課金導線を表示しない
+    const upgradeBtnEl = document.getElementById('upgradeBtn');
+    const billingBtnEl = document.getElementById('billingBtn');
+    if (upgradeBtnEl) upgradeBtnEl.style.display = 'none';
+    if (billingBtnEl) billingBtnEl.style.display = 'none';
+  }
+
+  function currentMonthKey(){
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  }
+  function getTrackedExportCount(){
+    const savedMonth = localStorage.getItem('hs_exportMonth');
+    if (savedMonth !== currentMonthKey()) return 0;
+    return parseInt(localStorage.getItem('hs_exportCount') || '0', 10);
+  }
+
+  const usageFill = document.getElementById('usageFill');
+  const usageNote = document.getElementById('usageNote');
+  function updateUsageUI(){
+    const usageCount = getTrackedExportCount();
+    if (plan.limit === Infinity){
+      document.getElementById('usageText').textContent = T('mypage.usageUnlimitedText', { n: usageCount });
+      usageFill.style.width = '8%';
+      usageFill.classList.remove('near-limit');
+      usageNote.textContent = T('mypage.usageResetNote');
+    } else {
+      const ratio = Math.min(1, usageCount / plan.limit);
+      document.getElementById('usageText').textContent = T('mypage.usageLimitedText', { n: usageCount, limit: plan.limit });
+      usageFill.style.width = `${Math.round(ratio * 100)}%`;
+      usageFill.classList.toggle('near-limit', ratio >= 0.8);
+      if (ratio >= 1){ usageNote.textContent = T('mypage.usageAtLimit'); }
+      else if (ratio >= 0.8){ usageNote.textContent = T('mypage.usageNearLimit'); }
+      else { usageNote.textContent = T('mypage.usageResetNote'); }
+    }
+  }
+
+  document.getElementById('upgradeBtn').addEventListener('click', () => { window.location.href = './highlight-studio-06-pricing.html'; });
+  const billingModal = document.getElementById('billingModal');
+  function openBillingModal(){ billingModal.classList.add('open'); }
+  function closeBillingModal(){ billingModal.classList.remove('open'); }
+  document.getElementById('billingBtn').addEventListener('click', openBillingModal);
+  document.getElementById('billingModalClose').addEventListener('click', closeBillingModal);
+  document.getElementById('billingCancelBtn').addEventListener('click', closeBillingModal);
+  billingModal.addEventListener('click', (e) => { if (e.target === billingModal) closeBillingModal(); });
+
+  // ---- プロフィール編集 ----
+  const profileModal = document.getElementById('profileModal');
+  const profileNameInput = document.getElementById('profileNameInput');
+  const profileEmailInput = document.getElementById('profileEmailInput');
+  const profileNewPw = document.getElementById('profileNewPw');
+  const profileNewPwConfirm = document.getElementById('profileNewPwConfirm');
+  const profileError = document.getElementById('profileError');
+  function openProfileModal(){
+    profileNameInput.value = localStorage.getItem('hs_userName') || '';
+    profileEmailInput.value = localStorage.getItem('hs_userEmail') || '';
+    profileNewPw.value = '';
+    profileNewPwConfirm.value = '';
+    profileError.style.display = 'none';
+    profileModal.classList.add('open');
+  }
+  function closeProfileModal(){ profileModal.classList.remove('open'); }
+  document.getElementById('editProfileBtn').addEventListener('click', openProfileModal);
+  document.getElementById('profileModalClose').addEventListener('click', closeProfileModal);
+  document.getElementById('profileCancelBtn').addEventListener('click', closeProfileModal);
+  profileModal.addEventListener('click', (e) => { if (e.target === profileModal) closeProfileModal(); });
+
+  function validateEmailFormat(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+  document.getElementById('profileSaveBtn').addEventListener('click', async () => {
+    const name = profileNameInput.value.trim();
+    const email = profileEmailInput.value.trim();
+    const newPw = profileNewPw.value;
+    const newPwConfirm = profileNewPwConfirm.value;
+    let errorMsg = '';
+    if(!name){ errorMsg = T('mypage.profileErrName'); }
+    else if(!validateEmailFormat(email)){ errorMsg = T('mypage.profileErrEmail'); }
+    else if(newPw && newPw.length < 8){ errorMsg = T('mypage.profileErrPwLen'); }
+    else if(newPw !== newPwConfirm){ errorMsg = T('mypage.profileErrPwMatch'); }
+    if(errorMsg){
+      profileError.textContent = errorMsg;
+      profileError.style.display = 'block';
+      return;
+    }
+    const emailChanged = email !== (localStorage.getItem('hs_userEmail') || '');
+
+    // バックエンド接続時: 表示名・パスワードはAPIで更新する。
+    // メールアドレス変更は再確認フローが必要なため、バックエンド側は未対応(README参照)。
+    // このデモ画面上はこれまで通りlocalStorageにも反映しておく。
+    if(window.HSApi && HSApi.enabled){
+      const saveBtn = document.getElementById('profileSaveBtn');
+      saveBtn.disabled = true;
+      try{
+        const fields = { displayName: name };
+        if(newPw){ fields.password = newPw; }
+        await HSApi.updateProfile(fields);
+      }catch(err){
+        profileError.textContent = err.message;
+        profileError.style.display = 'block';
+        saveBtn.disabled = false;
+        return;
+      }
+      saveBtn.disabled = false;
+    }
+
+    localStorage.setItem('hs_userName', name);
+    localStorage.setItem('hs_userEmail', email);
+    refreshAccountDisplay();
+    closeProfileModal();
+    showToast(emailChanged ? T('mypage.profileUpdatedEmailChanged') : T('mypage.profileUpdated'));
+  });
+
+  const cardNumberInput = document.getElementById('cardNumber');
+  cardNumberInput.addEventListener('input', () => {
+    cardNumberInput.value = cardNumberInput.value.replace(/[^\d]/g,'').slice(0,16).replace(/(.{4})/g,'$1 ').trim();
+  });
+  const cardExpiryInput = document.getElementById('cardExpiry');
+  cardExpiryInput.addEventListener('input', () => {
+    let v = cardExpiryInput.value.replace(/[^\d]/g,'').slice(0,4);
+    if (v.length >= 3) v = v.slice(0,2) + ' / ' + v.slice(2);
+    cardExpiryInput.value = v;
+  });
+
+  ['cardNumber','cardExpiry','cardCvc'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', (e) => {
+      if(e.key === 'Enter'){ e.preventDefault(); document.getElementById('billingSaveBtn').click(); }
+    });
+  });
+
+  document.getElementById('billingSaveBtn').addEventListener('click', () => {
+    const cardCvcInput = document.getElementById('cardCvc');
+    [cardNumberInput, cardExpiryInput, cardCvcInput].forEach(el => el.style.borderColor = '');
+
+    if (cardNumberInput.value.replace(/\s/g,'').length < 12){
+      cardNumberInput.style.borderColor = 'var(--danger)';
+      return;
+    }
+    const expMatch = cardExpiryInput.value.match(/^(\d{2})\s*\/\s*(\d{2})$/);
+    if (!expMatch){
+      cardExpiryInput.style.borderColor = 'var(--danger)';
+      return;
+    }
+    const expMonth = parseInt(expMatch[1], 10);
+    const expYear = 2000 + parseInt(expMatch[2], 10);
+    const now = new Date();
+    const isPast = expMonth < 1 || expMonth > 12 || expYear < now.getFullYear() ||
+      (expYear === now.getFullYear() && expMonth < now.getMonth() + 1);
+    if (isPast){
+      cardExpiryInput.style.borderColor = 'var(--danger)';
+      return;
+    }
+    if (cardCvcInput.value.replace(/\D/g,'').length < 3){
+      cardCvcInput.style.borderColor = 'var(--danger)';
+      return;
+    }
+    const last4 = cardNumberInput.value.replace(/\s/g,'').slice(-4);
+    document.getElementById('cardRowEmpty').innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+      <span style="color:var(--text);">${T('mypage.billingCardRegistered', { last4: last4 })}</span>`;
+    document.getElementById('cardRowEmpty').style.borderStyle = 'solid';
+    document.getElementById('cardRowEmpty').style.borderColor = 'var(--line)';
+    billingModal.querySelector('.modal-sub').textContent = T('mypage.billingUpdateSub');
+    document.getElementById('cardForm').style.display = 'none';
+    document.getElementById('billingSaveBtn').textContent = T('mypage.billingUpdate');
+    setTimeout(closeBillingModal, 700);
+  });
+
+  // ---- ダウンロード(デモ用プレースホルダーファイルを生成) ----
+  function slugify(text){
+    return text.replace(/[^\w\u3040-\u30ff\u3400-\u9fff]+/g, '-').replace(/^-+|-+$/g, '') || 'clip';
+  }
+  function downloadClip(item){
+    const content =
+      `Highlight Studio — 書き出しファイル(デモ)\n\n` +
+      `タイトル: ${item.title}\n` +
+      `日付: ${item.date}\n` +
+      `長さ: ${item.len}\n` +
+      `スタイル: ${item.style}\n\n` +
+      `このファイルはプロトタイプのデモ用ダミーデータです。実際の動画は含まれていません。`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `highlightstudio-${slugify(item.title)}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showToast(T('mypage.downloadToast'));
+  }
+
+  // ---- 削除確認モーダル ----
+  const deleteModal = document.getElementById('deleteModal');
+  const deleteModalSub = document.getElementById('deleteModalSub');
+  let pendingDeleteId = null;
+  function openDeleteModal(item){
+    pendingDeleteId = item.id;
+    deleteModalSub.textContent = T('mypage.deleteClipSub', { title: item.title });
+    deleteModal.classList.add('open');
+  }
+  function closeDeleteModal(){
+    deleteModal.classList.remove('open');
+    pendingDeleteId = null;
+  }
+  document.getElementById('deleteModalClose').addEventListener('click', closeDeleteModal);
+  document.getElementById('deleteCancelBtn').addEventListener('click', closeDeleteModal);
+  deleteModal.addEventListener('click', (e) => { if (e.target === deleteModal) closeDeleteModal(); });
+  document.getElementById('deleteConfirmBtn').addEventListener('click', () => {
+    if (pendingDeleteId === null) return;
+    historyItems = historyItems.filter((it) => it.id !== pendingDeleteId);
+    closeDeleteModal();
+    renderHistory();
+    showToast(T('mypage.deleteClipToast'), 'danger');
+  });
+
+  // ---- 履歴一覧の描画 ----
+  function renderHistory(){
+    grid.innerHTML = '';
+    document.getElementById('historyCount').textContent = T('mypage.historyCountLabel', { n: historyItems.length });
+    document.getElementById('accountCount').textContent = T('mypage.exportCountLabel', { n: historyItems.length });
+    updateUsageUI();
+
+    if (historyItems.length === 0){
+      emptyState.style.display = 'flex';
+      return;
+    }
+    emptyState.style.display = 'none';
+
+    historyItems.forEach((item) => {
+      const card = document.createElement('div');
+      card.className = 'history-card';
+      card.innerHTML = `
+        <div class="history-thumb">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m8 5 10 7-10 7V5Z"/></svg>
+        </div>
+        <div class="history-meta">
+          <div class="history-title">${item.title}</div>
+          <div class="history-sub">${item.date}・${item.len}</div>
+          <div class="history-tags"><span class="history-tag">${item.style}</span></div>
+        </div>
+        <div class="history-actions">
+          <button class="icon-btn" title="${T('mypage.downloadLabel')}" aria-label="${T('mypage.downloadLabel')}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"/><path d="m7 10 5 5 5-5"/><path d="M4 19h16"/></svg>
+          </button>
+          <button class="icon-btn danger" title="${T('mypage.deleteLabel')}" aria-label="${T('mypage.deleteLabel')}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M6 7v13a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg>
+          </button>
+        </div>`;
+      card.querySelector('.icon-btn:not(.danger)').addEventListener('click', () => downloadClip(item));
+      card.querySelector('.icon-btn.danger').addEventListener('click', () => openDeleteModal(item));
+      grid.appendChild(card);
+    });
+  }
+  renderHistory();
+
+  const avatarBtn = document.getElementById('avatarBtn');
+  const avatarDropdown = document.getElementById('avatarDropdown');
+  avatarBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = avatarDropdown.style.display === 'block';
+    avatarDropdown.style.display = open ? 'none' : 'block';
+    avatarBtn.setAttribute('aria-expanded', String(!open));
+  });
+  document.addEventListener('click', () => { avatarDropdown.style.display = 'none'; });
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('hs_loggedIn');
+    localStorage.removeItem('hs_userName');
+    localStorage.removeItem('hs_plan');
+    localStorage.removeItem('hs_isAdmin');
+    localStorage.removeItem('hs_exportMonth');
+    localStorage.removeItem('hs_exportCount');
+    window.location.href = './highlight-studio-02-auth.html';
+  });
+
+  document.getElementById('newProjectBtn').addEventListener('click', () => { window.location.href = './highlight-studio-03-app.html'; });
+  document.getElementById('emptyStartBtn').addEventListener('click', () => { window.location.href = './highlight-studio-03-app.html'; });
+
+  // ---- アカウント削除(退会) ----
+  const deleteAccountModal = document.getElementById('deleteAccountModal');
+  const deleteAccountAgree = document.getElementById('deleteAccountAgree');
+  const deleteAccountConfirmBtn = document.getElementById('deleteAccountConfirmBtn');
+
+  function openDeleteAccountModal(){
+    document.getElementById('recapAccount').textContent = localStorage.getItem('hs_userName') || T('mypage.guestName');
+    document.getElementById('recapPlan').textContent = plan.name;
+    document.getElementById('recapHistory').textContent = T('mypage.historyCountLabel', { n: historyItems.length });
+    deleteAccountAgree.checked = false;
+    deleteAccountConfirmBtn.disabled = true;
+    deleteAccountModal.classList.add('open');
+  }
+  function closeDeleteAccountModal(){ deleteAccountModal.classList.remove('open'); }
+
+  document.getElementById('openDeleteAccountBtn').addEventListener('click', openDeleteAccountModal);
+  document.getElementById('deleteAccountModalClose').addEventListener('click', closeDeleteAccountModal);
+  document.getElementById('deleteAccountCancelBtn').addEventListener('click', closeDeleteAccountModal);
+  deleteAccountModal.addEventListener('click', (e) => { if (e.target === deleteAccountModal) closeDeleteAccountModal(); });
+
+  deleteAccountAgree.addEventListener('change', () => {
+    deleteAccountConfirmBtn.disabled = !deleteAccountAgree.checked;
+  });
+
+  deleteAccountConfirmBtn.addEventListener('click', () => {
+    if (!deleteAccountAgree.checked) return;
+    localStorage.removeItem('hs_loggedIn');
+    localStorage.removeItem('hs_userName');
+    localStorage.removeItem('hs_plan');
+    localStorage.removeItem('hs_isAdmin');
+    localStorage.removeItem('hs_exportMonth');
+    localStorage.removeItem('hs_exportCount');
+    sessionStorage.setItem('hs_accountDeleted', '1');
+    window.location.href = './index.html';
+  });
+
+  // Escapeキーで開いているモーダルを閉じる
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+  });
+
+  // モーダル表示中は背景のスクロールをロック
+  const modalOverlays = document.querySelectorAll('.modal-overlay');
+  const syncBodyScrollLock = () => {
+    const anyOpen = Array.from(modalOverlays).some(m => m.classList.contains('open'));
+    document.body.style.overflow = anyOpen ? 'hidden' : '';
+  };
+  modalOverlays.forEach(m => {
+    new MutationObserver(syncBodyScrollLock).observe(m, { attributes: true, attributeFilter: ['class'] });
+  });
+
+  // ---- 言語切り替え時、JSで直接書き込んでいる箇所を再描画 ----
+  document.addEventListener('hs:langchange', () => {
+    refreshAccountDisplay();
+    renderPlanCard();
+    renderHistory();
+  });
+</script>
+<script>
+  // ロゴ(左上のタイトル)クリック時の遷移先: 未ログインならトップ、ログイン済みならアプリ本体
+  (function(){
+    var brandLink = document.querySelector("header .brand");
+    if (brandLink) brandLink.href = (localStorage.getItem("hs_loggedIn") === "1") ? "./highlight-studio-03-app.html" : "./index.html";
+  })();
+</script>
+</body>
+</html>
